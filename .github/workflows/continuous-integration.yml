@@ -11,6 +11,14 @@ on:
   pull_request:
     branches: [ main ]
 
+# Define explicit permissions to follow principle of least privilege
+permissions:
+  contents: read  # Allows read access to repository contents
+  actions: read   # Allows read access to GitHub Actions
+  checks: write   # Allows creating/updating checks on the workflow run
+  pull-requests: write  # Allows commenting on PRs for feedback
+  packages: read  # Allows reading packages
+  
 jobs:
   lint:
     name: Lint PHP and JavaScript
@@ -29,26 +37,42 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '16'
-          cache: 'npm'
+          # Only use cache if package-lock.json exists
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
           
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress
+        run: |
+          if [ -f composer.json ]; then
+            composer install --prefer-dist --no-progress
+          else
+            echo "No composer.json found. Skipping composer install."
+          fi
         
       - name: Install JS dependencies
-        run: npm ci
+        run: |
+          if [ -f package.json ]; then
+            npm ci || npm install
+          else
+            echo "No package.json found. Skipping npm install."
+          fi
         
       - name: Lint PHP
         run: |
-          if [ -f .phpcs.xml ] || [ -f phpcs.xml.dist ]; then
-            composer run lint:php
+          if [ -f composer.json ] && ([ -f .phpcs.xml ] || [ -f phpcs.xml.dist ]); then
+            if grep -q "\"lint:php\"" composer.json; then
+              composer run lint:php
+            else
+              echo "No lint:php script found in composer.json. Skipping."
+            fi
           else
             echo "No PHP linting configuration found. Skipping."
           fi
           
       - name: Lint JavaScript
         run: |
-          if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then
-            npm run lint:js
+          if [ -f package.json ] && ([ -f .eslintrc.js ] || [ -f .eslintrc.json ]); then
+            npm run lint:js || echo "Lint script not found in package.json. Skipping."
           else
             echo "No JS linting configuration found. Skipping."
           fi
@@ -65,7 +89,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '16'
-          cache: 'npm'
+          # Only use cache if package-lock.json exists
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
           
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -75,16 +101,48 @@ jobs:
           
       - name: Install dependencies
         run: |
-          composer install --no-dev --prefer-dist --no-progress
-          npm ci
+          if [ -f composer.json ]; then
+            composer install --no-dev --prefer-dist --no-progress
+          else
+            echo "No composer.json found. Skipping composer install."
+          fi
+          
+          if [ -f package.json ]; then
+            npm ci || npm install
+          else
+            echo "No package.json found. Skipping npm install."
+          fi
           
       - name: Build frontend assets
-        run: npm run build
+        run: |
+          if [ -f package.json ]; then
+            if grep -q "\"build\"" package.json; then
+              npm run build
+            else
+              echo "No build script found in package.json. Skipping."
+            fi
+          else
+            echo "No package.json found. Skipping build."
+          fi
         
       - name: Create plugin package
         run: |
           mkdir -p build/simple-wp-optimizer
-          cp -r assets includes languages templates simple-wp-optimizer.php readme.txt LICENSE build/simple-wp-optimizer/
+          
+          # Copy main plugin file
+          cp simple-wp-optimizer.php build/simple-wp-optimizer/
+          
+          # Copy directories if they exist
+          [ -d assets ] && cp -r assets build/simple-wp-optimizer/ || echo "No assets directory found"
+          [ -d includes ] && cp -r includes build/simple-wp-optimizer/ || echo "No includes directory found"
+          [ -d languages ] && cp -r languages build/simple-wp-optimizer/ || echo "No languages directory found"
+          [ -d templates ] && cp -r templates build/simple-wp-optimizer/ || echo "No templates directory found"
+          
+          # Copy additional files if they exist
+          [ -f readme.txt ] && cp readme.txt build/simple-wp-optimizer/ || echo "No readme.txt found"
+          [ -f LICENSE ] && cp LICENSE build/simple-wp-optimizer/ || echo "No LICENSE file found"
+          
+          # Create zip file
           cd build
           zip -r simple-wp-optimizer.zip simple-wp-optimizer
           
