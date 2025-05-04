@@ -102,6 +102,10 @@ jobs:
       - name: Setup WordPress Test Environment
         if: steps.check-test-env.outputs.test_env_ready == 'true'
         run: |
+          if mysql -u root -h 127.0.0.1 -e "USE wordpress_test;" 2>/dev/null; then
+            echo "Database 'wordpress_test' already exists. Dropping it first."
+            mysql -u root -h 127.0.0.1 -e "DROP DATABASE wordpress_test;"
+          fi
           bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 ${{ matrix.wordpress }}
       
       - name: Run tests
