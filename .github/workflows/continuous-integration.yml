@@ -33,13 +33,25 @@ jobs:
           php-version: '8.0'
           tools: composer:v2, phpcs
           
+      - name: Check for package-lock.json
+        id: check-lockfile
+        run: |
+          if [ -f "package-lock.json" ]; then
+            echo "lockfile_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "lockfile_exists=false" >> $GITHUB_OUTPUT
+            echo "package-lock.json not found. Caching will be skipped."
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '16'
-          # Only use cache if package-lock.json exists
-          cache: npm
-          cache-dependency-path: '**/package-lock.json'
+          # Use conditional caching based on package-lock.json existence
+          cache: ${{ steps.check-lockfile.outputs.lockfile_exists == 'true' && 'npm' || '' }}
+          cache-dependency-path: |
+            **/package-lock.json
+            !**/node_modules/
           
       - name: Install PHP dependencies
         run: |
@@ -85,13 +97,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
+      - name: Check for package-lock.json in build
+        id: check-lockfile-build
+        run: |
+          if [ -f "package-lock.json" ]; then
+            echo "lockfile_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "lockfile_exists=false" >> $GITHUB_OUTPUT
+            echo "package-lock.json not found. Caching will be skipped."
+          fi
+        
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '16'
-          # Only use cache if package-lock.json exists
-          cache: npm
-          cache-dependency-path: '**/package-lock.json'
+          # Use conditional caching based on package-lock.json existence
+          cache: ${{ steps.check-lockfile-build.outputs.lockfile_exists == 'true' && 'npm' || '' }}
+          cache-dependency-path: |
+            **/package-lock.json
+            !**/node_modules/
           
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
