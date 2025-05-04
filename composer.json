@@ -19,6 +19,11 @@
     "wp-coding-standards/wpcs": "^2.3",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1"
   },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
   "scripts": {
     "test": "phpunit",
     "phpcs": "phpcs --standard=WordPress",
