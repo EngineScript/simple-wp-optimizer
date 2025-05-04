@@ -1,0 +1,32 @@
+# This workflow automatically posts a guidance comment on new issues.
+# It provides instructions to help users submit detailed information about their
+# WordPress environment and the issue they're experiencing with the Simple WP Optimizer plugin.
+# This helps maintainers diagnose and fix issues more efficiently.
+
+name: Issue Guidance
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  guide:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post guidance comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            Thanks for opening an issue. Please provide a detailed description of the problem you're facing. If you have error messages or logs, please include them as well.
+
+            To help us diagnose the issue, please include:
+            - WordPress version
+            - PHP version
+            - List of other plugins you're using
+            - Steps to reproduce the issue
+            - What you expected to happen vs. what actually happened

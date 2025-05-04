@@ -1,0 +1,119 @@
+# This workflow automates the release process for the Simple WP Optimizer plugin.
+# It extracts the version number from the main plugin file, checks if a release already exists,
+# creates a zip file with the plugin contents, extracts release notes from the changelog,
+# creates a GitHub release with the zip file attached, and updates version references in the README.
+# The workflow is triggered on pushes to main/master branches or can be manually triggered.
+
+name: Create Release
+
+on:
+  push:
+    # Trigger on pushes to main or master branch
+    branches: [ main, master ]
+  # Allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  discussions: write
+
+jobs:
+  check-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest version
+        id: get_version
+        run: |
+          VERSION=$(grep -oP "Version: \K[0-9]+\.[0-9]+\.[0-9]+" simple-wp-optimizer.php)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Found version: $VERSION"
+
+      - name: Check if release exists
+        id: check_release
+        run: |
+          RELEASE_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ steps.get_version.outputs.version }})
+          if [[ "$RELEASE_EXISTS" == "200" ]]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Release v${{ steps.get_version.outputs.version }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Release v${{ steps.get_version.outputs.version }} does not exist yet"
+          fi
+
+      - name: Create zip file
+        if: steps.check_release.outputs.exists == 'false'
+        run: |
+          mkdir -p simple-wp-optimizer
+          cp simple-wp-optimizer.php simple-wp-optimizer/
+          cp README.md simple-wp-optimizer/
+          cp CHANGELOG.md simple-wp-optimizer/
+          cp LICENSE simple-wp-optimizer/ || echo "No LICENSE file found"
+          zip -r simple-wp-optimizer-${{ steps.get_version.outputs.version }}.zip simple-wp-optimizer
+
+      - name: Get changelog entry
+        if: steps.check_release.outputs.exists == 'false'
+        id: get_changelog
+        run: |
+          CHANGELOG_ENTRY=$(awk -v ver="## ${{ steps.get_version.outputs.version }}" 'BEGIN{flag=0} $0~ver{flag=1; print; next} /^## [0-9]+\.[0-9]+\.[0-9]+/{flag=0} flag{print}' CHANGELOG.md | tail -n +2)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_ENTRY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        if: steps.check_release.outputs.exists == 'false'
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          body: |
+            ${{ steps.get_changelog.outputs.changelog }}
+            
+            ## Installation
+            1. Download the zip file
+            2. Upload to your WordPress site through the Plugins > Add New > Upload menu
+            3. Activate the plugin
+            
+            [Full Documentation](https://github.com/${{ github.repository }})
+          files: simple-wp-optimizer-${{ steps.get_version.outputs.version }}.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+
+      - name: Update README version
+        if: steps.check_release.outputs.exists == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          README_FILE="README.md"
+          TMP_FILE=$(mktemp)
+          
+          # Update the version badge with the new version and logo
+          sed -E 's/\[\!Version\]\(https:\/\/img\.shields\.io\/badge\/Version-[0-9]+\.[0-9]+\.[0-9]+-orange\.svg\?logo=github\)\]\(https:\/\/github\.com\/EngineScript\/Simple-WP-Optimizer\/releases\/latest\/download\/simple-wp-optimizer-[0-9]+\.[0-9]+\.[0-9]+\.zip\)/\[\!Version\]\(https:\/\/img\.shields\.io\/badge\/Version-'"$VERSION"'-orange\.svg\?logo=github\)\]\(https:\/\/github\.com\/EngineScript\/Simple-WP-Optimizer\/releases\/latest\/download\/simple-wp-optimizer-'"$VERSION"'\.zip\)/g' "$README_FILE" > "$TMP_FILE"
+          
+          # Replace file if changes were made
+          if ! cmp -s "$README_FILE" "$TMP_FILE"; then
+            cp "$TMP_FILE" "$README_FILE"
+            echo "Updated README.md with version $VERSION"
+            
+            # Configure git
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            
+            # Commit and push the changes
+            git add "$README_FILE"
+            git commit -m "docs: update README.md version to $VERSION [skip ci]"
+            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+            
+            echo "::notice::README.md updated with latest version $VERSION"
+          else
+            echo "::notice::README.md already has the correct version"
+          fi
+          
+          # Clean up temporary file
+          rm "$TMP_FILE"

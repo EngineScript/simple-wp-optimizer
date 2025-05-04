@@ -1,0 +1,52 @@
+# This workflow checks the quality of PHP code in the Simple WP Optimizer plugin.
+# It runs PHP_CodeSniffer to ensure adherence to WordPress coding standards,
+# performs PHP compatibility checks to ensure the plugin works across PHP versions,
+# and validates PHP syntax to catch errors before they reach production.
+# The workflow is triggered when PHP files are changed in pushes or pull requests.
+
+name: PHP Code Quality
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.php'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.php'
+
+jobs:
+  php-code-quality:
+    name: PHP Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: mbstring, intl, curl
+          tools: composer:v2, phpcs, wp-coding-standards
+          
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHP_CodeSniffer
+        run: |
+          if [ -f phpcs.xml ] || [ -f phpcs.xml.dist ]; then
+            ./vendor/bin/phpcs --standard=phpcs.xml || ./vendor/bin/phpcs --standard=phpcs.xml.dist
+          else
+            ./vendor/bin/phpcs --standard=WordPress-Core --extensions=php --ignore=vendor/,node_modules/ .
+          fi
+
+      - name: Run PHP Compatibility Check
+        run: |
+          ./vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.0- .
+
+      - name: Check PHP syntax
+        run: |
+          find . -type f -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" -print0 | xargs -0 -n1 php -l
