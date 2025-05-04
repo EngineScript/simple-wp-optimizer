@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: EngineScript: WP Optimization
+Plugin Name: EngineScript: Simple WP Optimization
 Description: Optimizes WordPress by removing unnecessary features and scripts
 Version: 1.5.4
 Author: EngineScript
@@ -46,7 +46,7 @@ if (!defined('ABSPATH')) {
 
 // Define plugin version
 if (!defined('ES_WP_OPTIMIZER_VERSION')) {
-    define('ES_WP_OPTIMIZER_VERSION', '1.5.3');
+    define('ES_WP_OPTIMIZER_VERSION', '1.5.4');
 }
 
 /**
