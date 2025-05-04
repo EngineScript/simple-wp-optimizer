@@ -11,6 +11,13 @@
 class OptimizerTest extends WP_UnitTestCase {
 
 	/**
+	 * Test plugin version constant is defined.
+	 */
+	public function test_version_constant() {
+		$this->assertTrue( defined( 'ES_WP_OPTIMIZER_VERSION' ) );
+	}
+
+	/**
 	 * Test optimizer functionality.
 	 */
 	public function test_optimizer_functions() {

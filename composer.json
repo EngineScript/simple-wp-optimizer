@@ -25,8 +25,8 @@
     }
   },
   "scripts": {
-    "test": "phpunit",
-    "phpcs": "phpcs --standard=WordPress",
-    "phpcbf": "phpcbf --standard=WordPress"
+    "test": "vendor/bin/phpunit",
+    "phpcs": "vendor/bin/phpcs --standard=WordPress",
+    "phpcbf": "vendor/bin/phpcbf --standard=WordPress"
   }
 }

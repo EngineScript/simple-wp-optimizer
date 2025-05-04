@@ -14,7 +14,7 @@ class BasicTest extends WP_UnitTestCase {
 	 * A basic test to ensure the plugin is loaded.
 	 */
 	public function test_plugin_is_loaded() {
-		$this->assertTrue( function_exists( 'simple_wp_optimizer_init' ) );
+		$this->assertTrue( function_exists( 'es_optimizer_init_settings' ) );
 	}
 
 	/**
@@ -22,5 +22,15 @@ class BasicTest extends WP_UnitTestCase {
 	 */
 	public function test_testing_environment() {
 		$this->assertTrue( true );
+	}
+	
+	/**
+	 * Test that default options exist.
+	 */
+	public function test_default_options_exist() {
+		$this->assertTrue( function_exists( 'es_optimizer_get_default_options' ) );
+		$defaults = es_optimizer_get_default_options();
+		$this->assertIsArray( $defaults );
+		$this->assertArrayHasKey( 'disable_emojis', $defaults );
 	}
 }
