@@ -80,7 +80,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y subversion jq bc
       
-      # Robust PHPUnit installation
+      # Robust PHPUnit installation with enhanced error handling
       - name: Verify and Install PHPUnit
         run: |
           echo "Installing PHPUnit for PHP ${{ matrix.php }}"
@@ -91,38 +91,57 @@ jobs:
           # Remove any existing lock file to ensure clean install
           rm -f composer.lock
           
+          # Setup environment information for debugging
+          echo "::notice::Debugging environment variables:"
+          echo "PHP Version: $PHP_VERSION"
+          php -v
+          
+          # Configure platform version in composer.json for better dependency resolution
+          cp composer.json composer.json.backup
+          
           # For PHP 8.x, use PHPUnit 9.5
           if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
             echo "::notice::Using PHPUnit 9.5 for PHP $PHP_VERSION"
             
-            # Create a compatible composer.json for PHP 8.x
-            cp composer.json composer.json.backup
-            jq '.["require-dev"]["phpunit/phpunit"] = "^9.5"' composer.json.backup > composer.json.tmp1
-            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json.tmp1 > composer.json
+            # Configure platform and dependencies using multiple jq commands instead of heredoc
+            jq '.config.platform.php = "8.0.0"' composer.json.backup > composer.json.tmp1
+            jq '.["require-dev"]["phpunit/phpunit"] = "^9.5"' composer.json.tmp1 > composer.json.tmp2
+            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json.tmp2 > composer.json
             
             # Add PHP 8 specific test script if needed
             if [[ "$PHP_VERSION" == "8.2" ]]; then
-              jq '.config.platform.php = "8.1.99"' composer.json > composer.json.tmp2
-              jq '.scripts["test:php8"] = "php run-phpunit.php"' composer.json.tmp2 > composer.json
+              jq '.scripts["test:php8"] = "php run-phpunit.php"' composer.json > composer.json.tmp3
+              mv composer.json.tmp3 composer.json
             fi
             
-            # Install using the modified composer.json
-            composer update --no-progress --ignore-platform-reqs || {
-              echo "::warning::Composer update failed, trying direct require"
-              rm -rf vendor
+            # Install using direct require for more reliable installation
+            echo "::notice::Installing PHPUnit via direct require for PHP $PHP_VERSION"
+            composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
+              echo "::error::PHPUnit installation failed. Retrying with fallback method..."
+              # Fallback: try removing composer.lock and trying again
+              rm -f composer.lock
               composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
-                echo "::error::PHPUnit installation failed" 
+                echo "::error::PHPUnit installation failed on retry as well. Debugging composer error logs:"
+                cat composer.lock 2>/dev/null || echo "composer.lock not generated"
+                composer diagnose || echo "Composer diagnose command failed"
                 exit 1
               }
             }
           else
             # For PHP 7.x, use PHPUnit 7.5
             echo "::notice::Using PHPUnit 7.5 for PHP $PHP_VERSION"
-            composer update --no-progress || {
-              echo "::warning::Composer update failed, trying direct require"
-              rm -rf vendor
-              composer require --dev phpunit/phpunit:^7.5 yoast/phpunit-polyfills:^1.0 --no-progress || {
-                echo "::error::PHPUnit installation failed" 
+            
+            # Configure platform
+            jq '.config.platform.php = "7.4.0"' composer.json.backup > composer.json
+            
+            # Install using direct require for more reliable installation
+            composer require --dev phpunit/phpunit:^7.5 yoast/phpunit-polyfills:^1.0 --no-progress || {
+              echo "::warning::PHPUnit installation failed. Retrying with fallback method..."
+              # Fallback: try removing composer.lock and trying again
+              rm -f composer.lock
+              composer require --dev phpunit/phpunit:^7.5 yoast/phpunit-polyfills:^1.0 --no-progress --ignore-platform-reqs || {
+                echo "::error::PHPUnit installation failed on retry as well. Debugging composer error logs:"
+                composer diagnose || echo "Composer diagnose command failed"
                 exit 1
               }
             }
@@ -133,7 +152,8 @@ jobs:
           
           # Verify PHPUnit installation
           if [ ! -f "vendor/bin/phpunit" ]; then
-            echo "::error::PHPUnit installation unsuccessful."
+            echo "::error::PHPUnit installation unsuccessful. Cannot continue with tests."
+            ls -la vendor || echo "vendor directory not found or empty"
             exit 1
           fi
           

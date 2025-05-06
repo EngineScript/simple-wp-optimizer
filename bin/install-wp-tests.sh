@@ -43,10 +43,22 @@ echo "  WP_CORE_DIR: $WP_CORE_DIR"
 download() {
     if command -v curl >/dev/null 2>&1; then
         echo "Downloading $1 using curl..."
-        curl -s "$1" -o "$2" || { echo "Error: Failed to download $1"; exit 1; }
+        for i in {1..3}; do
+            curl -s "$1" -o "$2" && return 0
+            echo "Attempt $i failed, retrying in 3 seconds..."
+            sleep 3
+        done
+        echo "Error: Failed to download $1 after 3 attempts"
+        exit 1
     elif command -v wget >/dev/null 2>&1; then
         echo "Downloading $1 using wget..."
-        wget -nv -O "$2" "$1" || { echo "Error: Failed to download $1"; exit 1; }
+        for i in {1..3}; do
+            wget -nv -O "$2" "$1" && return 0
+            echo "Attempt $i failed, retrying in 3 seconds..."
+            sleep 3
+        done
+        echo "Error: Failed to download $1 after 3 attempts"
+        exit 1
     else
         echo "Error: Neither curl nor wget is available for downloads."
         exit 1
@@ -186,12 +198,6 @@ install_test_suite() {
 		exit 1
 	fi
 }
-		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/yourusernamehere/$DB_USER/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/yourpasswordhere/$DB_PASS/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
-	fi
 	
 	# Verify test environment was created successfully
 	if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
@@ -266,14 +272,3 @@ if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.ph
 fi
 
 echo "Success: WordPress test environment is ready."
-		echo "Error: Could not create database $DB_NAME."
-		echo "Please check your database credentials and permissions."
-		exit 1
-	fi
-	
-	echo "Database setup complete!"
-}
-
-install_wp
-install_test_suite
-install_db

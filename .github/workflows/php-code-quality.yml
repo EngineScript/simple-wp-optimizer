@@ -53,12 +53,21 @@ jobs:
 
       - name: Run PHP Code Beautifier and Fixer
         run: |
+          echo "Running PHP Code Beautifier and Fixer to automatically fix code style issues..."
           if [ -f phpcs.xml ] || [ -f phpcs.xml.dist ]; then
             # Try to fix code style issues automatically using the project's standards
             vendor/bin/phpcbf --standard=phpcs.xml || vendor/bin/phpcbf --standard=phpcs.xml.dist || true
           else
             # Use WordPress-Core standard if no phpcs config file exists
             vendor/bin/phpcbf --standard=WordPress-Core --extensions=php --ignore=vendor/,node_modules/ . || true
+          fi
+          
+          # Check if changes were made and output a summary
+          if git diff --name-only | grep -q "\.php$"; then
+            echo "PHPCBF fixed issues in the following files:"
+            git diff --name-only | grep "\.php$"
+          else
+            echo "No code style issues fixed by PHPCBF."
           fi
           # The '|| true' ensures the workflow continues even if phpcbf exits with non-zero code
 
@@ -101,7 +110,21 @@ jobs:
             exit 0
           fi
           
+          # Stage all PHP files that were modified
+          git add "*.php"
+          
+          # Commit with descriptive message including which coding standards were applied
+          if [ -f phpcs.xml ]; then
+            STANDARD="phpcs.xml"
+          elif [ -f phpcs.xml.dist ]; then
+            STANDARD="phpcs.xml.dist"
+          else
+            STANDARD="WordPress-Core"
+          fi
+          
           # Commit and push changes
-          git add .
-          git commit -m "Auto-fix code style issues with PHPCBF [skip ci]" || true
-          git push || true
+          git commit -m "Auto-fix code style issues with PHPCBF [standard: $STANDARD] [skip ci]" || true
+          git push || {
+            echo "::warning::Failed to push changes. This could be due to a race condition with other workflows."
+            echo "::warning::The code style fixes will still be available in this build."
+          }
