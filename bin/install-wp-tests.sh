@@ -14,6 +14,12 @@ if [ $# -lt 3 ]; then
 	exit 1
 fi
 
+# Check for missing dependencies before proceeding
+if ! command -v mysql >/dev/null 2>&1; then
+    echo "Error: MySQL client is not installed."
+    exit 1
+fi
+
 DB_NAME=$1
 DB_USER=$2
 DB_PASS=$3
@@ -35,10 +41,15 @@ echo "  WP_TESTS_DIR: $WP_TESTS_DIR"
 echo "  WP_CORE_DIR: $WP_CORE_DIR"
 
 download() {
-    if [ `which curl` ]; then
-        curl -s "$1" > "$2";
-    elif [ `which wget` ]; then
-        wget -nv -O "$2" "$1"
+    if command -v curl >/dev/null 2>&1; then
+        echo "Downloading $1 using curl..."
+        curl -s "$1" -o "$2" || { echo "Error: Failed to download $1"; exit 1; }
+    elif command -v wget >/dev/null 2>&1; then
+        echo "Downloading $1 using wget..."
+        wget -nv -O "$2" "$1" || { echo "Error: Failed to download $1"; exit 1; }
+    else
+        echo "Error: Neither curl nor wget is available for downloads."
+        exit 1
     fi
 }
 
@@ -63,17 +74,18 @@ elif [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 	WP_TESTS_TAG="trunk"
 	echo "Using WordPress trunk/nightly"
 else
-	# http serves a single offer, whereas https serves multiple. we only want one
-	echo "Determining latest WordPress version..."
-	download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
-	grep '[0-9]+\.[0-9]+(\.[0-9]+)?' /tmp/wp-latest.json
-	LATEST_VERSION=$(grep -o '"version":"[^"]*' /tmp/wp-latest.json | sed 's/"version":"//')
-	if [[ -z "$LATEST_VERSION" ]]; then
-		echo "Error: Latest WordPress version could not be found"
-		exit 1
+	# Fetch the latest WordPress version with fallback
+	if [[ $WP_VERSION == 'latest' ]]; then
+		echo "Determining the latest WordPress version..."
+		download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
+		LATEST_VERSION=$(grep -oP '"version":"\K[^"]+' /tmp/wp-latest.json | head -1)
+		if [[ -z "$LATEST_VERSION" ]]; then
+			echo "Error: Could not determine the latest WordPress version."
+			exit 1
+		fi
+		WP_TESTS_TAG="tags/$LATEST_VERSION"
+		echo "Using latest WordPress version: $LATEST_VERSION"
 	fi
-	WP_TESTS_TAG="tags/$LATEST_VERSION"
-	echo "Latest WordPress version: $LATEST_VERSION"
 fi
 set -ex
 
@@ -167,6 +179,31 @@ install_test_suite() {
 		sed $ioption "s/yourpasswordhere/$DB_PASS/" "$WP_TESTS_DIR"/wp-tests-config.php
 		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
 	fi
+	
+	# Verify test environment was created successfully
+	if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+		echo "Error: WordPress test environment setup failed. Missing required files."
+		exit 1
+	fi
+}
+		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s/yourusernamehere/$DB_USER/" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s/yourpasswordhere/$DB_PASS/" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
+	fi
+	
+	# Verify test environment was created successfully
+	if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+		echo "Error: WordPress test environment setup failed. Missing required files."
+		exit 1
+	fi
+}
+		sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s/yourusernamehere/$DB_USER/" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s/yourpasswordhere/$DB_PASS/" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
+	fi
 
 }
 
@@ -205,10 +242,30 @@ install_db() {
 
 	# create database
 	echo "Creating database $DB_NAME..."
-	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA || {
+		echo "Error: Failed to create database $DB_NAME. Check your credentials and permissions."
+		exit 1
+	}
 	
-	# Verify database was created successfully
-	if [ $? -ne 0 ]; then
+	echo "Database $DB_NAME created successfully."
+}
+
+echo "Starting WordPress test environment setup..."
+
+install_wp
+install_test_suite
+install_db
+
+echo "WordPress test environment setup complete."
+echo "Log file available at: $LOG_FILE"
+
+# Final verification of test environment
+if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+	echo "Error: WordPress test environment setup failed. Missing required files."
+	exit 1
+fi
+
+echo "Success: WordPress test environment is ready."
 		echo "Error: Could not create database $DB_NAME."
 		echo "Please check your database credentials and permissions."
 		exit 1

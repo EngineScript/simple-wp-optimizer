@@ -78,84 +78,68 @@ jobs:
       - name: Install SVN and jq
         run: |
           sudo apt-get update
-          sudo apt-get install -y subversion jq
+          sudo apt-get install -y subversion jq bc
       
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
-        with:
-          composer-options: "--prefer-dist --no-progress"
-        continue-on-error: true
-      
-      - name: Verify Composer installation
+      # Robust PHPUnit installation
+      - name: Verify and Install PHPUnit
         run: |
-          # Clean start - remove composer.lock to avoid cached dependency issues
-          rm -f composer.lock
+          echo "Installing PHPUnit for PHP ${{ matrix.php }}"
           
-          # Add bc command needed for version comparison
-          sudo apt-get install -y bc
-          
-          # Define PHP version variable for use in conditions
+          # Define PHP version for easier conditions
           PHP_VERSION="${{ matrix.php }}"
           
-          # Determine what PHPUnit version to use
+          # Remove any existing lock file to ensure clean install
+          rm -f composer.lock
+          
+          # For PHP 8.x, use PHPUnit 9.5
           if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
-            echo "::notice::Using PHP $PHP_VERSION, configuring for PHPUnit 9.x"
-            # Use jq to update phpunit requirement in composer.json
-            cp composer.json composer.json.bak
-            jq '.["require-dev"]["phpunit/phpunit"] = "^9.0"' composer.json.bak > composer.json
+            echo "::notice::Using PHPUnit 9.5 for PHP $PHP_VERSION"
             
-            # Also update yoast/phpunit-polyfills to latest
-            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json > composer.json.tmp
-            mv composer.json.tmp composer.json
-          else
-            echo "::notice::Using PHP $PHP_VERSION, keeping PHPUnit 7.5.x"
-            # No change needed for PHP 7.x
-          fi
-          
-          # Write a custom composer.json for PHP 8.2 to handle specific requirements
-          if [[ "$PHP_VERSION" == "8.2" ]]; then
-            echo "::notice::Using PHP 8.2, creating specialized composer configuration"
+            # Create a compatible composer.json for PHP 8.x
+            cp composer.json composer.json.backup
+            jq '.["require-dev"]["phpunit/phpunit"] = "^9.5"' composer.json.backup > composer.json.tmp1
+            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json.tmp1 > composer.json
             
-            # Start with a copy of the existing composer.json
-            cp composer.json composer.json.original
-            
-            # Update dependencies for PHP 8.2 compatibility
-            jq '.["require-dev"]["phpunit/phpunit"] = "^9.5"' composer.json.original > composer.json.tmp
-            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json.tmp > composer.json.tmp2
-            
-            # Set platform config
-            jq '.config.platform.php = "8.1.99"' composer.json.tmp2 > composer.json.tmp3
-            
-            # Add PHP 8 specific test script
-            jq '.scripts["test:php8"] = "php run-phpunit.php"' composer.json.tmp3 > composer.json
-            
-            # Clean up tmp files
-            rm -f composer.json.tmp*
-            rm -f composer.json.original
-          fi
-          
-          # Install dependencies based on PHP version
-          echo "::notice::Installing Composer dependencies for PHP $PHP_VERSION"
-          if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
-            composer update --no-progress --ignore-platform-reqs
-          else
-            composer update --no-progress
-          fi
-          
-          # Check if installation was successful
-          if [ ! -d "vendor" ] || [ ! -f "vendor/bin/phpunit" ]; then
-            echo "::error::Failed to install PHPUnit. Trying a direct approach."
-            rm -rf vendor
-            if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
-              composer require --dev yoast/phpunit-polyfills:^2.0 phpunit/phpunit:^9.5 --ignore-platform-reqs --no-progress
-            else
-              composer require --dev yoast/phpunit-polyfills:^1.0 phpunit/phpunit:^7.5 --no-progress
+            # Add PHP 8 specific test script if needed
+            if [[ "$PHP_VERSION" == "8.2" ]]; then
+              jq '.config.platform.php = "8.1.99"' composer.json > composer.json.tmp2
+              jq '.scripts["test:php8"] = "php run-phpunit.php"' composer.json.tmp2 > composer.json
             fi
+            
+            # Install using the modified composer.json
+            composer update --no-progress --ignore-platform-reqs || {
+              echo "::warning::Composer update failed, trying direct require"
+              rm -rf vendor
+              composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
+                echo "::error::PHPUnit installation failed" 
+                exit 1
+              }
+            }
+          else
+            # For PHP 7.x, use PHPUnit 7.5
+            echo "::notice::Using PHPUnit 7.5 for PHP $PHP_VERSION"
+            composer update --no-progress || {
+              echo "::warning::Composer update failed, trying direct require"
+              rm -rf vendor
+              composer require --dev phpunit/phpunit:^7.5 yoast/phpunit-polyfills:^1.0 --no-progress || {
+                echo "::error::PHPUnit installation failed" 
+                exit 1
+              }
+            }
           fi
           
-          # Verify PHPUnit version
+          # Clean up temporary files
+          rm -f composer.json.tmp* composer.json.backup
+          
+          # Verify PHPUnit installation
+          if [ ! -f "vendor/bin/phpunit" ]; then
+            echo "::error::PHPUnit installation unsuccessful."
+            exit 1
+          fi
+          
+          # Show installed PHPUnit version
           echo "Installed PHPUnit version:"
-          vendor/bin/phpunit --version || echo "PHPUnit seems to be missing or broken"
+          vendor/bin/phpunit --version || echo "PHPUnit seems to be installed but not working properly"
       
       - name: Check Test Environment
         id: check-test-env
@@ -170,26 +154,33 @@ jobs:
             echo "test_env_ready=true" >> $GITHUB_OUTPUT
           fi
       
+      # Enhanced WordPress Test Environment Setup
       - name: Setup WordPress Test Environment
         if: steps.check-test-env.outputs.test_env_ready == 'true'
         run: |
-          if mysql -u root -h 127.0.0.1 -e "USE wordpress_test;" 2>/dev/null; then
-            echo "Database 'wordpress_test' already exists. Dropping it first."
-            mysql -u root -h 127.0.0.1 -e "DROP DATABASE wordpress_test;"
-          fi
-          
-          # Create the database explicitly to avoid potential issues
-          mysql -u root -h 127.0.0.1 -e "CREATE DATABASE IF NOT EXISTS wordpress_test;"
+          # Ensure database exists and is clean
+          echo "Setting up test database..."
+          mysql -u root -h 127.0.0.1 -e "DROP DATABASE IF EXISTS wordpress_test;"
+          mysql -u root -h 127.0.0.1 -e "CREATE DATABASE wordpress_test;"
           
           # Make the install script executable
           chmod +x bin/install-wp-tests.sh
           
-          # Install WordPress test environment
+          # Run the script with detailed logging
+          echo "Installing WordPress test environment for version ${{ matrix.wordpress }}..."
           bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 ${{ matrix.wordpress }} || {
-            echo "::warning::Failed to setup WordPress test environment. Showing detailed error information:"
-            cat /tmp/wordpress-tests-lib-install-*.log 2>/dev/null || echo "No install logs found."
+            echo "::error::Failed to setup WordPress test environment. Showing detailed error information:"
+            find /tmp -name "wordpress-tests-lib-install-*.log" -exec cat {} \; 2>/dev/null || echo "No install logs found."
             exit 1
           }
+          
+          # Verify the test environment was created successfully
+          if [ ! -d "/tmp/wordpress-tests-lib" ] || [ ! -f "/tmp/wordpress-tests-lib/includes/functions.php" ]; then
+            echo "::error::WordPress test environment setup failed. Missing required files."
+            exit 1
+          fi
+          
+          echo "WordPress test environment successfully set up."
       
       - name: Run tests
         if: steps.check-test-env.outputs.test_env_ready == 'true'
