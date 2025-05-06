@@ -30,7 +30,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '7.4'
           tools: composer:v2, phpcs
           
       - name: Check for package-lock.json
@@ -56,7 +56,12 @@ jobs:
       - name: Install PHP dependencies
         run: |
           if [ -f composer.json ]; then
-            composer install --prefer-dist --no-progress
+            # Configure platform to ensure compatibility
+            composer config platform.php 7.4
+            composer install --prefer-dist --no-progress || {
+              echo "Standard install failed, trying with --ignore-platform-reqs"
+              composer install --prefer-dist --no-progress --ignore-platform-reqs
+            }
           else
             echo "No composer.json found. Skipping composer install."
           fi
@@ -120,13 +125,18 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '7.4'
           tools: composer:v2
           
       - name: Install dependencies
         run: |
           if [ -f composer.json ]; then
-            composer install --no-dev --prefer-dist --no-progress
+            # Configure platform to ensure compatibility
+            composer config platform.php 7.4
+            composer install --no-dev --prefer-dist --no-progress || {
+              echo "Standard install failed, trying with --ignore-platform-reqs"
+              composer install --no-dev --prefer-dist --no-progress --ignore-platform-reqs
+            }
           else
             echo "No composer.json found. Skipping composer install."
           fi

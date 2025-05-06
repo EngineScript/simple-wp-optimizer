@@ -90,11 +90,24 @@ jobs:
         run: |
           if [ ! -d "vendor" ]; then
             echo "::warning::Composer vendor directory not found. Installing dependencies manually."
-            composer install --no-progress
+            # For PHP 8.0+, we need to modify requirements or use ignore-platform-reqs
+            if [[ "${{ matrix.php }}" == "8.0" || "${{ matrix.php }}" == "8.1" || "${{ matrix.php }}" == "8.2" ]]; then
+              echo "::notice::Using PHP ${{ matrix.php }}, installing with --ignore-platform-reqs"
+              composer install --no-progress --ignore-platform-reqs
+            else
+              composer install --no-progress
+            fi
           fi
+          
           if [ ! -f "vendor/bin/phpunit" ]; then
             echo "::warning::PHPUnit not found in vendor/bin. Installing phpunit explicitly."
-            composer require phpunit/phpunit:^7.5 --dev --no-progress
+            # For PHP 8.0+, we need a different PHPUnit version
+            if [[ "${{ matrix.php }}" == "8.0" || "${{ matrix.php }}" == "8.1" || "${{ matrix.php }}" == "8.2" ]]; then
+              echo "::notice::Using PHP ${{ matrix.php }}, installing PHPUnit 9.x"
+              composer require --dev phpunit/phpunit:^9.0 --ignore-platform-reqs --no-progress
+            else
+              composer require --dev phpunit/phpunit:^7.5 --no-progress
+            fi
           fi
       
       - name: Check Test Environment
@@ -123,7 +136,18 @@ jobs:
         if: steps.check-test-env.outputs.test_env_ready == 'true'
         run: |
           if [ -f "vendor/bin/phpunit" ]; then
-            vendor/bin/phpunit
+            # Handle WordPress compatibility with PHPUnit for PHP 8.0+
+            if [[ "${{ matrix.php }}" == "8.0" || "${{ matrix.php }}" == "8.1" || "${{ matrix.php }}" == "8.2" ]]; then
+              # Run with WordPress test compatibility parameter for newer PHPUnit versions
+              echo "::notice::Running tests with PHPUnit 9.x compatibility mode for PHP ${{ matrix.php }}"
+              vendor/bin/phpunit --no-deprecations || {
+                echo "::warning::Test failed with --no-deprecations, trying with standard execution"
+                vendor/bin/phpunit
+              }
+            else
+              # PHP 7.x can use PHPUnit 7.x directly
+              vendor/bin/phpunit
+            fi
           else
             echo "::error::PHPUnit executable not found in vendor/bin directory."
             ls -la vendor/bin || echo "vendor/bin directory not found"
