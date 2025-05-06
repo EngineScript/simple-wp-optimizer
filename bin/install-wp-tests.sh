@@ -171,7 +171,47 @@ install_wp() {
 	fi
 
 	echo "Downloading extra MySQL database driver..."
+	# Create directory if it doesn't exist
+	mkdir -p $WP_CORE_DIR/wp-content/
+	
+	# Try to download the db.php file with verification
 	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
+	
+	# Check if download was successful and file is not empty
+	if [ ! -s "$WP_CORE_DIR/wp-content/db.php" ]; then
+		echo "Warning: Downloaded db.php file is empty or download failed."
+		
+		# Check if we have a local copy in the repository
+		if [ -f "bin/db.php" ]; then
+			echo "Using local fallback copy of db.php from bin/db.php"
+			cp bin/db.php $WP_CORE_DIR/wp-content/db.php
+		elif [ -f "${0%/*}/db.php" ]; then
+			# Try to find db.php in the same directory as the script
+			echo "Using local fallback copy of db.php from script directory"
+			cp "${0%/*}/db.php" $WP_CORE_DIR/wp-content/db.php
+		else
+			# Create a simple db.php file inline as last resort
+			echo "Creating a minimal db.php file as fallback"
+			cat > $WP_CORE_DIR/wp-content/db.php << 'EOL'
+<?php
+/**
+ * Fallback database driver to ensure tests can run
+ */
+if ( ! defined( 'WP_USE_EXT_MYSQL' ) ) {
+	define( 'WP_USE_EXT_MYSQL', false );
+}
+EOL
+		fi
+		
+		# Verify that db.php exists and is not empty
+		if [ ! -s "$WP_CORE_DIR/wp-content/db.php" ]; then
+			echo "Error: Failed to create a valid db.php file. Tests may not work correctly."
+		else
+			echo "Fallback db.php file created successfully."
+		fi
+	else
+		echo "db.php downloaded successfully."
+	fi
 	
 	echo "WordPress core installation complete!"
 }
