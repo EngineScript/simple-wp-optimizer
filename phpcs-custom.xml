@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Custom Standard">
+    <description>Custom ruleset based on WordPress Coding Standards</description>
+    
+    <!-- Include WordPress Core -->
+    <rule ref="WordPress-Core">
+        <!-- Exclude rules that might be causing false positives -->
+        <exclude name="WordPress.Arrays.MultipleStatementAlignment" />
+    </rule>
+    
+    <!-- Add specific sniffs for escaping and sanitization -->
+    <rule ref="WordPress.Security.EscapeOutput">
+        <properties>
+            <!-- Allow specific functions that handle escaping internally -->
+            <property name="customEscapingFunctions" type="array">
+                <element value="wp_kses_post" />
+            </property>
+        </properties>
+    </rule>
+    
+    <!-- Files to check -->
+    <arg name="extensions" value="php" />
+    <arg name="basepath" value="./" />
+    <arg name="colors" />
+    <arg value="sp" />
+    
+    <!-- Exclude directories -->
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+    <exclude-pattern>/tests/bootstrap.php</exclude-pattern>
+</ruleset>

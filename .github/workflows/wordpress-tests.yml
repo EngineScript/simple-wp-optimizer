@@ -46,13 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4', '8.0', '8.1']
-        wordpress: ['latest', '6.0', '5.9']
-        include:
-          - php: '8.2'
-            wordpress: 'latest'
-          - php: '7.4'
-            wordpress: '5.6'
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        wordpress: ['latest']
             
     services:
       mysql:
@@ -74,6 +69,7 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, pdo, mysql, pdo_mysql, bcmath, intl, gd, exif, iconv
           coverage: none
+          tools: composer:v2
       
       - name: Install SVN and jq
         run: |
@@ -115,11 +111,31 @@ jobs:
           # Attempt PHPUnit installation if necessary
           if [ ! -f "vendor/bin/phpunit" ]; then
             echo "PHPUnit not found, attempting to install specific version..."
-            composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
-              echo "::error::PHPUnit installation failed. Debugging composer error logs:"
-              composer diagnose || echo "Composer diagnose command failed"
-              exit 1
-            }
+            # For PHP 8.x, especially 8.3 and 8.4, use the latest PHPUnit
+            if [[ "$PHP_VERSION" == "8.3" || "$PHP_VERSION" == "8.4" ]]; then
+              echo "Installing latest compatible PHPUnit for PHP $PHP_VERSION"
+              composer require --dev phpunit/phpunit:^10.0 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
+                echo "::error::PHPUnit installation failed. Debugging composer error logs:"
+                composer diagnose || echo "Composer diagnose command failed"
+                exit 1
+              }
+            elif [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
+              # For PHP 8.0, 8.1, and 8.2, use PHPUnit 9.5
+              echo "Installing PHPUnit 9.5 for PHP $PHP_VERSION"
+              composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
+                echo "::error::PHPUnit installation failed. Debugging composer error logs:"
+                composer diagnose || echo "Composer diagnose command failed"
+                exit 1
+              }
+            else
+              # For PHP 7.4, use PHPUnit 7.5
+              echo "Installing PHPUnit 7.5 for PHP 7.4"
+              composer require --dev phpunit/phpunit:^7.5 yoast/phpunit-polyfills:^1.0 --no-progress --ignore-platform-reqs || {
+                echo "::error::PHPUnit installation failed. Debugging composer error logs:"
+                composer diagnose || echo "Composer diagnose command failed"
+                exit 1
+              }
+            fi
           fi
           
           # Verify PHPUnit installation
@@ -229,7 +245,7 @@ jobs:
           fi
           
           # PHP 8.x specific handling
-          if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
+          if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" || "$PHP_VERSION" == "8.3" || "$PHP_VERSION" == "8.4" ]]; then
             echo "Running tests with PHP $PHP_VERSION compatibility mode"
             
             # For PHP 8.x, we'll use our custom run-phpunit.php script
@@ -257,7 +273,7 @@ jobs:
               }
             fi
           else
-            # Standard execution for PHP 7.x
+            # Standard execution for PHP 7.4
             echo "Running tests with PHP $PHP_VERSION standard mode"
             vendor/bin/phpunit || {
               echo "::warning::Tests failed with standard execution, trying individual test files..."

@@ -46,21 +46,40 @@ $default_args = [];
 if ($php_major_version >= 8) {
     echo "Running in PHP 8.x compatibility mode\n";
     
-    // For PHP 8.x we need to be more careful with deprecation notices
-    // Suppress deprecation notices for PHPUnit 7.x
-    if (version_compare($phpunit_version, '9.0', '<')) {
-        echo "Using PHPUnit < 9.0 with PHP 8.x requires special handling\n";
+    // For PHP 8.3 and 8.4, use PHPUnit 10+ with specific settings
+    if ($php_major_version == 8 && ($php_minor_version >= 3)) {
+        echo "Using PHP 8.3+ with PHPUnit requires special handling\n";
         
-        // Load the compatibility layer first
-        if (file_exists(__DIR__ . '/tests/php8-compatibility.php')) {
-            echo "Loading PHP 8.x compatibility layer\n";
-            require_once __DIR__ . '/tests/php8-compatibility.php';
+        // Add any PHP 8.3/8.4 specific flags
+        $default_args[] = '--no-deprecations';
+        
+        // For PHPUnit 10+
+        if (version_compare($phpunit_version, '10.0', '>=')) {
+            echo "Using PHPUnit 10+ with PHP 8.3+\n";
+            // No special settings needed for PHPUnit 10+
+        } else {
+            echo "Warning: Using older PHPUnit with PHP 8.3+, some features may not work correctly\n";
         }
+    }
+    // For PHP 8.0-8.2 (using PHPUnit 9.x typically)
+    elseif ($php_minor_version >= 0 && $php_minor_version <= 2) {
+        echo "Using PHP 8.0-8.2 with appropriate PHPUnit version\n";
         
-        // Use custom error settings
-        error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_STRICT);
-    } else {
-        echo "Using PHPUnit 9.x with PHP 8.x\n";
+        // If using older PHPUnit with PHP 8.x
+        if (version_compare($phpunit_version, '9.0', '<')) {
+            echo "Using PHPUnit < 9.0 with PHP 8.x requires special handling\n";
+            
+            // Load the compatibility layer first
+            if (file_exists(__DIR__ . '/tests/php8-compatibility.php')) {
+                echo "Loading PHP 8.x compatibility layer\n";
+                require_once __DIR__ . '/tests/php8-compatibility.php';
+            }
+            
+            // Use custom error settings
+            error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_STRICT);
+        } else {
+            echo "Using PHPUnit 9.x with PHP 8.0-8.2\n";
+        }
     }
 }
 
