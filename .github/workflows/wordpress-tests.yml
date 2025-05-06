@@ -86,6 +86,17 @@ jobs:
           composer-options: "--prefer-dist --no-progress"
         continue-on-error: true
       
+      - name: Verify Composer installation
+        run: |
+          if [ ! -d "vendor" ]; then
+            echo "::warning::Composer vendor directory not found. Installing dependencies manually."
+            composer install --no-progress
+          fi
+          if [ ! -f "vendor/bin/phpunit" ]; then
+            echo "::warning::PHPUnit not found in vendor/bin. Installing phpunit explicitly."
+            composer require phpunit/phpunit:^7.5 --dev --no-progress
+          fi
+      
       - name: Check Test Environment
         id: check-test-env
         run: |
@@ -111,4 +122,10 @@ jobs:
       - name: Run tests
         if: steps.check-test-env.outputs.test_env_ready == 'true'
         run: |
-          composer test
+          if [ -f "vendor/bin/phpunit" ]; then
+            vendor/bin/phpunit
+          else
+            echo "::error::PHPUnit executable not found in vendor/bin directory."
+            ls -la vendor/bin || echo "vendor/bin directory not found"
+            exit 1
+          fi

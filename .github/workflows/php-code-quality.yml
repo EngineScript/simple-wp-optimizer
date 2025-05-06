@@ -28,24 +28,33 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '7.4'
           extensions: mbstring, intl, curl
           tools: composer:v2, phpcs, wp-coding-standards
           
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: |
+          # First try and handle dependency conflicts
+          composer config platform.php 7.4
+          composer install --prefer-dist --no-progress --no-suggest || {
+            echo "Standard install failed, trying with --ignore-platform-reqs"
+            composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+          }
 
       - name: Run PHP_CodeSniffer
         run: |
           if [ -f phpcs.xml ] || [ -f phpcs.xml.dist ]; then
-            ./vendor/bin/phpcs --standard=phpcs.xml || ./vendor/bin/phpcs --standard=phpcs.xml.dist
+            vendor/bin/phpcs --standard=phpcs.xml || vendor/bin/phpcs --standard=phpcs.xml.dist
           else
-            ./vendor/bin/phpcs --standard=WordPress-Core --extensions=php --ignore=vendor/,node_modules/ .
+            vendor/bin/phpcs --standard=WordPress-Core --extensions=php --ignore=vendor/,node_modules/ .
           fi
 
       - name: Run PHP Compatibility Check
         run: |
-          ./vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.0- .
+          # Install PHP compatibility standards if they're not already installed
+          composer require --dev phpcompatibility/php-compatibility wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer --no-interaction || true
+          vendor/bin/phpcs --config-set installed_paths $(pwd)/vendor/phpcompatibility/php-compatibility || true
+          vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.0- .
 
       - name: Check PHP syntax
         run: |
