@@ -9,7 +9,7 @@
  */
 
 // Detect PHP version
-$php_version = phpversion();
+$php_version       = phpversion();
 $php_major_version = (int)explode('.', $php_version)[0];
 
 // Only apply fixes for PHP 8.x
@@ -18,7 +18,7 @@ if ($php_major_version >= 8) {
     
     // Check if we're running PHPUnit 7.x on PHP 8.x (problematic combination)
     if (class_exists('\PHPUnit\Runner\Version')) {
-        $phpunit_version = \PHPUnit\Runner\Version::id();
+        $phpunit_version       = \PHPUnit\Runner\Version::id();
         $phpunit_major_version = (int)explode('.', $phpunit_version)[0];
         
         // PHPUnit 7.x with PHP 8.x needs special handling

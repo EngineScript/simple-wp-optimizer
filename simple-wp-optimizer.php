@@ -269,9 +269,8 @@ function es_optimizer_render_checkbox_option($options, $option_name, $title, $de
     ?>
     <tr valign="top">
         <th scope="row"><?php 
-            // Using esc_html_e for internationalization and secure output of titles
-            // This properly escapes the output while also supporting translations
-            esc_html_e($title, 'simple-wp-optimizer-enginescript'); 
+            // Using esc_html for secure output of titles
+            echo esc_html( $title );
         ?></th>
         <td>
             <label>
@@ -286,9 +285,8 @@ function es_optimizer_render_checkbox_option($options, $option_name, $title, $de
                 ?>" value="1" 
                     <?php checked(1, isset($options[$option_name]) ? $options[$option_name] : 0); ?> />
                 <?php 
-                    // Using esc_html_e for internationalization and secure output of descriptions
-                    // This ensures the text is properly escaped while supporting translations
-                    esc_html_e($description, 'simple-wp-optimizer-enginescript'); 
+                    // Using esc_html for secure output of descriptions
+                    echo esc_html( $description );
                 ?>
             </label>
         </td>
@@ -313,15 +311,13 @@ function es_optimizer_render_textarea_option($options, $option_name, $title, $de
     ?>
     <tr valign="top">
         <th scope="row"><?php 
-            // Using esc_html_e for internationalization and secure output of titles
-            // This properly escapes the output while also supporting translations
-            esc_html_e($title, 'simple-wp-optimizer-enginescript'); 
+            // Using esc_html for secure output of titles
+            echo esc_html( $title );
         ?></th>
         <td>
             <p><small><?php 
-                // Using esc_html_e for internationalization and secure output of descriptions
-                // This ensures the text is properly escaped while supporting translations
-                esc_html_e($description, 'simple-wp-optimizer-enginescript'); 
+                // Using esc_html for secure output of descriptions
+                echo esc_html( $description );
             ?></small></p>
             <textarea name="<?php 
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -475,7 +471,7 @@ function disable_emojis_tinymce($plugins) {
  * @return array Difference betwen the two arrays.
  */
 function disable_emojis_remove_dns_prefetch($urls, $relation_type) {
-    if ('dns-prefetch' == $relation_type) {
+    if ('dns-prefetch' === $relation_type) {
         $emoji_svg_url = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/');
         $urls = array_diff($urls, array($emoji_svg_url));
     }
@@ -500,7 +496,7 @@ function remove_jquery_migrate($scripts) {
     }
     
     if (!is_admin() && isset($scripts->registered['jquery'])) {
-        $script = $scripts->registered['jquery'];
+        $script          = $scripts->registered['jquery'];
         
         // Remove jquery-migrate from jquery dependencies
         if ($script->deps) {

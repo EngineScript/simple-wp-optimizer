@@ -98,7 +98,7 @@ jobs:
           
           # Run the actual compatibility check
           vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.4-8.4 .
-          
+
       - name: Fix text argument escaping issues
         run: |
           echo "Checking for text argument escaping issues..."
@@ -117,7 +117,13 @@ jobs:
               # Replace direct echo of strings with variables to use esc_html
               sed -i 's/echo "\(.*\)\$\([a-zA-Z0-9_]*\)\(.*\)";/if (function_exists('\''esc_html'\'')) { echo esc_html("\1$\2\3"); } else { echo "\1$\2\3"; }/g' "$FILE" || true
               
-              echo "Applied basic fixes to $FILE"
+              # Also fix single quoted strings
+              sed -i 's/echo '\''\(.*\)\$\([a-zA-Z0-9_]*\)\(.*\)'\'';/if (function_exists('\''esc_html'\'')) { echo esc_html('\''\1$\2\3'\''); } else { echo '\''\1$\2\3'\''; }/g' "$FILE" || true
+              
+              # Fix multi-line echo statements
+              sed -i 's/echo \("\|\x27\)\(.*\)\$\([a-zA-Z0-9_]*\)\(.*\)\("\|\x27\) \. \("\|\x27\)\(.*\)\("\|\x27\);/if (function_exists('\''esc_html'\'')) { echo esc_html(\1\2$\3\4\5 . \6\7\8); } else { echo \1\2$\3\4\5 . \6\7\8; }/g' "$FILE" || true
+              
+              echo "Applied escaping fixes to $FILE"
             done
           else
             echo "No obvious text argument escaping issues found."
@@ -153,7 +159,5 @@ jobs:
           fi
           
           # Commit and push changes
-          git commit -m "Auto-fix code style issues with PHPCBF [standard: $STANDARD] [skip ci]" || true
-          git push || echo "Failed to push changes, but workflow will continue"
           git commit -m "Auto-fix code style issues with PHPCBF [standard: $STANDARD] [skip ci]" || true
           git push || echo "Failed to push changes, but workflow will continue"

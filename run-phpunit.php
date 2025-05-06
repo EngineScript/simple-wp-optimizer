@@ -65,7 +65,7 @@ if ($php_major_version >= 8) {
     }
     
     // For PHP 8.3 and 8.4, use PHPUnit 10+ with specific settings
-    if ($php_major_version == 8 && ($php_minor_version >= 3)) {
+    if (8 === $php_major_version && ($php_minor_version >= 3)) {
         if (function_exists('esc_html')) {
             echo esc_html("Using PHP 8.3+ with PHPUnit requires special handling") . "\n";
         } else {
@@ -91,6 +91,7 @@ if ($php_major_version >= 8) {
             }
         }
     }
+    
     // For PHP 8.0-8.2 (using PHPUnit 9.x typically)
     elseif ($php_minor_version >= 0 && $php_minor_version <= 2) {
         if (function_exists('esc_html')) {
@@ -130,7 +131,7 @@ if ($php_major_version >= 8) {
 }
 
 // Build the command
-$command = escapeshellcmd($phpunit_path);
+$command  = escapeshellcmd($phpunit_path);
 $command .= ' ' . implode(' ', array_map('escapeshellarg', array_merge($default_args, $args)));
 
 if (function_exists('esc_html')) {
@@ -145,4 +146,4 @@ if (function_exists('esc_html')) {
 passthru($command, $return_var);
 
 // Return the same exit code as PHPUnit
-exit($return_var);
+exit((int) $return_var);
