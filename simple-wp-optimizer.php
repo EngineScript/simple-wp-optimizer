@@ -607,7 +607,11 @@ function add_dns_prefetch() {
          * WordPress core doesn't have a direct function for outputting single dns-prefetch tags,
          * so we need to construct it ourselves.
          */
-        echo "\n";
+        if (function_exists('esc_html')) {
+            echo esc_html("\n");
+        } else {
+            echo "\n";
+        }
         wp_print_link_tag('dns-prefetch', $escaped_domain);
     }
 }

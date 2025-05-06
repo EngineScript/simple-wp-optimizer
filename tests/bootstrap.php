@@ -7,7 +7,7 @@
 
 // Load PHP 8.x compatibility helper first
 if (file_exists(__DIR__ . '/php8-compatibility.php')) {
-    require_once __DIR__ . '/php8-compatibility.php';
+	require_once __DIR__ . '/php8-compatibility.php';
 }
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
@@ -17,7 +17,11 @@ if ( ! $_tests_dir ) {
 }
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
-	echo "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL;
+	if (function_exists('esc_html')) {
+		echo esc_html("Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?") . PHP_EOL;
+	} else {
+		echo "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL;
+	}
 	exit( 1 );
 }
 
