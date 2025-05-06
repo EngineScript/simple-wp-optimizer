@@ -40,6 +40,12 @@ jobs:
             echo "Standard install failed, trying with --ignore-platform-reqs"
             composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
           }
+          
+          # Verify installation was successful
+          if [ ! -d "vendor" ]; then
+            echo "::warning::Composer installation failed, using direct approach"
+            composer require --dev wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer phpcompatibility/php-compatibility --no-interaction
+          fi
 
       - name: Run PHP_CodeSniffer
         run: |

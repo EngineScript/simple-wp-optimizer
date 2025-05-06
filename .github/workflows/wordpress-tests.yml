@@ -75,10 +75,10 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pdo, mysql, pdo_mysql, bcmath, intl, gd, exif, iconv
           coverage: none
       
-      - name: Install SVN
+      - name: Install SVN and jq
         run: |
           sudo apt-get update
-          sudo apt-get install -y subversion
+          sudo apt-get install -y subversion jq
       
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
@@ -88,27 +88,96 @@ jobs:
       
       - name: Verify Composer installation
         run: |
-          if [ ! -d "vendor" ]; then
-            echo "::warning::Composer vendor directory not found. Installing dependencies manually."
-            # For PHP 8.0+, we need to modify requirements or use ignore-platform-reqs
-            if [[ "${{ matrix.php }}" == "8.0" || "${{ matrix.php }}" == "8.1" || "${{ matrix.php }}" == "8.2" ]]; then
-              echo "::notice::Using PHP ${{ matrix.php }}, installing with --ignore-platform-reqs"
-              composer install --no-progress --ignore-platform-reqs
+          # Clean start - remove composer.lock to avoid cached dependency issues
+          rm -f composer.lock
+          
+          # Add bc command needed for version comparison
+          sudo apt-get install -y bc
+          
+          # Define PHP version variable for use in conditions
+          PHP_VERSION="${{ matrix.php }}"
+          
+          # Determine what PHPUnit version to use
+          if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
+            echo "::notice::Using PHP $PHP_VERSION, configuring for PHPUnit 9.x"
+            # Use jq to update phpunit requirement in composer.json
+            cp composer.json composer.json.bak
+            jq '.["require-dev"]["phpunit/phpunit"] = "^9.0"' composer.json.bak > composer.json
+            
+            # Also update yoast/phpunit-polyfills to latest
+            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json > composer.json.tmp
+            mv composer.json.tmp composer.json
+          else
+            echo "::notice::Using PHP $PHP_VERSION, keeping PHPUnit 7.5.x"
+            # No change needed for PHP 7.x
+          fi
+          
+          # Write a custom composer.json for PHP 8.2 to handle specific requirements
+          if [[ "$PHP_VERSION" == "8.2" ]]; then
+            echo "::notice::Using PHP 8.2, creating specialized composer configuration"
+            cat > composer.json.php82 << 'EOL'
+{
+  "name": "enginescript/simple-wp-optimizer",
+  "description": "Simple WP Optimizer - A lightweight WordPress optimization plugin",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "EngineScript",
+      "email": "support@enginescript.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5",
+    "yoast/phpunit-polyfills": "^2.0",
+    "wp-coding-standards/wpcs": "^2.3",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "platform": {
+      "php": "8.1.99"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "phpcs": "vendor/bin/phpcs --standard=WordPress",
+    "phpcbf": "vendor/bin/phpcbf --standard=WordPress"
+  }
+}
+EOL
+            # Use the PHP 8.2 specific composer file
+            mv composer.json.php82 composer.json
+          fi
+          
+          # Install dependencies based on PHP version
+          echo "::notice::Installing Composer dependencies for PHP $PHP_VERSION"
+          if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
+            composer update --no-progress --ignore-platform-reqs
+          else
+            composer update --no-progress
+          fi
+          
+          # Check if installation was successful
+          if [ ! -d "vendor" ] || [ ! -f "vendor/bin/phpunit" ]; then
+            echo "::error::Failed to install PHPUnit. Trying a direct approach."
+            rm -rf vendor
+            if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
+              composer require --dev yoast/phpunit-polyfills:^2.0 phpunit/phpunit:^9.5 --ignore-platform-reqs --no-progress
             else
-              composer install --no-progress
+              composer require --dev yoast/phpunit-polyfills:^1.0 phpunit/phpunit:^7.5 --no-progress
             fi
           fi
           
-          if [ ! -f "vendor/bin/phpunit" ]; then
-            echo "::warning::PHPUnit not found in vendor/bin. Installing phpunit explicitly."
-            # For PHP 8.0+, we need a different PHPUnit version
-            if [[ "${{ matrix.php }}" == "8.0" || "${{ matrix.php }}" == "8.1" || "${{ matrix.php }}" == "8.2" ]]; then
-              echo "::notice::Using PHP ${{ matrix.php }}, installing PHPUnit 9.x"
-              composer require --dev phpunit/phpunit:^9.0 --ignore-platform-reqs --no-progress
-            else
-              composer require --dev phpunit/phpunit:^7.5 --no-progress
-            fi
-          fi
+          # Verify PHPUnit version
+          echo "Installed PHPUnit version:"
+          vendor/bin/phpunit --version || echo "PHPUnit seems to be missing or broken"
       
       - name: Check Test Environment
         id: check-test-env
@@ -130,22 +199,61 @@ jobs:
             echo "Database 'wordpress_test' already exists. Dropping it first."
             mysql -u root -h 127.0.0.1 -e "DROP DATABASE wordpress_test;"
           fi
-          bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 ${{ matrix.wordpress }}
+          
+          # Create the database explicitly to avoid potential issues
+          mysql -u root -h 127.0.0.1 -e "CREATE DATABASE IF NOT EXISTS wordpress_test;"
+          
+          # Make the install script executable
+          chmod +x bin/install-wp-tests.sh
+          
+          # Install WordPress test environment
+          bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 ${{ matrix.wordpress }} || {
+            echo "::warning::Failed to setup WordPress test environment. Showing detailed error information:"
+            cat /tmp/wordpress-tests-lib-install-*.log 2>/dev/null || echo "No install logs found."
+            exit 1
+          }
       
       - name: Run tests
         if: steps.check-test-env.outputs.test_env_ready == 'true'
         run: |
           if [ -f "vendor/bin/phpunit" ]; then
-            # Handle WordPress compatibility with PHPUnit for PHP 8.0+
-            if [[ "${{ matrix.php }}" == "8.0" || "${{ matrix.php }}" == "8.1" || "${{ matrix.php }}" == "8.2" ]]; then
-              # Run with WordPress test compatibility parameter for newer PHPUnit versions
-              echo "::notice::Running tests with PHPUnit 9.x compatibility mode for PHP ${{ matrix.php }}"
-              vendor/bin/phpunit --no-deprecations || {
-                echo "::warning::Test failed with --no-deprecations, trying with standard execution"
-                vendor/bin/phpunit
-              }
+            # Get the PHPUnit version
+            PHPUNIT_VERSION=$(vendor/bin/phpunit --version | grep -oP '\d+\.\d+' | head -1)
+            echo "Detected PHPUnit version: $PHPUNIT_VERSION"
+            
+            # Define PHP version variable for use in conditions
+            PHP_VERSION="${{ matrix.php }}"
+            
+            # Set up the command based on PHP and PHPUnit versions
+            if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
+              echo "::notice::Running tests with PHPUnit for PHP $PHP_VERSION"
+              
+              # For PHP 8.x, check if it's PHPUnit 9.x
+              if [[ $(echo "$PHPUNIT_VERSION >= 9.0" | bc -l) -eq 1 ]]; then
+                # PHPUnit 9.x on PHP 8.x - safest approach
+                echo "::notice::Using PHPUnit 9.x safe execution mode"
+                
+                # Try running tests directly without any extra flags
+                vendor/bin/phpunit || {
+                  echo "::warning::Test execution failed. Running individual test files..."
+                  EXIT_CODE=0
+                  # Try to run each test file individually to isolate issues
+                  for TEST_FILE in tests/test-*.php; do
+                    echo "Testing file: $TEST_FILE"
+                    vendor/bin/phpunit "$TEST_FILE" || EXIT_CODE=1
+                  done
+                  # Return the combined exit code
+                  exit $EXIT_CODE
+                }
+              else
+                # PHPUnit < 9.0 on PHP 8.x - potentially problematic
+                echo "::warning::Running PHPUnit version less than 9.0 on PHP 8.x - using compatibility mode"
+                # Run with our compatibility layer which should handle the errors
+                XDEBUG_MODE=coverage vendor/bin/phpunit
+              fi
             else
-              # PHP 7.x can use PHPUnit 7.x directly
+              # PHP 7.x with PHPUnit 7.x - standard execution
+              echo "::notice::Running tests with PHPUnit for PHP $PHP_VERSION"
               vendor/bin/phpunit
             fi
           else

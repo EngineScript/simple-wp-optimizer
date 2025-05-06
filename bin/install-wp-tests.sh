@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Enable debugging and exit on error
+set -e
+
+# Create a log file for debugging purposes
+LOG_FILE="/tmp/wordpress-tests-lib-install-$(date +%s).log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "Starting WordPress test environment installation..."
+
 if [ $# -lt 3 ]; then
 	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]"
 	exit 1
@@ -17,6 +26,14 @@ TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
 WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
+echo "Configuration:"
+echo "  DB_NAME: $DB_NAME"
+echo "  DB_USER: $DB_USER"
+echo "  DB_HOST: $DB_HOST"
+echo "  WP_VERSION: $WP_VERSION"
+echo "  WP_TESTS_DIR: $WP_TESTS_DIR"
+echo "  WP_CORE_DIR: $WP_CORE_DIR"
+
 download() {
     if [ `which curl` ]; then
         curl -s "$1" > "$2";
@@ -28,40 +45,51 @@ download() {
 if [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+\-(beta|RC)[0-9]+$ ]]; then
 	WP_BRANCH=${WP_VERSION%\-*}
 	WP_TESTS_TAG="branches/$WP_BRANCH"
+	echo "Using WordPress branch: $WP_BRANCH"
 
 elif [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+$ ]]; then
 	WP_TESTS_TAG="branches/$WP_VERSION"
+	echo "Using WordPress version: $WP_VERSION (branch)"
 elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	if [[ $WP_VERSION =~ [0-9]+\.[0-9]+\.[0] ]]; then
 		# version x.x.0 means the first release of the major version, so strip off the .0 and download version x.x
 		WP_TESTS_TAG="tags/${WP_VERSION%??}"
+		echo "Using WordPress version: ${WP_VERSION%??} (tag)"
 	else
 		WP_TESTS_TAG="tags/$WP_VERSION"
+		echo "Using WordPress version: $WP_VERSION (tag)"
 	fi
 elif [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 	WP_TESTS_TAG="trunk"
+	echo "Using WordPress trunk/nightly"
 else
 	# http serves a single offer, whereas https serves multiple. we only want one
+	echo "Determining latest WordPress version..."
 	download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
 	grep '[0-9]+\.[0-9]+(\.[0-9]+)?' /tmp/wp-latest.json
 	LATEST_VERSION=$(grep -o '"version":"[^"]*' /tmp/wp-latest.json | sed 's/"version":"//')
 	if [[ -z "$LATEST_VERSION" ]]; then
-		echo "Latest WordPress version could not be found"
+		echo "Error: Latest WordPress version could not be found"
 		exit 1
 	fi
 	WP_TESTS_TAG="tags/$LATEST_VERSION"
+	echo "Latest WordPress version: $LATEST_VERSION"
 fi
 set -ex
 
 install_wp() {
+	echo "Installing WordPress core..."
 
 	if [ -d $WP_CORE_DIR ]; then
+		echo "WordPress core directory already exists, skipping installation."
 		return;
 	fi
 
 	mkdir -p $WP_CORE_DIR
+	echo "Created WordPress directory: $WP_CORE_DIR"
 
 	if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
+		echo "Downloading WordPress nightly build..."
 		mkdir -p $TMPDIR/wordpress-nightly
 		download https://wordpress.org/nightly-builds/wordpress-latest.zip  $TMPDIR/wordpress-nightly/wordpress-nightly.zip
 		unzip -q $TMPDIR/wordpress-nightly/wordpress-nightly.zip -d $TMPDIR/wordpress-nightly/
@@ -69,30 +97,48 @@ install_wp() {
 	else
 		if [ $WP_VERSION == 'latest' ]; then
 			local ARCHIVE_NAME='latest'
+			echo "Downloading latest WordPress release..."
 		elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+ ]]; then
 			# https serves multiple offers, whereas http serves single.
 			download https://api.wordpress.org/core/version-check/1.7/ $TMPDIR/wp-latest.json
 			if [[ $WP_VERSION =~ [0-9]+\.[0-9]+\.[0] ]]; then
 				# version x.x.0 means the first release of the major version, so strip off the .0 and download version x.x
 				LATEST_VERSION=${WP_VERSION%??}
+				echo "Converting $WP_VERSION to $LATEST_VERSION"
 			else
 				# otherwise, scan the releases and get the most up to date minor version of the major release
 				local VERSION_ESCAPED=`echo $WP_VERSION | sed 's/\./\\\\./g'`
 				LATEST_VERSION=$(grep -o '"version":"'$VERSION_ESCAPED'[^"]*' $TMPDIR/wp-latest.json | sed 's/"version":"//' | head -1)
+				echo "Found latest version in $WP_VERSION series: $LATEST_VERSION"
 			fi
 			if [[ -z "$LATEST_VERSION" ]]; then
+				echo "Warning: Could not determine latest version for $WP_VERSION series, using exact version."
 				local ARCHIVE_NAME="wordpress-$WP_VERSION"
 			else
 				local ARCHIVE_NAME="wordpress-$LATEST_VERSION"
 			fi
 		else
 			local ARCHIVE_NAME="wordpress-$WP_VERSION"
+			echo "Downloading WordPress $WP_VERSION..."
 		fi
 		download https://wordpress.org/${ARCHIVE_NAME}.tar.gz  $TMPDIR/wordpress.tar.gz
+		if [ $? -ne 0 ]; then
+			echo "Error: Failed to download WordPress archive."
+			exit 1
+		fi
+		
+		echo "Extracting WordPress files..."
 		tar --strip-components=1 -zxmf $TMPDIR/wordpress.tar.gz -C $WP_CORE_DIR
+		if [ $? -ne 0 ]; then
+			echo "Error: Failed to extract WordPress archive."
+			exit 1
+		fi
 	fi
 
+	echo "Downloading extra MySQL database driver..."
 	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
+	
+	echo "WordPress core installation complete!"
 }
 
 install_test_suite() {
@@ -127,8 +173,11 @@ install_test_suite() {
 install_db() {
 
 	if [ ${SKIP_DB_CREATE} = "true" ]; then
+		echo "Skipping database creation as requested"
 		return 0
 	fi
+
+	echo "Setting up test database..."
 
 	# parse DB_HOST for port or socket references
 	local PARTS=(${DB_HOST//\:/ })
@@ -146,8 +195,26 @@ install_db() {
 		fi
 	fi
 
+	# Check if database already exists and drop it if it does
+	echo "Checking if database $DB_NAME already exists..."
+	mysql --user="$DB_USER" --password="$DB_PASS"$EXTRA -e "SHOW DATABASES LIKE '$DB_NAME'" | grep "$DB_NAME" > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		echo "Database $DB_NAME exists, dropping it first..."
+		mysqladmin drop $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA --force
+	fi
+
 	# create database
+	echo "Creating database $DB_NAME..."
 	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+	
+	# Verify database was created successfully
+	if [ $? -ne 0 ]; then
+		echo "Error: Could not create database $DB_NAME."
+		echo "Please check your database credentials and permissions."
+		exit 1
+	fi
+	
+	echo "Database setup complete!"
 }
 
 install_wp

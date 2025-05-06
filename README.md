@@ -2,7 +2,7 @@
 
 ![GitHub License](https://img.shields.io/github/license/EngineScript/Simple-WP-Optimizer)
 ![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.4-blue)
-![WordPress Plugin Required PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-green)
+![WordPress Plugin Required PHP Version](https://img.shields.io/badge/php-7.4--8.2-green)
 ![WordPress Plugin: Tested WP Version](https://img.shields.io/badge/wordpress-5.6--6.0-green)
 
 A lightweight WordPress plugin designed to optimize your website by removing unnecessary scripts, styles, and header elements that can slow down your site.
@@ -76,6 +76,20 @@ Yes, hiding the WordPress version can provide a minor security benefit by making
 2. Install dependencies: `composer install`
 3. Set up the test environment: `bin/install-wp-tests.sh wordpress_test root '' localhost latest`
 4. Run tests: `composer test`
+
+### PHP 8.x Compatibility
+
+This plugin is fully compatible with PHP versions 7.4 through 8.2. For testing with PHP 8.x, we provide a custom PHPUnit runner script that helps avoid common compatibility issues between PHPUnit and newer PHP versions:
+
+```bash
+# For PHP 7.4 (standard testing)
+composer test
+
+# For PHP 8.0, 8.1, and 8.2 (using the custom runner)
+composer test:php8
+```
+
+The custom runner automatically detects your PHP version and applies the appropriate compatibility settings.
 
 ## Contributing
 

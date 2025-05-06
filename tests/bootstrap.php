@@ -5,6 +5,11 @@
  * @package Simple_WP_Optimizer
  */
 
+// Load PHP 8.x compatibility helper first
+if (file_exists(__DIR__ . '/php8-compatibility.php')) {
+    require_once __DIR__ . '/php8-compatibility.php';
+}
+
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $_tests_dir ) {
