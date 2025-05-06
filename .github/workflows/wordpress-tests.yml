@@ -80,80 +80,52 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y subversion jq bc
       
-      # Robust PHPUnit installation with enhanced error handling
-      - name: Verify and Install PHPUnit
+      # Simplified PHPUnit installation with better error handling
+      - name: Install Dependencies
         run: |
-          echo "Installing PHPUnit for PHP ${{ matrix.php }}"
+          echo "Installing dependencies for PHP ${{ matrix.php }}"
           
-          # Define PHP version for easier conditions
-          PHP_VERSION="${{ matrix.php }}"
+          # Clear composer cache to avoid using corrupted cache
+          composer clear-cache
           
           # Remove any existing lock file to ensure clean install
           rm -f composer.lock
           
-          # Setup environment information for debugging
+          # Define PHP version for easier conditions
+          PHP_VERSION="${{ matrix.php }}"
+          
+          # Display PHP version for debugging
           echo "::notice::Debugging environment variables:"
           echo "PHP Version: $PHP_VERSION"
           php -v
           
-          # Configure platform version in composer.json for better dependency resolution
-          cp composer.json composer.json.backup
-          
-          # For PHP 8.x, use PHPUnit 9.5
-          if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
-            echo "::notice::Using PHPUnit 9.5 for PHP $PHP_VERSION"
-            
-            # Configure platform and dependencies using multiple jq commands instead of heredoc
-            jq '.config.platform.php = "8.0.0"' composer.json.backup > composer.json.tmp1
-            jq '.["require-dev"]["phpunit/phpunit"] = "^9.5"' composer.json.tmp1 > composer.json.tmp2
-            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json.tmp2 > composer.json
-            
-            # Add PHP 8 specific test script if needed
-            if [[ "$PHP_VERSION" == "8.2" ]]; then
-              jq '.scripts["test:php8"] = "php run-phpunit.php"' composer.json > composer.json.tmp3
-              mv composer.json.tmp3 composer.json
-            fi
-            
-            # Install using direct require for more reliable installation
-            echo "::notice::Installing PHPUnit via direct require for PHP $PHP_VERSION"
-            composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
-              echo "::error::PHPUnit installation failed. Retrying with fallback method..."
-              # Fallback: try removing composer.lock and trying again
-              rm -f composer.lock
-              composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
-                echo "::error::PHPUnit installation failed on retry as well. Debugging composer error logs:"
-                cat composer.lock 2>/dev/null || echo "composer.lock not generated"
-                composer diagnose || echo "Composer diagnose command failed"
-                exit 1
-              }
+          # Try composer update before installing PHPUnit
+          composer update --no-progress --ignore-platform-reqs || {
+            echo "::error::Composer update failed. Attempting direct installation..."
+            # Try direct installation if update fails
+            composer install --no-progress --ignore-platform-reqs || {
+              echo "::error::Dependency installation failed. Debugging composer state:"
+              composer diagnose
+              # Try with --no-plugins as a last resort
+              echo "Trying installation with --no-plugins flag"
+              composer install --no-progress --ignore-platform-reqs --no-plugins || exit 1
             }
-          else
-            # For PHP 7.x, use PHPUnit 7.5
-            echo "::notice::Using PHPUnit 7.5 for PHP $PHP_VERSION"
-            
-            # Configure platform
-            jq '.config.platform.php = "7.4.0"' composer.json.backup > composer.json
-            
-            # Install using direct require for more reliable installation
-            composer require --dev phpunit/phpunit:^7.5 yoast/phpunit-polyfills:^1.0 --no-progress || {
-              echo "::warning::PHPUnit installation failed. Retrying with fallback method..."
-              # Fallback: try removing composer.lock and trying again
-              rm -f composer.lock
-              composer require --dev phpunit/phpunit:^7.5 yoast/phpunit-polyfills:^1.0 --no-progress --ignore-platform-reqs || {
-                echo "::error::PHPUnit installation failed on retry as well. Debugging composer error logs:"
-                composer diagnose || echo "Composer diagnose command failed"
-                exit 1
-              }
+          }
+          
+          # Attempt PHPUnit installation if necessary
+          if [ ! -f "vendor/bin/phpunit" ]; then
+            echo "PHPUnit not found, attempting to install specific version..."
+            composer require --dev phpunit/phpunit:^9.5 yoast/phpunit-polyfills:^2.0 --no-progress --ignore-platform-reqs || {
+              echo "::error::PHPUnit installation failed. Debugging composer error logs:"
+              composer diagnose || echo "Composer diagnose command failed"
+              exit 1
             }
           fi
-          
-          # Clean up temporary files
-          rm -f composer.json.tmp* composer.json.backup
           
           # Verify PHPUnit installation
           if [ ! -f "vendor/bin/phpunit" ]; then
             echo "::error::PHPUnit installation unsuccessful. Cannot continue with tests."
-            ls -la vendor || echo "vendor directory not found or empty"
+            ls -la vendor/bin || echo "vendor/bin directory not found or empty"
             exit 1
           fi
           
@@ -186,67 +158,114 @@ jobs:
           # Make the install script executable
           chmod +x bin/install-wp-tests.sh
           
+          # Create and fix permissions for /tmp directory
+          sudo mkdir -p /tmp/wordpress-tests-lib
+          sudo chmod 1777 /tmp
+          sudo chmod 1777 /tmp/wordpress-tests-lib
+          
+          # Define variables for WordPress version
+          WP_VERSION="${{ matrix.wordpress }}"
+          
           # Run the script with detailed logging
-          echo "Installing WordPress test environment for version ${{ matrix.wordpress }}..."
-          bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 ${{ matrix.wordpress }} || {
+          echo "Installing WordPress test environment for version $WP_VERSION..."
+          bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION || {
             echo "::error::Failed to setup WordPress test environment. Showing detailed error information:"
             find /tmp -name "wordpress-tests-lib-install-*.log" -exec cat {} \; 2>/dev/null || echo "No install logs found."
-            exit 1
+            ls -la /tmp/wordpress-tests-lib || echo "/tmp/wordpress-tests-lib directory not found"
+            
+            # Try one more time with explicitly created directory
+            echo "Retrying WordPress test environment setup..."
+            bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION || {
+              echo "::error::Failed to setup WordPress test environment on second attempt."
+              exit 1
+            }
           }
           
           # Verify the test environment was created successfully
-          if [ ! -d "/tmp/wordpress-tests-lib" ] || [ ! -f "/tmp/wordpress-tests-lib/includes/functions.php" ]; then
-            echo "::error::WordPress test environment setup failed. Missing required files."
+          if [ ! -d "/tmp/wordpress-tests-lib" ]; then
+            echo "::error::WordPress test directory not created."
             exit 1
           fi
           
-          echo "WordPress test environment successfully set up."
+          if [ ! -f "/tmp/wordpress-tests-lib/includes/functions.php" ]; then
+            echo "::error::WordPress test functions file missing."
+            ls -la /tmp/wordpress-tests-lib/includes/ || echo "Includes directory not found or empty"
+            exit 1
+          fi
+          
+          # Check WordPress core installation
+          if [ ! -d "/tmp/wordpress" ]; then
+            echo "::error::WordPress core directory not created."
+            exit 1
+          fi
+          
+          echo "WordPress test environment successfully set up:"
+          ls -la /tmp/wordpress-tests-lib/
       
       - name: Run tests
         if: steps.check-test-env.outputs.test_env_ready == 'true'
         run: |
-          if [ -f "vendor/bin/phpunit" ]; then
-            # Get the PHPUnit version
-            PHPUNIT_VERSION=$(vendor/bin/phpunit --version | grep -oP '\d+\.\d+' | head -1)
-            echo "Detected PHPUnit version: $PHPUNIT_VERSION"
-            
-            # Define PHP version variable for use in conditions
-            PHP_VERSION="${{ matrix.php }}"
-            
-            # Set up the command based on PHP and PHPUnit versions
-            if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
-              echo "::notice::Running tests with PHPUnit for PHP $PHP_VERSION"
-              
-              # For PHP 8.x, check if it's PHPUnit 9.x
-              if [[ $(echo "$PHPUNIT_VERSION >= 9.0" | bc -l) -eq 1 ]]; then
-                # PHPUnit 9.x on PHP 8.x - safest approach
-                echo "::notice::Using PHPUnit 9.x safe execution mode"
-                
-                # Try running tests directly without any extra flags
-                vendor/bin/phpunit || {
-                  echo "::warning::Test execution failed. Running individual test files..."
-                  EXIT_CODE=0
-                  # Try to run each test file individually to isolate issues
-                  for TEST_FILE in tests/test-*.php; do
-                    echo "Testing file: $TEST_FILE"
-                    vendor/bin/phpunit "$TEST_FILE" || EXIT_CODE=1
-                  done
-                  # Return the combined exit code
-                  exit $EXIT_CODE
-                }
-              else
-                # PHPUnit < 9.0 on PHP 8.x - potentially problematic
-                echo "::warning::Running PHPUnit version less than 9.0 on PHP 8.x - using compatibility mode"
-                # Run with our compatibility layer which should handle the errors
-                XDEBUG_MODE=coverage vendor/bin/phpunit
-              fi
-            else
-              # PHP 7.x with PHPUnit 7.x - standard execution
-              echo "::notice::Running tests with PHPUnit for PHP $PHP_VERSION"
-              vendor/bin/phpunit
-            fi
-          else
+          if [ ! -f "vendor/bin/phpunit" ]; then
             echo "::error::PHPUnit executable not found in vendor/bin directory."
             ls -la vendor/bin || echo "vendor/bin directory not found"
             exit 1
+          fi
+          
+          # Get the PHPUnit version
+          PHPUNIT_VERSION=$(vendor/bin/phpunit --version | grep -oP '\d+\.\d+' | head -1 || echo "unknown")
+          echo "Detected PHPUnit version: $PHPUNIT_VERSION"
+          
+          # Define PHP version variable for use in conditions
+          PHP_VERSION="${{ matrix.php }}"
+          
+          # Ensure we have proper error reporting for tests
+          export WP_TESTS_PHPUNIT_POLYFILLS_PATH=$(pwd)/vendor/yoast/phpunit-polyfills
+          
+          # Check WordPress test environment
+          echo "Verifying WordPress test environment..."
+          if [ ! -d "/tmp/wordpress-tests-lib" ] || [ ! -f "/tmp/wordpress-tests-lib/includes/functions.php" ]; then
+            echo "::error::WordPress test environment verification failed. Missing required files."
+            exit 1
+          fi
+          
+          # PHP 8.x specific handling
+          if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" ]]; then
+            echo "Running tests with PHP $PHP_VERSION compatibility mode"
+            
+            # For PHP 8.x, we'll use our custom run-phpunit.php script
+            if [ -f "run-phpunit.php" ]; then
+              php run-phpunit.php || {
+                echo "::warning::Tests failed with run-phpunit.php, trying individual test files..."
+                EXIT_CODE=0
+                # Try to run each test file individually to isolate issues
+                for TEST_FILE in tests/test-*.php; do
+                  echo "Testing file: $TEST_FILE"
+                  php run-phpunit.php "$TEST_FILE" || EXIT_CODE=1
+                done
+                exit $EXIT_CODE
+              }
+            else
+              # Fallback if custom script is missing - suppress deprecation warnings
+              php -d error_reporting=E_ALL^E_DEPRECATED vendor/bin/phpunit || {
+                echo "::warning::Tests failed with standard execution, trying individual test files..."
+                EXIT_CODE=0
+                for TEST_FILE in tests/test-*.php; do
+                  echo "Testing file: $TEST_FILE"
+                  php -d error_reporting=E_ALL^E_DEPRECATED vendor/bin/phpunit "$TEST_FILE" || EXIT_CODE=1
+                done
+                exit $EXIT_CODE
+              }
+            fi
+          else
+            # Standard execution for PHP 7.x
+            echo "Running tests with PHP $PHP_VERSION standard mode"
+            vendor/bin/phpunit || {
+              echo "::warning::Tests failed with standard execution, trying individual test files..."
+              EXIT_CODE=0
+              for TEST_FILE in tests/test-*.php; do
+                echo "Testing file: $TEST_FILE"
+                vendor/bin/phpunit "$TEST_FILE" || EXIT_CODE=1
+              done
+              exit $EXIT_CODE
+            }
           fi

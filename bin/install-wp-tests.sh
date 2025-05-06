@@ -44,7 +44,15 @@ download() {
     if command -v curl >/dev/null 2>&1; then
         echo "Downloading $1 using curl..."
         for i in {1..3}; do
-            curl -s "$1" -o "$2" && return 0
+            if curl -s "$1" -o "$2"; then
+                # Verify download was successful
+                if [ -s "$2" ]; then
+                    echo "Download successful!"
+                    return 0
+                else
+                    echo "Downloaded file is empty. Retrying..."
+                fi
+            fi
             echo "Attempt $i failed, retrying in 3 seconds..."
             sleep 3
         done
@@ -53,7 +61,10 @@ download() {
     elif command -v wget >/dev/null 2>&1; then
         echo "Downloading $1 using wget..."
         for i in {1..3}; do
-            wget -nv -O "$2" "$1" && return 0
+            if wget -nv -O "$2" "$1" && [ -s "$2" ]; then
+                echo "Download successful!"
+                return 0
+            fi
             echo "Attempt $i failed, retrying in 3 seconds..."
             sleep 3
         done
@@ -176,13 +187,38 @@ install_test_suite() {
 	# set up testing suite if it doesn't yet exist
 	if [ ! -d $WP_TESTS_DIR ]; then
 		# set up testing suite
+		echo "Creating WordPress tests directory at $WP_TESTS_DIR"
 		mkdir -p $WP_TESTS_DIR
-		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
-		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
+		
+		echo "Checking directory permissions"
+		ls -ld $WP_TESTS_DIR
+		
+		echo "Downloading test files from WordPress SVN"
+		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes || {
+			echo "Failed to download test includes - retrying once"
+			svn cleanup $WP_TESTS_DIR/includes
+			svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes || {
+				echo "Error: Could not download WordPress test includes"
+				return 1
+			}
+		}
+		
+		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data || {
+			echo "Failed to download test data - retrying once"
+			svn cleanup $WP_TESTS_DIR/data
+			svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data || {
+				echo "Error: Could not download WordPress test data"
+				return 1
+			}
+		}
 	fi
 
 	if [ ! -f wp-tests-config.php ]; then
-		download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php
+		download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php || {
+			echo "Error: Could not download wp-tests-config-sample.php"
+			return 1
+		}
+		
 		# remove all forward slashes in the end
 		WP_CORE_DIR=$(echo $WP_CORE_DIR | sed "s:/\+$::")
 		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR"/wp-tests-config.php
@@ -195,21 +231,11 @@ install_test_suite() {
 	# Verify test environment was created successfully
 	if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
 		echo "Error: WordPress test environment setup failed. Missing required files."
-		exit 1
+		return 1
 	fi
-}
 	
-	# Verify test environment was created successfully
-	if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
-		echo "Error: WordPress test environment setup failed. Missing required files."
-		exit 1
-	fi
+	echo "Test suite installation successful!"
 }
-		sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/yourusernamehere/$DB_USER/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/yourpasswordhere/$DB_PASS/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
-	fi
 
 }
 
@@ -258,9 +284,21 @@ install_db() {
 
 echo "Starting WordPress test environment setup..."
 
-install_wp
-install_test_suite
-install_db
+# Execute each step with error handling
+install_wp || {
+  echo "WordPress core installation failed!"
+  exit 1
+}
+
+install_test_suite || {
+  echo "WordPress test suite installation failed!"
+  exit 1
+}
+
+install_db || {
+  echo "Database setup failed!"
+  exit 1
+}
 
 echo "WordPress test environment setup complete."
 echo "Log file available at: $LOG_FILE"
