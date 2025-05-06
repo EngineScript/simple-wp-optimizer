@@ -237,8 +237,6 @@ install_test_suite() {
 	echo "Test suite installation successful!"
 }
 
-}
-
 install_db() {
 
 	if [ ${SKIP_DB_CREATE} = "true" ]; then
