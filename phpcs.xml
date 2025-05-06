@@ -23,7 +23,8 @@
     <rule ref="WordPress.Security.ValidatedSanitizedInput" />
     
     <!-- PHP compatibility checks -->
-    <rule ref="PHPCompatibilityWP" />
+    <rule ref="PHPCompatibility" />
+    <config name="testVersion" value="7.4-8.4"/>
     
     <!-- Files to check -->
     <arg name="extensions" value="php" />

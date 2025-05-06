@@ -87,17 +87,23 @@ jobs:
 
       - name: Run PHP Compatibility Check
         run: |
-          # Install PHP compatibility standards if they're not already installed
+          # Install PHP compatibility standards and required packages
           composer require --dev phpcompatibility/php-compatibility wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer --no-interaction || true
           
-          # Set up PHPCompatibility standard
-          vendor/bin/phpcs --config-set installed_paths $(pwd)/vendor/phpcompatibility/php-compatibility || true
+          # Set up PHPCompatibility standards - need to set correct paths
+          INSTALLED_PATHS=$(composer config vendor-dir)/phpcompatibility/php-compatibility,$(composer config vendor-dir)/wp-coding-standards/wpcs
+          vendor/bin/phpcs --config-set installed_paths $INSTALLED_PATHS || true
+          
+          # Verify configured standards
+          echo "Available coding standards:"
+          vendor/bin/phpcs -i
           
           # Try to auto-fix compatibility issues where possible
-          vendor/bin/phpcbf --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.4-8.4 . || true
+          vendor/bin/phpcbf --standard=phpcs.xml --extensions=php --ignore=vendor/,node_modules/ . || true
           
           # Run the actual compatibility check
-          vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.4-8.4 .
+          # Use project phpcs.xml which already includes PHPCompatibility with correct testVersion
+          vendor/bin/phpcs --standard=phpcs.xml --extensions=php --ignore=vendor/,node_modules/ .
 
       - name: Fix text argument escaping issues
         run: |
