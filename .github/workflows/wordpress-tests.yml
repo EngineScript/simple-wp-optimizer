@@ -115,45 +115,23 @@ jobs:
           # Write a custom composer.json for PHP 8.2 to handle specific requirements
           if [[ "$PHP_VERSION" == "8.2" ]]; then
             echo "::notice::Using PHP 8.2, creating specialized composer configuration"
-            cat > composer.json.php82 << 'EOL'
-{
-  "name": "enginescript/simple-wp-optimizer",
-  "description": "Simple WP Optimizer - A lightweight WordPress optimization plugin",
-  "type": "wordpress-plugin",
-  "license": "GPL-2.0-or-later",
-  "authors": [
-    {
-      "name": "EngineScript",
-      "email": "support@enginescript.com"
-    }
-  ],
-  "minimum-stability": "stable",
-  "require": {
-    "php": ">=7.4"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^9.5",
-    "yoast/phpunit-polyfills": "^2.0",
-    "wp-coding-standards/wpcs": "^2.3",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1"
-  },
-  "config": {
-    "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true
-    },
-    "platform": {
-      "php": "8.1.99"
-    }
-  },
-  "scripts": {
-    "test": "vendor/bin/phpunit",
-    "phpcs": "vendor/bin/phpcs --standard=WordPress",
-    "phpcbf": "vendor/bin/phpcbf --standard=WordPress"
-  }
-}
-EOL
-            # Use the PHP 8.2 specific composer file
-            mv composer.json.php82 composer.json
+            
+            # Start with a copy of the existing composer.json
+            cp composer.json composer.json.original
+            
+            # Update dependencies for PHP 8.2 compatibility
+            jq '.["require-dev"]["phpunit/phpunit"] = "^9.5"' composer.json.original > composer.json.tmp
+            jq '.["require-dev"]["yoast/phpunit-polyfills"] = "^2.0"' composer.json.tmp > composer.json.tmp2
+            
+            # Set platform config
+            jq '.config.platform.php = "8.1.99"' composer.json.tmp2 > composer.json.tmp3
+            
+            # Add PHP 8 specific test script
+            jq '.scripts["test:php8"] = "php run-phpunit.php"' composer.json.tmp3 > composer.json
+            
+            # Clean up tmp files
+            rm -f composer.json.tmp*
+            rm -f composer.json.original
           fi
           
           # Install dependencies based on PHP version

@@ -16,6 +16,10 @@ on:
     paths:
       - '**.php'
 
+# Define permissions needed for auto-committing fixes
+permissions:
+  contents: write
+
 jobs:
   php-code-quality:
     name: PHP Code Quality Checks
@@ -47,6 +51,17 @@ jobs:
             composer require --dev wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer phpcompatibility/php-compatibility --no-interaction
           fi
 
+      - name: Run PHP Code Beautifier and Fixer
+        run: |
+          if [ -f phpcs.xml ] || [ -f phpcs.xml.dist ]; then
+            # Try to fix code style issues automatically using the project's standards
+            vendor/bin/phpcbf --standard=phpcs.xml || vendor/bin/phpcbf --standard=phpcs.xml.dist || true
+          else
+            # Use WordPress-Core standard if no phpcs config file exists
+            vendor/bin/phpcbf --standard=WordPress-Core --extensions=php --ignore=vendor/,node_modules/ . || true
+          fi
+          # The '|| true' ensures the workflow continues even if phpcbf exits with non-zero code
+
       - name: Run PHP_CodeSniffer
         run: |
           if [ -f phpcs.xml ] || [ -f phpcs.xml.dist ]; then
@@ -59,9 +74,34 @@ jobs:
         run: |
           # Install PHP compatibility standards if they're not already installed
           composer require --dev phpcompatibility/php-compatibility wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer --no-interaction || true
+          
+          # Set up PHPCompatibility standard
           vendor/bin/phpcs --config-set installed_paths $(pwd)/vendor/phpcompatibility/php-compatibility || true
+          
+          # Try to auto-fix compatibility issues where possible
+          vendor/bin/phpcbf --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.0- . || true
+          
+          # Run the actual compatibility check
           vendor/bin/phpcs --standard=PHPCompatibilityWP --extensions=php --ignore=vendor/,node_modules/ --runtime-set testVersion 7.0- .
 
       - name: Check PHP syntax
         run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" -print0 | xargs -0 -n1 php -l
+
+      - name: Commit auto-fixed code style changes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # Configure Git
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Check if there are changes to commit
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          # Commit and push changes
+          git add .
+          git commit -m "Auto-fix code style issues with PHPCBF [skip ci]" || true
+          git push || true
