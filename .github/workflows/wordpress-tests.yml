@@ -267,11 +267,11 @@ jobs:
           # Ensure files are also available at non-tmp path (for scripts that may hardcode the path)
           echo "Syncing files to the /wordpress-tests-lib directory..."
           sudo mkdir -p /wordpress-tests-lib/includes/
-          sudo cp -R /tmp/wordpress-tests-lib/* /wordpress-tests-lib/ || {
+          if ! sudo cp -R /tmp/wordpress-tests-lib/* /wordpress-tests-lib/; then
             echo "::warning::Failed to copy files to /wordpress-tests-lib - trying with rsync"
             sudo apt-get install -y rsync
             sudo rsync -a /tmp/wordpress-tests-lib/ /wordpress-tests-lib/ || echo "::warning::Failed to sync files with rsync"
-          }
+          fi
           
           # Verify files in both locations
           if [ -f "/wordpress-tests-lib/includes/functions.php" ]; then
