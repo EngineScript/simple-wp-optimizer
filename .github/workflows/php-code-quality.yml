@@ -104,10 +104,10 @@ jobs:
 
           # Run the actual compatibility check
           if ! vendor/bin/phpcs --standard=phpcs.xml --extensions=php --ignore=vendor/,node_modules/ .; then
-echo "Error: The phpcs.xml standard may have issues with PHPCompatibility reference."
-echo "Trying with direct PHPCompatibility standard..."
-cp phpcs.xml phpcs.xml.bak
-cat > phpcs-compat.xml << 'EOF'
+            echo "Error: The phpcs.xml standard may have issues with PHPCompatibility reference."
+            echo "Trying with direct PHPCompatibility standard..."
+            cp phpcs.xml phpcs.xml.bak
+            cat > phpcs-compat.xml << 'EOF'
 <?xml version="1.0"?>
 <ruleset name="PHP Compatibility Check">
     <description>Check PHP compatibility for WordPress plugin</description>
@@ -120,9 +120,9 @@ cat > phpcs-compat.xml << 'EOF'
     <exclude-pattern>/node_modules/*</exclude-pattern>
 </ruleset>
 EOF
-vendor/bin/phpcs --config-set installed_paths ${ABSOLUTE_PHPCOMP_PATH},${ABSOLUTE_WPCS_PATH}
-vendor/bin/phpcs --standard=phpcs-compat.xml --extensions=php --ignore=vendor/,node_modules/ .
-fi
+            vendor/bin/phpcs --config-set installed_paths ${ABSOLUTE_PHPCOMP_PATH},${ABSOLUTE_WPCS_PATH}
+            vendor/bin/phpcs --standard=phpcs-compat.xml --extensions=php --ignore=vendor/,node_modules/ .
+          fi
 
       - name: Fix text argument escaping issues
         run: |

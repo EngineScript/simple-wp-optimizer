@@ -279,8 +279,8 @@ jobs:
           else
             echo "::warning::Files may be missing in /wordpress-tests-lib, creating core files if needed"
             sudo mkdir -p /wordpress-tests-lib/includes/
-            sudo cp -f /tmp/wordpress-tests-lib/includes/functions.php /wordpress-tests-lib/includes/ || echo "::warning::Failed to copy functions.php"
-            sudo cp -f /tmp/wordpress-tests-lib/wp-tests-config.php /wordpress-tests-lib/ || echo "::warning::Failed to copy wp-tests-config.php"
+            if ! sudo cp -f /tmp/wordpress-tests-lib/includes/functions.php /wordpress-tests-lib/includes/; then echo "::warning::Failed to copy functions.php"; fi
+            if ! sudo cp -f /tmp/wordpress-tests-lib/wp-tests-config.php /wordpress-tests-lib/; then echo "::warning::Failed to copy wp-tests-config.php"; fi
           fi
           
           # Create or copy required class-basic-object.php file if missing
