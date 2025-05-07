@@ -272,16 +272,16 @@ jobs:
             sudo apt-get install -y rsync
             sudo rsync -a /tmp/wordpress-tests-lib/ /wordpress-tests-lib/ || echo "::warning::Failed to sync files with rsync"
           fi
-          
+
           # Verify files in both locations
-if [ -f "/wordpress-tests-lib/includes/functions.php" ]; then
-  echo "WordPress test files successfully copied to /wordpress-tests-lib/"
-else
-  echo "::warning::Files may be missing in /wordpress-tests-lib, creating core files if needed"
-  sudo mkdir -p /wordpress-tests-lib/includes/
-  if ! sudo cp -f /tmp/wordpress-tests-lib/includes/functions.php /wordpress-tests-lib/includes/; then echo "::warning::Failed to copy functions.php"; fi
-  if ! sudo cp -f /tmp/wordpress-tests-lib/wp-tests-config.php /wordpress-tests-lib/; then echo "::warning::Failed to copy wp-tests-config.php"; fi
-fi
+          if [ -f "/wordpress-tests-lib/includes/functions.php" ]; then
+            echo "WordPress test files successfully copied to /wordpress-tests-lib/"
+          else
+            echo "::warning::Files may be missing in /wordpress-tests-lib, creating core files if needed"
+            sudo mkdir -p /wordpress-tests-lib/includes/
+            if ! sudo cp -f /tmp/wordpress-tests-lib/includes/functions.php /wordpress-tests-lib/includes/; then echo "::warning::Failed to copy functions.php"; fi
+            if ! sudo cp -f /tmp/wordpress-tests-lib/wp-tests-config.php /wordpress-tests-lib/; then echo "::warning::Failed to copy wp-tests-config.php"; fi
+          fi
           
           # Create or copy required class-basic-object.php file if missing
 if [ ! -f "/tmp/wordpress-tests-lib/includes/class-basic-object.php" ]; then
