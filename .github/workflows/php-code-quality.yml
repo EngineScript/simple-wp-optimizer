@@ -90,8 +90,10 @@ jobs:
           # Install PHP compatibility standards and required packages
           composer require --dev phpcompatibility/php-compatibility squizlabs/php_codesniffer wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer --no-interaction || true
           
-          # Set up PHPCompatibility standards properly
-          vendor/bin/phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility,vendor/wp-coding-standards/wpcs
+          # Set up PHPCompatibility standards properly with absolute paths
+          ABSOLUTE_PHPCOMP_PATH=$(composer config vendor-dir)/phpcompatibility/php-compatibility
+          ABSOLUTE_WPCS_PATH=$(composer config vendor-dir)/wp-coding-standards/wpcs
+          vendor/bin/phpcs --config-set installed_paths $ABSOLUTE_PHPCOMP_PATH,$ABSOLUTE_WPCS_PATH
           
           # Verify configured standards
           echo "Available coding standards:"
@@ -112,6 +114,7 @@ jobs:
             echo '<?xml version="1.0"?>' > phpcs-compat.xml
             echo '<ruleset name="PHP Compatibility Check">' >> phpcs-compat.xml
             echo '    <description>Check PHP compatibility for WordPress plugin</description>' >> phpcs-compat.xml
+            echo '    <config name="installed_paths" value="'$(composer config vendor-dir)'/phpcompatibility/php-compatibility"/>' >> phpcs-compat.xml
             echo '    <rule ref="PHPCompatibility"/>' >> phpcs-compat.xml
             echo '    <config name="testVersion" value="7.4-8.4"/>' >> phpcs-compat.xml
             echo '    <arg name="extensions" value="php"/>' >> phpcs-compat.xml
