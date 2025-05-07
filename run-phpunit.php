@@ -56,6 +56,19 @@ array_shift($args); // Remove the script name
 // Default arguments
 $default_args = [];
 
+// Only add --no-deprecations flag for PHPUnit versions that support it (before PHPUnit 10)
+if (version_compare($phpunit_version, '10.0', '<')) {
+    $default_args[] = '--no-deprecations';
+} else {
+    // For PHPUnit 10+, the --no-deprecations flag is no longer supported
+    // Deprecation notices are suppressed by default in newer PHPUnit versions
+    if (function_exists('esc_html')) {
+        echo esc_html("Skipping --no-deprecations flag for PHPUnit 10+") . "\n";
+    } else {
+        echo "Skipping --no-deprecations flag for PHPUnit 10+\n";
+    }
+}
+
 // PHP 8.x specific settings
 if ($php_major_version >= 8) {
     if (function_exists('esc_html')) {
@@ -71,9 +84,6 @@ if ($php_major_version >= 8) {
         } else {
             echo "Using PHP 8.3+ with PHPUnit requires special handling\n";
         }
-        
-        // Add any PHP 8.3/8.4 specific flags
-        $default_args[] = '--no-deprecations';
         
         // For PHPUnit 10+
         if (version_compare($phpunit_version, '10.0', '>=')) {

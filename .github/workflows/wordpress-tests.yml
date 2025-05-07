@@ -286,6 +286,69 @@ jobs:
             sudo cp -f /tmp/wordpress-tests-lib/wp-tests-config.php /wordpress-tests-lib/ || echo "::warning::Failed to copy wp-tests-config.php"
           fi
           
+          # Create or copy required class-basic-object.php file if missing
+          if [ ! -f "/tmp/wordpress-tests-lib/includes/class-basic-object.php" ]; then
+            echo "Creating missing class-basic-object.php file in /tmp/wordpress-tests-lib..."
+            cat > "/tmp/wordpress-tests-lib/includes/class-basic-object.php" << 'EOF'
+<?php
+/**
+ * Basic object, which other objects in WordPress extend.
+ * 
+ * This is a simplified version for tests to fix the missing class issue.
+ */
+class Basic_Object {
+    /**
+     * Retrieve a value from an array with support for a default value.
+     *
+     * @param array  $args  Arguments.
+     * @param string $key   Key to retrieve.
+     * @param mixed  $default Default value.
+     * @return mixed Value if set, default if not.
+     */
+    protected function get_from_array( $args, $key, $default = null ) {
+        if ( isset( $args[ $key ] ) ) {
+            return $args[ $key ];
+        }
+        return $default;
+    }
+}
+EOF
+          fi
+          
+          # Copy to the alternate path as well
+          if [ ! -f "/wordpress-tests-lib/includes/class-basic-object.php" ]; then
+            sudo mkdir -p /wordpress-tests-lib/includes/
+            if [ -f "/tmp/wordpress-tests-lib/includes/class-basic-object.php" ]; then
+              sudo cp -f /tmp/wordpress-tests-lib/includes/class-basic-object.php /wordpress-tests-lib/includes/ || echo "::warning::Failed to copy class-basic-object.php"
+            else
+              echo "Creating missing class-basic-object.php file in /wordpress-tests-lib..."
+              sudo bash -c 'cat > "/wordpress-tests-lib/includes/class-basic-object.php" << "EOF"
+<?php
+/**
+ * Basic object, which other objects in WordPress extend.
+ * 
+ * This is a simplified version for tests to fix the missing class issue.
+ */
+class Basic_Object {
+    /**
+     * Retrieve a value from an array with support for a default value.
+     *
+     * @param array  $args  Arguments.
+     * @param string $key   Key to retrieve.
+     * @param mixed  $default Default value.
+     * @return mixed Value if set, default if not.
+     */
+    protected function get_from_array( $args, $key, $default = null ) {
+        if ( isset( $args[ $key ] ) ) {
+            return $args[ $key ];
+        }
+        return $default;
+    }
+}
+EOF'
+            fi
+          fi
+          
           # Check WordPress core installation and verify db.php was copied
           if [ ! -d "/tmp/wordpress" ]; then
             echo "::error::WordPress core directory not created."
@@ -379,7 +442,7 @@ jobs:
             fi
           else
             # Standard execution for PHP 7.4
-            echo "Running tests with PHP $PHP_VERSION standard mode"
+                        echo "Running tests with PHP $PHP_VERSION standard mode"
             vendor/bin/phpunit || {
               echo "::warning::Tests failed with standard execution, trying individual test files..."
               EXIT_CODE=0

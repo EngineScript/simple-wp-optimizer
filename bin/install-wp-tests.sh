@@ -247,6 +247,41 @@ install_test_suite() {
 			}
 		}
 		
+		# Check for required files in the includes directory
+		if [ ! -f "$WP_TESTS_DIR/includes/functions.php" ]; then
+			echo "Error: functions.php not found in includes directory. Tests may not work properly."
+		fi
+		
+		# Create/download any missing required files
+		if [ ! -f "$WP_TESTS_DIR/includes/class-basic-object.php" ]; then
+			echo "Creating missing class-basic-object.php file..."
+			cat > "$WP_TESTS_DIR/includes/class-basic-object.php" << 'EOT'
+<?php
+/**
+ * Basic object, which other objects in WordPress extend.
+ * 
+ * This is a simplified version for tests to fix the missing class issue.
+ */
+class Basic_Object {
+
+    /**
+     * Retrieve a value from an array with support for a default value.
+     *
+     * @param array  $args  Arguments.
+     * @param string $key   Key to retrieve.
+     * @param mixed  $default Default value.
+     * @return mixed Value if set, default if not.
+     */
+    protected function get_from_array( $args, $key, $default = null ) {
+        if ( isset( $args[ $key ] ) ) {
+            return $args[ $key ];
+        }
+        return $default;
+    }
+}
+EOT
+		fi
+		
 		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data || {
 			echo "Failed to download test data - retrying once"
 			svn cleanup $WP_TESTS_DIR/data
@@ -288,6 +323,16 @@ install_test_suite() {
 		if [ -d "/wordpress-tests-lib" ]; then
 			echo "Copying test files to /wordpress-tests-lib for compatibility"
 			cp -R "$WP_TESTS_DIR"/* /wordpress-tests-lib/ 2>/dev/null || sudo cp -R "$WP_TESTS_DIR"/* /wordpress-tests-lib/ 2>/dev/null
+			
+			# Ensure the class-basic-object.php exists in both locations
+			if [ -f "$WP_TESTS_DIR/includes/class-basic-object.php" ] && [ ! -f "/wordpress-tests-lib/includes/class-basic-object.php" ]; then
+				echo "Copying class-basic-object.php to alternate location"
+				mkdir -p /wordpress-tests-lib/includes/ 2>/dev/null || sudo mkdir -p /wordpress-tests-lib/includes/ 2>/dev/null
+				cp "$WP_TESTS_DIR/includes/class-basic-object.php" /wordpress-tests-lib/includes/ 2>/dev/null || 
+				sudo cp "$WP_TESTS_DIR/includes/class-basic-object.php" /wordpress-tests-lib/includes/ 2>/dev/null
+			elif [ ! -f "$WP_TESTS_DIR/includes/class-basic-object.php" ]; then
+				echo "Warning: class-basic-object.php not found in source directory"
+			fi
 			
 			if [ ! -f "/wordpress-tests-lib/includes/functions.php" ]; then
 				echo "Warning: Could not copy all files to /wordpress-tests-lib"

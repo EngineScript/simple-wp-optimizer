@@ -90,7 +90,7 @@ jobs:
           # Install PHP compatibility standards and required packages
           composer require --dev phpcompatibility/php-compatibility squizlabs/php_codesniffer wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer --no-interaction || true
           
-          # Set up PHPCompatibility standards properly - use direct path references
+          # Set up PHPCompatibility standards properly
           vendor/bin/phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility,vendor/wp-coding-standards/wpcs
           
           # Verify configured standards

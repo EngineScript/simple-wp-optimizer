@@ -44,6 +44,20 @@ if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 
+// Check and handle missing class-basic-object.php file
+if ( ! file_exists( $_tests_dir . '/includes/class-basic-object.php' ) && file_exists( __DIR__ . '/class-basic-object.php' ) ) {
+	// If class-basic-object.php is missing in test lib but exists locally, use our version
+	echo "Using local class-basic-object.php as fallback..." . PHP_EOL;
+	
+	// If the includes directory doesn't exist in the test directory, create it
+	if ( ! file_exists( $_tests_dir . '/includes' ) ) {
+		mkdir( $_tests_dir . '/includes', 0777, true );
+	}
+	
+	// Copy our local version to the test directory
+	copy( __DIR__ . '/class-basic-object.php', $_tests_dir . '/includes/class-basic-object.php' );
+}
+
 /**
  * Manually load the plugin being tested.
  */
