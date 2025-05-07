@@ -293,7 +293,7 @@ jobs:
 <?php
 /**
  * Basic object, which other objects in WordPress extend.
- * 
+ *
  * This is a simplified version for tests to fix the missing class issue.
  */
 class Basic_Object {
@@ -442,7 +442,7 @@ EOF'
             fi
           else
             # Standard execution for PHP 7.4
-                        echo "Running tests with PHP $PHP_VERSION standard mode"
+            echo "Running tests with PHP $PHP_VERSION standard mode"
             vendor/bin/phpunit || {
               echo "::warning::Tests failed with standard execution, trying individual test files..."
               EXIT_CODE=0
