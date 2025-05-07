@@ -16,6 +16,22 @@ if ( ! $_tests_dir ) {
 	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
 }
 
+// Check alternative paths if the initial path doesn't exist
+if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
+	$alternative_dirs = array(
+		'/wordpress-tests-lib',
+		dirname( __FILE__ ) . '/../wordpress-tests-lib',
+		'/tmp/wordpress-tests-lib',
+	);
+	
+	foreach ( $alternative_dirs as $alt_dir ) {
+		if ( file_exists( $alt_dir . '/includes/functions.php' ) ) {
+			$_tests_dir = $alt_dir;
+			break;
+		}
+	}
+}
+
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 	if (function_exists('esc_html')) {
 		echo esc_html("Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?") . PHP_EOL;

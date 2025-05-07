@@ -32,6 +32,15 @@ TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
 WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
+# Create a symlink from /wordpress-tests-lib to actual tests dir if not using the default
+if [[ "$WP_TESTS_DIR" == "/tmp/wordpress-tests-lib" && ! -d "/wordpress-tests-lib" ]]; then
+  echo "Setting up compatibility symlink at /wordpress-tests-lib"
+  if [ ! -d "/wordpress-tests-lib" ]; then
+    sudo mkdir -p /wordpress-tests-lib || mkdir -p /wordpress-tests-lib || echo "Could not create /wordpress-tests-lib directory"
+    sudo chmod 1777 /wordpress-tests-lib || chmod 1777 /wordpress-tests-lib 2>/dev/null || echo "Could not set permissions on /wordpress-tests-lib"
+  fi
+fi
+
 echo "Configuration:"
 echo "  DB_NAME: $DB_NAME"
 echo "  DB_USER: $DB_USER"
@@ -267,6 +276,27 @@ install_test_suite() {
 	if [ ! -d "$WP_TESTS_DIR/includes" ] || [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
 		echo "Error: WordPress test environment setup failed. Missing required files."
 		return 1
+	fi
+	
+	# Create a symlink or copy files to /wordpress-tests-lib if needed for compatibility
+	if [[ "$WP_TESTS_DIR" == "/tmp/wordpress-tests-lib" && -d "$WP_TESTS_DIR" ]]; then
+		if [ ! -d "/wordpress-tests-lib" ]; then
+			echo "Creating directory at /wordpress-tests-lib for compatibility"
+			mkdir -p /wordpress-tests-lib 2>/dev/null || sudo mkdir -p /wordpress-tests-lib 2>/dev/null
+		fi
+		
+		if [ -d "/wordpress-tests-lib" ]; then
+			echo "Copying test files to /wordpress-tests-lib for compatibility"
+			cp -R "$WP_TESTS_DIR"/* /wordpress-tests-lib/ 2>/dev/null || sudo cp -R "$WP_TESTS_DIR"/* /wordpress-tests-lib/ 2>/dev/null
+			
+			if [ ! -f "/wordpress-tests-lib/includes/functions.php" ]; then
+				echo "Warning: Could not copy all files to /wordpress-tests-lib"
+			else
+				echo "Successfully copied WordPress test files to /wordpress-tests-lib"
+			fi
+		else
+			echo "Warning: Could not create /wordpress-tests-lib directory for compatibility"
+		fi
 	fi
 	
 	echo "Test suite installation successful!"

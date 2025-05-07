@@ -185,8 +185,22 @@ jobs:
           
           # Create and fix permissions for /tmp directory
           sudo mkdir -p /tmp/wordpress-tests-lib
+          
+          # Create main directory to handle root path mismatch
+          sudo mkdir -p /wordpress-tests-lib
+          
+          # Set proper permissions
           sudo chmod 1777 /tmp
           sudo chmod 1777 /tmp/wordpress-tests-lib
+          sudo chmod 1777 /wordpress-tests-lib
+          
+          # Create a symlink to handle path discrepancies
+          echo "Creating symlink to ensure path compatibility..."
+          sudo ln -sf /tmp/wordpress-tests-lib/* /wordpress-tests-lib/ || echo "Warning: Symlink creation failed, will try direct copy later"
+          
+          # Export WP_TESTS_DIR to ensure all scripts use the correct path
+          export WP_TESTS_DIR=/tmp/wordpress-tests-lib
+          echo "WP_TESTS_DIR=$WP_TESTS_DIR" >> $GITHUB_ENV
           
           # Define variables for WordPress version
           WP_VERSION="${{ matrix.wordpress }}"
@@ -200,22 +214,76 @@ jobs:
             
             # Try one more time with explicitly created directory
             echo "Retrying WordPress test environment setup..."
+            sudo rm -rf /tmp/wordpress-tests-lib || echo "Failed to remove old test dir"
+            sudo mkdir -p /tmp/wordpress-tests-lib
+            sudo chmod 1777 /tmp/wordpress-tests-lib
+            
+            # Make sure WP_TESTS_DIR is set correctly for the retry
+            export WP_TESTS_DIR=/tmp/wordpress-tests-lib
+            echo "WP_TESTS_DIR=$WP_TESTS_DIR" >> $GITHUB_ENV
+            
             bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION || {
               echo "::error::Failed to setup WordPress test environment on second attempt."
-              exit 1
+              
+              # Last resort - try manually setting up core files
+              echo "Attempting manual setup of core files as final fallback..."
+              mkdir -p "$WP_TESTS_DIR/includes"
+              
+              # Try to download the essential files directly
+              curl -s https://develop.svn.wordpress.org/trunk/tests/phpunit/includes/functions.php > "$WP_TESTS_DIR/includes/functions.php"
+              curl -s https://develop.svn.wordpress.org/trunk/tests/phpunit/includes/bootstrap.php > "$WP_TESTS_DIR/includes/bootstrap.php"
+              curl -s https://develop.svn.wordpress.org/trunk/wp-tests-config-sample.php > "$WP_TESTS_DIR/wp-tests-config.php"
+              
+              # Configure wp-tests-config.php
+              sed -i "s:dirname( __FILE__ ) . '/src/':'/tmp/wordpress/':" "$WP_TESTS_DIR/wp-tests-config.php"
+              sed -i "s/youremptytestdbnamehere/wordpress_test/" "$WP_TESTS_DIR/wp-tests-config.php"
+              sed -i "s/yourusernamehere/root/" "$WP_TESTS_DIR/wp-tests-config.php"
+              sed -i "s/yourpasswordhere//" "$WP_TESTS_DIR/wp-tests-config.php"
+              sed -i "s|localhost|127.0.0.1|" "$WP_TESTS_DIR/wp-tests-config.php"
+              
+              # Copy to the alternate path as well
+              sudo mkdir -p /wordpress-tests-lib/includes/
+              sudo cp -R "$WP_TESTS_DIR"/* /wordpress-tests-lib/
+              
+              # Verify if manual setup succeeded
+              if [ -f "$WP_TESTS_DIR/includes/functions.php" ]; then
+                echo "Manual fallback setup succeeded."
+              else
+                echo "Manual fallback setup failed. Cannot proceed with tests."
+                exit 1
+              fi
             }
           }
           
           # Verify the test environment was created successfully
           if [ ! -d "/tmp/wordpress-tests-lib" ]; then
-            echo "::error::WordPress test directory not created."
+            echo "::error::WordPress test directory not created at /tmp/wordpress-tests-lib."
             exit 1
           fi
           
           if [ ! -f "/tmp/wordpress-tests-lib/includes/functions.php" ]; then
-            echo "::error::WordPress test functions file missing."
+            echo "::error::WordPress test functions file missing at /tmp/wordpress-tests-lib/includes/functions.php."
             ls -la /tmp/wordpress-tests-lib/includes/ || echo "Includes directory not found or empty"
             exit 1
+          fi
+          
+          # Ensure files are also available at non-tmp path (for scripts that may hardcode the path)
+          echo "Syncing files to the /wordpress-tests-lib directory..."
+          sudo mkdir -p /wordpress-tests-lib/includes/
+          sudo cp -R /tmp/wordpress-tests-lib/* /wordpress-tests-lib/ || {
+            echo "::warning::Failed to copy files to /wordpress-tests-lib - trying with rsync"
+            sudo apt-get install -y rsync
+            sudo rsync -a /tmp/wordpress-tests-lib/ /wordpress-tests-lib/ || echo "::warning::Failed to sync files with rsync"
+          }
+          
+          # Verify files in both locations
+          if [ -f "/wordpress-tests-lib/includes/functions.php" ]; then
+            echo "WordPress test files successfully copied to /wordpress-tests-lib/"
+          else
+            echo "::warning::Files may be missing in /wordpress-tests-lib, creating core files if needed"
+            sudo mkdir -p /wordpress-tests-lib/includes/
+            sudo cp -f /tmp/wordpress-tests-lib/includes/functions.php /wordpress-tests-lib/includes/ || echo "::warning::Failed to copy functions.php"
+            sudo cp -f /tmp/wordpress-tests-lib/wp-tests-config.php /wordpress-tests-lib/ || echo "::warning::Failed to copy wp-tests-config.php"
           fi
           
           # Check WordPress core installation and verify db.php was copied
@@ -256,12 +324,30 @@ jobs:
           # Ensure we have proper error reporting for tests
           export WP_TESTS_PHPUNIT_POLYFILLS_PATH=$(pwd)/vendor/yoast/phpunit-polyfills
           
+          # Set the WP_TESTS_DIR explicitly to ensure all scripts use the correct path
+          export WP_TESTS_DIR=/tmp/wordpress-tests-lib
+          echo "Using WordPress test directory: $WP_TESTS_DIR"
+          
           # Check WordPress test environment
           echo "Verifying WordPress test environment..."
-          if [ ! -d "/tmp/wordpress-tests-lib" ] || [ ! -f "/tmp/wordpress-tests-lib/includes/functions.php" ]; then
-            echo "::error::WordPress test environment verification failed. Missing required files."
-            exit 1
+          if [ ! -d "$WP_TESTS_DIR" ] || [ ! -f "$WP_TESTS_DIR/includes/functions.php" ]; then
+            echo "::error::WordPress test environment verification failed at $WP_TESTS_DIR. Missing required files."
+            
+            # Check alternate paths as fallback
+            if [ -d "/wordpress-tests-lib" ] && [ -f "/wordpress-tests-lib/includes/functions.php" ]; then
+              echo "::warning::Found WordPress test files at /wordpress-tests-lib instead, switching to this path."
+              export WP_TESTS_DIR=/wordpress-tests-lib
+            else
+              exit 1
+            fi
           fi
+          
+          # Show test environment info for debugging
+          echo "Final WordPress test environment information:"
+          echo "WP_TESTS_DIR: $WP_TESTS_DIR"
+          ls -la $WP_TESTS_DIR/includes/ || echo "Cannot list includes directory"
+          echo "WordPress content directory:"
+          ls -la /tmp/wordpress/wp-content/ || echo "Cannot list wp-content directory"
           
           # PHP 8.x specific handling
           if [[ "$PHP_VERSION" == "8.0" || "$PHP_VERSION" == "8.1" || "$PHP_VERSION" == "8.2" || "$PHP_VERSION" == "8.3" || "$PHP_VERSION" == "8.4" ]]; then
