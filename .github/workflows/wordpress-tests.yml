@@ -284,9 +284,9 @@ jobs:
           fi
           
           # Create or copy required class-basic-object.php file if missing
-if [ ! -f "/tmp/wordpress-tests-lib/includes/class-basic-object.php" ]; then
-  echo "Creating missing class-basic-object.php file in /tmp/wordpress-tests-lib..."
-  (cat <<'EOF' > /tmp/wordpress-tests-lib/includes/class-basic-object.php
+          if [ ! -f "/tmp/wordpress-tests-lib/includes/class-basic-object.php" ]; then
+            echo "Creating missing class-basic-object.php file in /tmp/wordpress-tests-lib..."
+            cat > /tmp/wordpress-tests-lib/includes/class-basic-object.php << 'EOF'
 <?php
 /**
  * Basic object, which other objects in WordPress extend.
@@ -310,8 +310,7 @@ class Basic_Object {
     }
 }
 EOF
-  )
-fi
+          fi
           
           # Copy to the alternate path as well
           if [ ! -f "/wordpress-tests-lib/includes/class-basic-object.php" ]; then

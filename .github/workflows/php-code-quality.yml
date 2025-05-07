@@ -51,10 +51,10 @@ jobs:
             composer require --dev wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer phpcompatibility/php-compatibility --no-interaction
           fi
 
+
       - name: Run PHP Code Beautifier and Fixer
         run: |
           echo "Running PHP Code Beautifier and Fixer to automatically fix code style issues..."
-          
           if [ -f phpcs.xml ] || [ -f phpcs.xml.dist ]; then
             # Try to fix code style issues automatically using the project's standards
             vendor/bin/phpcbf --standard=phpcs.xml || vendor/bin/phpcbf --standard=phpcs.xml.dist || true
@@ -63,7 +63,6 @@ jobs:
             echo "Using custom phpcbf ruleset to fix alignment and common issues"
             vendor/bin/phpcbf --standard=phpcbf-custom.xml --extensions=php . || true
           fi
-          
           # Check if changes were made and output a summary
           if git diff --name-only | grep -q "\.php$"; then
             echo "PHPCBF fixed issues in the following files:"
@@ -89,16 +88,16 @@ jobs:
         run: |
           # Install PHP compatibility standards and required packages
           composer require --dev phpcompatibility/php-compatibility squizlabs/php_codesniffer wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer --no-interaction || true
-          
+
           # Set up PHPCompatibility standards properly with absolute paths
           ABSOLUTE_PHPCOMP_PATH=$(composer config vendor-dir)/phpcompatibility/php-compatibility
           ABSOLUTE_WPCS_PATH=$(composer config vendor-dir)/wp-coding-standards/wpcs
           vendor/bin/phpcs --config-set installed_paths ${ABSOLUTE_PHPCOMP_PATH},${ABSOLUTE_WPCS_PATH}
-          
+
           # Verify configured standards
           echo "Available coding standards:"
           vendor/bin/phpcs -i
-          
+
           # Try to auto-fix compatibility issues where possible
           vendor/bin/phpcbf --standard=phpcs.xml --extensions=php --ignore=vendor/,node_modules/ . || true
 
@@ -120,34 +119,28 @@ jobs:
     <exclude-pattern>/node_modules/*</exclude-pattern>
 </ruleset>
 EOF
-            vendor/bin/phpcs --config-set installed_paths ${ABSOLUTE_PHPCOMP_PATH},${ABSOLUTE_WPCS_PATH}
-            vendor/bin/phpcs --standard=phpcs-compat.xml --extensions=php --ignore=vendor/,node_modules/ .
-          fi
+
+          vendor/bin/phpcs --config-set installed_paths ${ABSOLUTE_PHPCOMP_PATH},${ABSOLUTE_WPCS_PATH}
+          vendor/bin/phpcs --standard=phpcs-compat.xml --extensions=php --ignore=vendor/,node_modules/ .
+        fi
 
       - name: Fix text argument escaping issues
         run: |
           echo "Checking for text argument escaping issues..."
-          
           # Find PHP files with potential escaping issues (echo with variables not wrapped in esc_html)
           FILES_WITH_ESCAPING_ISSUES=$(grep -r --include="*.php" -l 'echo ".*\$' --exclude-dir={vendor,node_modules,tests} . || echo "")
-          
           if [ -n "$FILES_WITH_ESCAPING_ISSUES" ]; then
             echo "Found potential escaping issues in the following files:"
             echo "$FILES_WITH_ESCAPING_ISSUES"
-            
             # Find problematic patterns and fix them
             for FILE in $FILES_WITH_ESCAPING_ISSUES; do
               echo "Checking $FILE for escaping issues..."
-              
               # Replace direct echo of strings with variables to use esc_html
               sed -i 's/echo "\(.*\)\$\([a-zA-Z0-9_]*\)\(.*\)";/if (function_exists('\''esc_html'\'')) { echo esc_html("\1$\2\3"); } else { echo "\1$\2\3"; }/g' "$FILE" || true
-              
               # Also fix single quoted strings
               sed -i 's/echo '\''\(.*\)\$\([a-zA-Z0-9_]*\)\(.*\)'\'';/if (function_exists('\''esc_html'\'')) { echo esc_html('\''\1$\2\3'\''); } else { echo '\''\1$\2\3'\''; }/g' "$FILE" || true
-              
               # Fix multi-line echo statements
               sed -i 's/echo \("\|\x27\)\(.*\)\$\([a-zA-Z0-9_]*\)\(.*\)\("\|\x27\) \. \("\|\x27\)\(.*\)\("\|\x27\);/if (function_exists('\''esc_html'\'')) { echo esc_html(\1\2$\3\4\5 . \6\7\8); } else { echo \1\2$\3\4\5 . \6\7\8; }/g' "$FILE" || true
-              
               echo "Applied escaping fixes to $FILE"
             done
           else
