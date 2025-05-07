@@ -93,7 +93,7 @@ jobs:
           # Set up PHPCompatibility standards properly with absolute paths
           ABSOLUTE_PHPCOMP_PATH=$(composer config vendor-dir)/phpcompatibility/php-compatibility
           ABSOLUTE_WPCS_PATH=$(composer config vendor-dir)/wp-coding-standards/wpcs
-          vendor/bin/phpcs --config-set installed_paths $ABSOLUTE_PHPCOMP_PATH,$ABSOLUTE_WPCS_PATH
+          vendor/bin/phpcs --config-set installed_paths ${ABSOLUTE_PHPCOMP_PATH},${ABSOLUTE_WPCS_PATH}
           
           # Verify configured standards
           echo "Available coding standards:"
@@ -111,19 +111,22 @@ jobs:
             cp phpcs.xml phpcs.xml.bak
             
             # Create a simple phpcs configuration file that directly references PHPCompatibility
-            echo '<?xml version="1.0"?>' > phpcs-compat.xml
-            echo '<ruleset name="PHP Compatibility Check">' >> phpcs-compat.xml
-            echo '    <description>Check PHP compatibility for WordPress plugin</description>' >> phpcs-compat.xml
-            echo '    <config name="installed_paths" value="'$(composer config vendor-dir)'/phpcompatibility/php-compatibility"/>' >> phpcs-compat.xml
-            echo '    <rule ref="PHPCompatibility"/>' >> phpcs-compat.xml
-            echo '    <config name="testVersion" value="7.4-8.4"/>' >> phpcs-compat.xml
-            echo '    <arg name="extensions" value="php"/>' >> phpcs-compat.xml
-            echo '    <file>.</file>' >> phpcs-compat.xml
-            echo '    <exclude-pattern>/vendor/*</exclude-pattern>' >> phpcs-compat.xml
-            echo '    <exclude-pattern>/node_modules/*</exclude-pattern>' >> phpcs-compat.xml
-            echo '</ruleset>' >> phpcs-compat.xml
+            cat > phpcs-compat.xml << 'EOF'
+<?xml version="1.0"?>
+<ruleset name="PHP Compatibility Check">
+    <description>Check PHP compatibility for WordPress plugin</description>
+    <config name="installed_paths" value="./vendor/phpcompatibility/php-compatibility"/>
+    <rule ref="PHPCompatibility"/>
+    <config name="testVersion" value="7.4-8.4"/>
+    <arg name="extensions" value="php"/>
+    <file>.</file>
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+</ruleset>
+EOF
             
-            # Try with the temporary configuration
+            # Try with the temporary configuration and ensure installed_paths is set correctly
+            vendor/bin/phpcs --config-set installed_paths ${ABSOLUTE_PHPCOMP_PATH},${ABSOLUTE_WPCS_PATH}
             vendor/bin/phpcs --standard=phpcs-compat.xml --extensions=php --ignore=vendor/,node_modules/ .
           }
 
