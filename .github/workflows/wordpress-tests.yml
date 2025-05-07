@@ -207,11 +207,8 @@ jobs:
           
           # Run the script with detailed logging
           echo "Installing WordPress test environment for version $WP_VERSION..."
-          bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION || {
-            echo "::error::Failed to setup WordPress test environment. Showing detailed error information:"
-            find /tmp -name "wordpress-tests-lib-install-*.log" -exec cat {} \; 2>/dev/null || echo "No install logs found."
-            ls -la /tmp/wordpress-tests-lib || echo "/tmp/wordpress-tests-lib directory not found"
-            
+          if ! bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION; then
+            echo "error"
             # Try one more time with explicitly created directory
             echo "Retrying WordPress test environment setup..."
             sudo rm -rf /tmp/wordpress-tests-lib || echo "Failed to remove old test dir"
@@ -222,7 +219,7 @@ jobs:
             export WP_TESTS_DIR=/tmp/wordpress-tests-lib
             echo "WP_TESTS_DIR=$WP_TESTS_DIR" >> $GITHUB_ENV
             
-            bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION || {
+            if ! bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION; then
               echo "::error::Failed to setup WordPress test environment on second attempt."
               
               # Last resort - try manually setting up core files
@@ -253,7 +250,7 @@ jobs:
                 exit 1
               fi
             }
-          }
+          fi
           
           # Verify the test environment was created successfully
           if [ ! -d "/tmp/wordpress-tests-lib" ]; then
