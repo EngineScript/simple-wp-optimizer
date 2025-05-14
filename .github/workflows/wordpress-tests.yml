@@ -1,7 +1,7 @@
 # This workflow runs automated tests for the Simple WP Optimizer plugin against multiple
 # WordPress and PHP versions to ensure compatibility across environments.
 # It sets up a MySQL database, installs WordPress, and runs PHPUnit tests in a matrix configuration.
-# Testing multiple PHP versions (7.4 through 8.2) and WordPress versions (5.6 through latest)
+# Testing multiple PHP versions (7.4 through 8.4) and WordPress versions (latest)
 # helps catch compatibility issues before they affect users.
 
 name: WordPress Plugin Tests
@@ -282,34 +282,33 @@ jobs:
             if ! sudo cp -f /tmp/wordpress-tests-lib/includes/functions.php /wordpress-tests-lib/includes/; then echo "::warning::Failed to copy functions.php"; fi
             if ! sudo cp -f /tmp/wordpress-tests-lib/wp-tests-config.php /wordpress-tests-lib/; then echo "::warning::Failed to copy wp-tests-config.php"; fi
           fi
-          
+
           # Create or copy required class-basic-object.php file if missing
           if [ ! -f "/tmp/wordpress-tests-lib/includes/class-basic-object.php" ]; then
             echo "Creating missing class-basic-object.php file in /tmp/wordpress-tests-lib..."
-            cat > /tmp/wordpress-tests-lib/includes/class-basic-object.php << 'EOF'
-<?php
-/**
- * Basic object, which other objects in WordPress extend.
- *
- * This is a simplified version for tests to fix the missing class issue.
- */
-class Basic_Object {
-    /**
-     * Retrieve a value from an array with support for a default value.
-     *
-     * @param array  \$args  Arguments.
-     * @param string \$key   Key to retrieve.
-     * @param mixed  \$default Default value.
-     * @return mixed Value if set, default if not.
-     */
-    protected function get_from_array( \$args, \$key, \$default = null ) {
-        if ( isset( \$args[ \$key ] ) ) {
-            return \$args[ \$key ];
-        }
-        return \$default;
-    }
-}
-EOF
+            printf '%s\n' \
+              '<?php' \
+              '/**' \
+              ' * Basic object, which other objects in WordPress extend.' \
+              ' *' \
+              ' * This is a simplified version for tests to fix the missing class issue.' \
+              ' */' \
+              'class Basic_Object {' \
+              '    /**' \
+              '     * Retrieve a value from an array with support for a default value.' \
+              '     *' \
+              '     * @param array  $args  Arguments.' \
+              '     * @param string $key   Key to retrieve.' \
+              '     * @param mixed  $default Default value.' \
+              '     * @return mixed Value if set, default if not.' \
+              '     */' \
+              '    protected function get_from_array( $args, $key, $default = null ) {' \
+              '        if ( isset( $args[ $key ] ) ) {' \
+              '            return $args[ $key ];' \
+              '        }' \
+              '        return $default;' \
+              '    }' \
+              '}' > /tmp/wordpress-tests-lib/includes/class-basic-object.php
           fi
           
           # Copy to the alternate path as well
@@ -319,7 +318,7 @@ EOF
               sudo cp -f /tmp/wordpress-tests-lib/includes/class-basic-object.php /wordpress-tests-lib/includes/ || echo "::warning::Failed to copy class-basic-object.php"
             else
               echo "Creating missing class-basic-object.php file in /wordpress-tests-lib..."
-              sudo bash -c 'cat > /wordpress-tests-lib/includes/class-basic-object.php << '\''EOF'\''
+              sudo bash -c "cat > /wordpress-tests-lib/includes/class-basic-object.php << 'EOF'
 <?php
 /**
  * Basic object, which other objects in WordPress extend.
@@ -342,7 +341,7 @@ class Basic_Object {
         return \$default;
     }
 }
-EOF'
+EOF"
             fi
           fi
           
