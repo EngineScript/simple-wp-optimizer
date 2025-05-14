@@ -23,11 +23,5 @@
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
-  },
-  "scripts": {
-    "test": "vendor/bin/phpunit",
-    "test:php8": "php run-phpunit.php",
-    "phpcs": "vendor/bin/phpcs --standard=WordPress",
-    "phpcbf": "vendor/bin/phpcbf --standard=WordPress"
   }
 }
