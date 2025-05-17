@@ -32,6 +32,7 @@ jobs:
           php_version: ${{ matrix.php-version }}
           wordpress_version: ${{ matrix.wordpress-version }}
           plugin_slug: 'simple-wp-optimizer'
+          phpunit_config: 'phpunit.xml'
           
       - name: Add labels to any PRs
         if: github.event_name == 'pull_request'

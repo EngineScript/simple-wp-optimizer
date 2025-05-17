@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed action parameters using the correct input names: php_version, wordpress_version, plugin_slug
 - Added automated PR labeling with "automated", "documentation", and "plugin update" tags
 - Set up proper GitHub permissions for integration test workflow
+- Created test infrastructure with PHPUnit Polyfills for cross-version compatibility
+- Added basic plugin loading tests and WordPress environment configuration
 
 ## [1.5.4] - 2025-05-04
 ### Changed
