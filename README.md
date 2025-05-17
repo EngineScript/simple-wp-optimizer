@@ -2,8 +2,8 @@
 
 ![GitHub License](https://img.shields.io/github/license/EngineScript/Simple-WP-Optimizer)
 ![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.4-blue)
-![WordPress Plugin Required PHP Version](https://img.shields.io/badge/php-7.4--8.2-green)
-![WordPress Plugin: Tested WP Version](https://img.shields.io/badge/wordpress-5.6--6.0-green)
+![WordPress Plugin Required PHP Version](https://img.shields.io/badge/php-7.4--8.4-green)
+![WordPress Plugin: Tested WP Version](https://img.shields.io/badge/wordpress-5.0--6.4-green)
 
 A lightweight WordPress plugin designed to optimize your website by removing unnecessary scripts, styles, and header elements that can slow down your site.
 
@@ -90,6 +90,18 @@ composer test:php8
 ```
 
 The custom runner automatically detects your PHP version and applies the appropriate compatibility settings.
+
+## Development & Maintenance
+
+### Automated WordPress Compatibility
+
+This repository uses the [WordPress Version Checker](https://github.com/skaut/wordpress-version-checker) GitHub Action to automatically monitor WordPress compatibility. When a new WordPress version is released, the action:
+
+1. Creates a pull request to update the "Tested up to" version in readme.txt
+2. Adds "automated" and "documentation" labels to the PR
+3. Assigns repository maintainers for review
+
+This ensures our plugin stays up-to-date with the latest WordPress versions without manual intervention.
 
 ## Contributing
 

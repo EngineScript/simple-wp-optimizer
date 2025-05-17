@@ -1,11 +1,16 @@
 <?php
 /*
 Plugin Name: EngineScript: Simple WP Optimization
-Description: Optimizes WordPress by removing unnecessary features and scripts
+Plugin URI: https://github.com/EngineScript/Simple-WP-Optimizer
+Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
 Version: 1.5.4
 Author: EngineScript
 License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: simple-wp-optimizer-enginescript
+Requires at least: 5.0
+Requires PHP: 7.4
+Tested up to: 6.4
 Security: Follows OWASP security guidelines and WordPress best practices
 */
 

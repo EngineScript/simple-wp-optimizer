@@ -5,9 +5,17 @@ All notable changes to the Simple WP Optimizer plugin will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Added standardized readme.txt file for WordPress.org repository
+- Implemented automated "Tested up to" WordPress version checker using skaut/wordpress-version-checker GitHub Action
+- Added full plugin header information including plugin URI and License URI
+- Created .wordpress-version-checker.json configuration for WordPress compatibility checking
+- Enabled automatic PR creation for WordPress compatibility updates with "automated" and "documentation" labels
+
 ## [1.5.4] - 2025-05-04
 ### Changed
-- Updated plugin name to "EngineScript: Simple WP Optimizationn"
+- Updated plugin name to "EngineScript: Simple WP Optimization"
 - Improved code documentation and security notes
 - Aligned version numbers in plugin header and constant definition
 

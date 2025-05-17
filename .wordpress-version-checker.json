@@ -1,0 +1,8 @@
+{
+  "readme": "readme.txt",
+  "channel": "stable",
+  "assignees": ["EngineScript"],
+  "labels": ["automated", "documentation"],
+  "create-pr": true,
+  "pr-branch-name": "update-wordpress-compatibility"
+}
