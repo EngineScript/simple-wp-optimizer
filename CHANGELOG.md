@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enabled automatic PR creation for WordPress compatibility updates with "automated" and "documentation" labels
 - Added WordPress Plugin Integration Test workflow using holyhope/test-wordpress-plugin-github-action@v2.0.2
 - Implemented testing matrix for PHP versions 7.4-8.2 and WordPress versions 5.9-latest
-- Added plugin-slug parameter to integration test workflow
+- Fixed action parameters using the correct input names: php_version, wordpress_version, plugin_slug
 - Added automated PR labeling with "automated", "documentation", and "plugin update" tags
 - Set up proper GitHub permissions for integration test workflow
 
