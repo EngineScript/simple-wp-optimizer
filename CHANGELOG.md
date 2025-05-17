@@ -12,16 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added full plugin header information including plugin URI and License URI
 - Created .wordpress-version-checker.json configuration for WordPress compatibility checking
 - Enabled automatic PR creation for WordPress compatibility updates with "automated" and "documentation" labels
-- Added WordPress Plugin Integration Test workflow using holyhope/test-wordpress-plugin-github-action@v2.0.2
-- Implemented testing matrix for PHP versions 7.4-8.2 and WordPress versions 5.9-latest
-- Fixed action parameters using the correct input names: php_version, wordpress_version, plugin_slug
-- Added automated PR labeling with "automated", "documentation", and "plugin update" tags
-- Set up proper GitHub permissions for integration test workflow
-- Created test infrastructure with PHPUnit Polyfills for cross-version compatibility
-- Added basic plugin loading tests and WordPress environment configuration
-- Fixed PHPMailer availability issues for WordPress tests
-- Added preparatory steps to ensure holyhope action works correctly
-- Resolved SHA-256 verification issues with direct WordPress core download
+- Added automated PR creation for WordPress compatibility updates with "automated" and "documentation" labels
 
 ## [1.5.4] - 2025-05-04
 ### Changed
