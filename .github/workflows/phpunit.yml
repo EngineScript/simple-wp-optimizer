@@ -1,0 +1,103 @@
+name: PHPUnit Tests
+
+on:
+  # Run on pushes to main branch and on all pull requests
+  push:
+    branches: [ main ]
+  pull_request:
+  # Allow manually triggering the workflow
+  workflow_dispatch:
+
+# Cancels all previous workflow runs for the same branch that have not yet completed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php-version }} | WP ${{ matrix.wp-version }}${{ matrix.multisite && ' (multisite)' || '' }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        include:
+          - php-version: '7.4'
+            wp-version: '6.0'
+            multisite: false
+            
+          - php-version: '8.0'
+            wp-version: 'latest'
+            multisite: false
+            
+          - php-version: '8.1'
+            wp-version: 'latest'
+            multisite: true
+            
+          - php-version: '8.2'
+            wp-version: 'latest'
+            multisite: false
+      fail-fast: false
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mysqli, curl, zip, intl, gd, mbstring, fileinfo, xml
+          coverage: none
+          tools: composer:v2
+          
+      - name: Remove the PHP platform requirement
+        run: composer config --unset platform.php
+        
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          dependency-versions: highest
+          composer-options: "--prefer-dist --no-suggest --no-progress"
+          
+      - name: Setup WP Tests
+        run: |
+          bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 ${{ matrix.wp-version }}
+        working-directory: ${{ github.workspace }}/tests
+          
+      - name: Run tests (single site)
+        if: ${{ !matrix.multisite }}
+        run: vendor/bin/phpunit --config phpunit.xml
+          
+      - name: Run tests (multisite)
+        if: ${{ matrix.multisite }}
+        run: vendor/bin/phpunit --config phpunit.xml
+        env:
+          WP_MULTISITE: 1
+          
+      - name: Add labels to any PRs
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['automated', 'documentation', 'plugin update']
+            })

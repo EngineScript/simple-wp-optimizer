@@ -103,6 +103,16 @@ This repository uses the [WordPress Version Checker](https://github.com/skaut/wo
 
 This ensures our plugin stays up-to-date with the latest WordPress versions without manual intervention.
 
+### Automated Testing
+
+The plugin includes a comprehensive PHPUnit test suite that runs automatically on GitHub Actions. Our testing matrix includes:
+
+- PHP versions: 7.4, 8.0, 8.1, 8.2
+- Latest WordPress version
+- Both single site and multisite installations
+
+This ensures code quality and compatibility across different PHP versions and WordPress configurations.
+
 
 
 ## Contributing

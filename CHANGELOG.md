@@ -1,6 +1,12 @@
-# Changelog
-
-All notable changes to the Simple WP Optimizer plugin will be documented in this file.
+# Chang## [Unreleased]
+### Added
+- Added standardized readme.txt file for WordPress.org repository
+- Implemented automated "Tested up to" WordPress version checker using skaut/wordpress-version-checker GitHub Action
+- Added full plugin header information including plugin URI and License URI
+- Created .wordpress-version-checker.json configuration for WordPress compatibility checking
+- Added automated PR creation for WordPress compatibility updates with "automated" and "documentation" labels
+- Added PHPUnit test framework and GitHub Actions workflow for automated testing
+- Configured cross-version PHP testing (7.4-8.2) with multisite supportll notable changes to the Simple WP Optimizer plugin will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
