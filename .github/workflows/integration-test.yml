@@ -25,6 +25,36 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, mysqli, zip
+          tools: composer:v2
+          coverage: none
+          
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Setup WordPress Core for PHPMailer availability
+        run: |
+          # Download WordPress directly (avoiding SHA-256 verification issues)
+          mkdir -p /tmp/wordpress
+          curl -s https://wordpress.org/wordpress-${{ matrix.wordpress-version == 'latest' && '6.4.1' || matrix.wordpress-version }}.zip -o /tmp/wordpress.zip
+          unzip -q /tmp/wordpress.zip -d /tmp
+          
+          # Create WordPress tests directory structure
+          mkdir -p /tmp/wordpress-tests-lib/includes
+          
+          # Ensure PHPMailer is available for the tests
+          if [[ "${{ matrix.wordpress-version }}" != "5.9" ]]; then
+            cp -r /tmp/wordpress/wp-includes/PHPMailer /tmp/wordpress-tests-lib/includes/ || true
+            cp /tmp/wordpress/wp-includes/class-phpmailer.php /tmp/wordpress-tests-lib/includes/class-wp-phpmailer.php || true
+          fi
+          
+          # Create database for tests
+          mysql -e "CREATE DATABASE IF NOT EXISTS wordpress_test;" -uroot -proot
 
       - name: WordPress Plugin Integration Test
         uses: holyhope/test-wordpress-plugin-github-action@v2.0.2

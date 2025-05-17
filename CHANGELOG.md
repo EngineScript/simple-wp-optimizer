@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Set up proper GitHub permissions for integration test workflow
 - Created test infrastructure with PHPUnit Polyfills for cross-version compatibility
 - Added basic plugin loading tests and WordPress environment configuration
+- Fixed PHPMailer availability issues for WordPress tests
+- Added preparatory steps to ensure holyhope action works correctly
+- Resolved SHA-256 verification issues with direct WordPress core download
 
 ## [1.5.4] - 2025-05-04
 ### Changed

@@ -11,18 +11,25 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 // Load the PHPUnit Polyfills for cross-version compatibility.
 require_once dirname( __DIR__ ) . '/vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
 
-// Make sure the tests directory is in the include path.
-if ( ! defined( 'WP_CONTENT_DIR' ) ) {
-    define( 'WP_CONTENT_DIR', dirname( __DIR__ ) . '/tests/wp-content' );
+// Set up WordPress test environment constants.
+if ( ! defined( 'WP_TESTS_DIR' ) ) {
+    define( 'WP_TESTS_DIR', getenv( 'WP_TESTS_DIR' ) ?: '/tmp/wordpress-tests-lib' );
 }
 
-if ( ! defined( 'WP_PLUGIN_DIR' ) ) {
-    define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+// Ensure WordPress tests configuration exists.
+if ( ! file_exists( WP_TESTS_DIR . '/includes/bootstrap.php' ) ) {
+    echo "Error: WordPress tests framework not found at " . WP_TESTS_DIR . PHP_EOL;
+    echo "Please check your WP_TESTS_DIR environment variable" . PHP_EOL;
+    exit( 1 );
 }
 
-// Define a test plugin directory name.
-if ( ! defined( 'TEST_PLUGIN_DIR' ) ) {
-    define( 'TEST_PLUGIN_DIR', dirname( __DIR__ ) );
+// Ensure PHPMailer is available - try to locate it from WordPress core if needed.
+if ( ! file_exists( WP_TESTS_DIR . '/includes/class-wp-phpmailer.php' ) ) {
+    if ( file_exists( '/tmp/wordpress/wp-includes/class-phpmailer.php' ) ) {
+        @mkdir( WP_TESTS_DIR . '/includes', 0777, true );
+        copy( '/tmp/wordpress/wp-includes/class-phpmailer.php', WP_TESTS_DIR . '/includes/class-wp-phpmailer.php' );
+        echo "Notice: Copied PHPMailer class to test environment" . PHP_EOL;
+    }
 }
 
 // Manually load the plugin being tested.
@@ -31,14 +38,5 @@ function _manually_load_plugin() {
 }
 
 // Start up the WP testing environment.
-// Ideally, this would be automatically handled by the integration test action.
-// If WP_TESTS_DIR is defined, we'll use it, otherwise we'll set up a basic mock.
-if ( defined( 'WP_TESTS_DIR' ) && file_exists( WP_TESTS_DIR . '/includes/bootstrap.php' ) ) {
-    require WP_TESTS_DIR . '/includes/bootstrap.php';
-    tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
-} else {
-    // Simple mock class if WP test suite isn't available
-    class WP_UnitTestCase extends \Yoast\PHPUnitPolyfills\TestCases\TestCase {
-        // Include test helper methods here
-    }
-}
+require WP_TESTS_DIR . '/includes/bootstrap.php';
+tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
