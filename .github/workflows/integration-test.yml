@@ -1,0 +1,48 @@
+name: WordPress Plugin Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  integration-test:
+    name: Run WordPress Integration Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2']
+        wordpress-version: ['latest', '6.3', '6.2', '6.1', '6.0', '5.9']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: WordPress Plugin Integration Test
+        uses: holyhope/test-wordpress-plugin-github-action@v2.0.2
+        with:
+          php-version: ${{ matrix.php-version }}
+          wordpress-version: ${{ matrix.wordpress-version }}
+          plugin-name: 'simple-wp-optimizer'
+          plugin-slug: 'simple-wp-optimizer'
+          
+      - name: Add labels to any PRs
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['automated', 'documentation', 'plugin update']
+            })

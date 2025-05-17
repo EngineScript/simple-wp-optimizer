@@ -103,6 +103,15 @@ This repository uses the [WordPress Version Checker](https://github.com/skaut/wo
 
 This ensures our plugin stays up-to-date with the latest WordPress versions without manual intervention.
 
+### Integration Testing
+
+The plugin is automatically tested using [WordPress Plugin Integration Test](https://github.com/marketplace/actions/wordpress-plugin-integration-test) GitHub Action. Our test matrix includes:
+
+- PHP versions: 7.4, 8.0, 8.1, 8.2
+- WordPress versions: latest, 6.3, 6.2, 6.1, 6.0, 5.9
+
+This ensures compatibility across a wide range of environment configurations and helps catch issues early in the development process.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
