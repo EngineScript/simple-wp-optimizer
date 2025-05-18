@@ -75,7 +75,7 @@ jobs:
         uses: ramsey/composer-install@v2
         with:
           dependency-versions: highest
-          composer-options: "--prefer-dist --no-suggest --no-progress"
+          composer-options: "--prefer-dist --no-progress"
           
       - name: Prepare Database
         run: |

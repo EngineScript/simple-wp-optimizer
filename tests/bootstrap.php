@@ -35,10 +35,24 @@ require_once $_tests_dir . 'includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	// Explicitly include the main plugin file
+	// Define global $wp_widget_factory to prevent null reference errors
+	global $wp_widget_factory;
+	$wp_widget_factory = (object) ['widgets' => []];
+	
+	// Add a mock register_widget function that works with our fake widget factory
+	if (!function_exists('register_widget')) {
+		function register_widget($widget) {
+			global $wp_widget_factory;
+			$wp_widget_factory->widgets[] = $widget;
+			return true;
+		}
+	}
+	
+	// Now load the plugin
 	require_once dirname( __DIR__ ) . '/simple-wp-optimizer.php';
 	
-	// Make sure the plugin gets initialized
+	// Initialize the plugin without triggering widgets_init
+	remove_all_actions('widgets_init');
 	do_action('plugins_loaded');
 	do_action('init');
 }
