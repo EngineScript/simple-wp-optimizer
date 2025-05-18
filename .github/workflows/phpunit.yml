@@ -65,6 +65,9 @@ jobs:
           coverage: none
           tools: composer:v2
           
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
+          
       - name: Remove the PHP platform requirement
         run: composer config --unset platform.php
         
