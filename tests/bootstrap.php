@@ -35,7 +35,12 @@ require_once $_tests_dir . 'includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require dirname( __DIR__ ) . '/simple-wp-optimizer.php';
+	// Explicitly include the main plugin file
+	require_once dirname( __DIR__ ) . '/simple-wp-optimizer.php';
+	
+	// Make sure the plugin gets initialized
+	do_action('plugins_loaded');
+	do_action('init');
 }
 
 // Start up the WP testing environment.

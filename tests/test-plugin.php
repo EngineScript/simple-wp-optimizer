@@ -13,7 +13,15 @@ class Test_Simple_WP_Optimizer extends WP_UnitTestCase {
 	 * Test that the plugin can be loaded correctly.
 	 */
 	public function test_plugin_loaded() {
-		// Simply check that the plugin file has been loaded
-		$this->assertTrue( function_exists( 'simple_wp_optimizer_init' ) || class_exists( 'Simple_WP_Optimizer' ), 'Plugin functions not found, plugin may not be loaded correctly.' );
+		// Load the plugin directly to ensure it's available for testing
+		require_once dirname( __DIR__ ) . '/simple-wp-optimizer.php';
+		
+		// Check for specific functions that we know exist in the plugin
+		$this->assertTrue( 
+			function_exists( 'es_optimizer_init_settings' ) || 
+			function_exists( 'disable_emojis' ) || 
+			function_exists( 'remove_jquery_migrate' ), 
+			'Plugin core functions not found, plugin may not be loaded correctly.' 
+		);
 	}
 }
