@@ -108,7 +108,6 @@ install_test_suite() {
 }
 
 install_db() {
-
 	if [ ${SKIP_DB_CREATE} = "true" ]; then
 		return 0
 	fi
@@ -129,6 +128,9 @@ install_db() {
 		fi
 	fi
 
+	# Drop database if it exists
+	mysql --user="$DB_USER" --password="$DB_PASS"$EXTRA -e "DROP DATABASE IF EXISTS $DB_NAME"
+	
 	# create database
 	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
 }
