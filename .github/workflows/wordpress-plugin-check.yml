@@ -45,25 +45,6 @@ jobs:
           # Build directory - using repository root
           build-dir: './'
           
-          # Configure which checks to run
-          checks: |
-            i18n_usage
-            code_obfuscation
-            direct_db_queries
-            enqueued_scripts_in_footer
-            enqueued_scripts_size
-            enqueued_styles_scope
-            file_type
-            late_escaping
-            localhost
-            no_unfiltered_uploads
-            performant_wp_query_params
-            plugin_header_text_domain
-            plugin_readme
-            plugin_review_phpcs
-            plugin_updater
-            trademarks
-          
           # Configure which categories to check
           categories: |
             accessibility
