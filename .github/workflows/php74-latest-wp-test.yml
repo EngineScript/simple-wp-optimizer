@@ -1,0 +1,81 @@
+name: PHP 7.4 WordPress Latest Test
+
+on:
+  # Run on pushes to main branch and on all pull requests
+  push:
+    branches: [ main ]
+  pull_request:
+  # Allow manually triggering the workflow
+  workflow_dispatch:
+
+# Cancels all previous workflow runs for the same branch that have not yet completed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  php74-wp-latest-test:
+    name: Test PHP 7.4 with latest WordPress
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+        
+      - name: Setup PHP 7.4
+        uses: shivammathur/setup-php@v2.33.0
+        with:
+          php-version: '7.4'
+          extensions: mysqli, curl, zip, intl, gd, mbstring, fileinfo, xml
+          coverage: none
+          tools: composer:v2
+          
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
+          
+      - name: Remove the PHP platform requirement
+        run: composer config --unset platform.php
+        
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3.1.0
+        with:
+          dependency-versions: highest
+          composer-options: "--prefer-dist --no-progress"
+          
+      - name: Prepare Database
+        run: |
+          # Drop the database if it exists to avoid creation error
+          mysql -u root --password=root --host=127.0.0.1 --port=3306 -e "DROP DATABASE IF EXISTS wordpress_test;"
+          mysql -u root --password=root --host=127.0.0.1 --port=3306 -e "CREATE DATABASE IF NOT EXISTS wordpress_test;"
+          
+      - name: Setup WP Tests
+        run: |
+          bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+        working-directory: ${{ github.workspace }}/tests
+          
+      - name: Run plugin test
+        run: vendor/bin/phpunit --config phpunit.xml
+        
+      - name: Report test status
+        if: ${{ always() }}
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ Tests passed successfully on PHP 7.4 with the latest WordPress version"
+          else
+            echo "❌ Tests failed on PHP 7.4 with the latest WordPress version"
+            exit 1
+          fi
