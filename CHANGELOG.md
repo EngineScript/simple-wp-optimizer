@@ -12,8 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enabled automatic PR creation for WordPress compatibility updates with "automated" and "documentation" labels
 - Added PHPUnit test framework with GitHub Actions workflow for automated testing
 - Configured cross-version PHP testing (7.4-8.2) with multisite support
-- Fixed database creation issues in testing workflow for CI environment
-- Enhanced plugin loading in test environment for improved reliability
 
 ## [1.5.4] - 2025-05-04
 ### Changed
