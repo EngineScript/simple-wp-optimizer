@@ -72,7 +72,7 @@ jobs:
         run: composer config --unset platform.php
         
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
         with:
           dependency-versions: highest
           composer-options: "--prefer-dist --no-progress"
@@ -99,7 +99,7 @@ jobs:
           
       - name: Add labels to any PRs
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
