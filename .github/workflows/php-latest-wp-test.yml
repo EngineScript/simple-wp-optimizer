@@ -15,6 +15,7 @@ concurrency:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   php-compatibility-test:
@@ -298,5 +299,23 @@ jobs:
             echo "✅ Tests passed successfully on PHP ${{ matrix.php-version }} with the latest WordPress version"
           else
             echo "❌ Tests failed on PHP ${{ matrix.php-version }} with the latest WordPress version"
-            exit 1
+            # Don't exit here, allow the next step to create the issue
           fi
+          
+      - name: Create issue on test failure
+        if: ${{ failure() }}
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PHP_VERSION: ${{ matrix.php-version }}
+          RUN_ID: ${{ github.run_id }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/compatibility-test-failure.md
+          update_existing: false
+          
+      - name: Mark job as failed after issue creation
+        if: ${{ failure() }}
+        run: |
+          echo "::error::PHP ${{ matrix.php-version }} compatibility test failed. Created issue for tracking."
+          exit 1
