@@ -58,9 +58,10 @@ jobs:
           
       - name: Prepare Database
         run: |
-          # Drop the database if it exists to avoid creation error
+          # Make sure database doesn't exist before creating it
           mysql -u root --password=root --host=127.0.0.1 --port=3306 -e "DROP DATABASE IF EXISTS wordpress_test;"
-          mysql -u root --password=root --host=127.0.0.1 --port=3306 -e "CREATE DATABASE IF NOT EXISTS wordpress_test;"
+          # Force creating a fresh database
+          mysqladmin -u root --password=root --host=127.0.0.1 --port=3306 --force create wordpress_test
       
       - name: Create tests directory structure
         run: |
@@ -187,8 +188,10 @@ jobs:
                   fi
               fi
           
-              # Create database
-              mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+              # First, ensure database doesn't exist (ignore errors)
+              mysql --user="$DB_USER" --password="$DB_PASS"$EXTRA -e "DROP DATABASE IF EXISTS $DB_NAME" || true
+              # Now create fresh database with force flag
+              mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA --force
           }
           
           install_wp
