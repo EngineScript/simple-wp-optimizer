@@ -34,10 +34,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         
       - name: Setup PHP 7.4
-        uses: shivammathur/setup-php@v2.33.0
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
           extensions: mysqli, curl, zip, intl, gd, mbstring, fileinfo, xml
@@ -51,7 +51,7 @@ jobs:
         run: composer config --unset platform.php
         
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3.1.0
+        uses: ramsey/composer-install@v3
         with:
           dependency-versions: highest
           composer-options: "--prefer-dist --no-progress"
