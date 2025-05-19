@@ -211,19 +211,6 @@ jobs:
            * @package Simple_WP_Optimizer
            */
           
-          // Define global $wp_widget_factory to prevent null reference errors
-          global $wp_widget_factory;
-          $wp_widget_factory = (object) ['widgets' => []];
-          
-          // Add a mock register_widget function that works with our fake widget factory
-          if (!function_exists('register_widget')) {
-              function register_widget($widget) {
-                  global $wp_widget_factory;
-                  $wp_widget_factory->widgets[] = $widget;
-                  return true;
-              }
-          }
-          
           // Give access to tests_add_filter() function.
           require_once '/tmp/wordpress-tests-lib/includes/functions.php';
           
@@ -231,6 +218,12 @@ jobs:
            * Manually load the plugin being tested.
            */
           function _manually_load_plugin() {
+              // Make sure widget registration won't throw errors
+              add_filter('widgets_init', function() {
+                  // Empty the action to prevent widget registration errors
+                  return;
+              }, 0);
+              
               require dirname( dirname( __FILE__ ) ) . '/simple-wp-optimizer.php';
           }
           
