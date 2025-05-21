@@ -1,7 +1,7 @@
 ---
 title: PHP {{ env.PHP_VERSION }} Compatibility Test Failure
 labels: bug, compatibility, automated
-assignees: 
+assignees: []
 ---
 
 ## PHP Compatibility Test Failure

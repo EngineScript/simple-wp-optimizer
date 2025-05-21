@@ -3,14 +3,14 @@
 Plugin Name: EngineScript: Simple WP Optimization
 Plugin URI: https://github.com/EngineScript/Simple-WP-Optimizer
 Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
-Version: 1.5.4
+Version: 1.5.5
 Author: EngineScript
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: simple-wp-optimizer-enginescript
+Text Domain: Simple-WP-Optimizer
 Requires at least: 5.0
 Requires PHP: 7.4
-Tested up to: 6.4
+Tested up to: 6.8
 Security: Follows OWASP security guidelines and WordPress best practices
 */
 
@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) {
 
 // Define plugin version
 if (!defined('ES_WP_OPTIMIZER_VERSION')) {
-    define('ES_WP_OPTIMIZER_VERSION', '1.5.4');
+    define('ES_WP_OPTIMIZER_VERSION', '1.5.5');
 }
 
 /**
@@ -115,7 +115,7 @@ function es_optimizer_settings_page() {
     // Security: Check user capabilities before displaying the page
     // This prevents unauthorized access to plugin settings
     if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'simple-wp-optimizer-enginescript'));
+        wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'Simple-WP-Optimizer'));
     }
     
     $options = get_option('es_optimizer_options');
@@ -147,9 +147,9 @@ function es_optimizer_settings_page() {
         
         <hr>
         <p>
-            <?php esc_html_e('This plugin is part of the EngineScript project.', 'simple-wp-optimizer-enginescript'); ?>
+            <?php esc_html_e('This plugin is part of the EngineScript project.', 'Simple-WP-Optimizer'); ?>
             <a href="https://github.com/EngineScript/EngineScript" target="_blank" rel="noopener noreferrer">
-                <?php esc_html_e('Visit the EngineScript GitHub page', 'simple-wp-optimizer-enginescript'); ?>
+                <?php esc_html_e('Visit the EngineScript GitHub page', 'Simple-WP-Optimizer'); ?>
             </a>
         </p>
     </div>
@@ -166,24 +166,24 @@ function es_optimizer_render_performance_options($options) {
     es_optimizer_render_checkbox_option(
         $options,
         'disable_emojis',
-        esc_html__('Disable WordPress Emojis', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove emoji scripts and styles to improve page load time', 'simple-wp-optimizer-enginescript')
+        esc_html__('Disable WordPress Emojis', 'Simple-WP-Optimizer'),
+        esc_html__('Remove emoji scripts and styles to improve page load time', 'Simple-WP-Optimizer')
     );
     
     // jQuery Migrate settings
     es_optimizer_render_checkbox_option(
         $options,
         'remove_jquery_migrate',
-        esc_html__('Remove jQuery Migrate', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove jQuery Migrate script (may affect compatibility with very old plugins)', 'simple-wp-optimizer-enginescript')
+        esc_html__('Remove jQuery Migrate', 'Simple-WP-Optimizer'),
+        esc_html__('Remove jQuery Migrate script (may affect compatibility with very old plugins)', 'Simple-WP-Optimizer')
     );
     
     // Classic Theme Styles settings
     es_optimizer_render_checkbox_option(
         $options,
         'disable_classic_theme_styles',
-        esc_html__('Disable Classic Theme Styles', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove classic theme styles added in WordPress 6.1+', 'simple-wp-optimizer-enginescript')
+        esc_html__('Disable Classic Theme Styles', 'Simple-WP-Optimizer'),
+        esc_html__('Remove classic theme styles added in WordPress 6.1+', 'Simple-WP-Optimizer')
     );
 }
 
@@ -197,32 +197,32 @@ function es_optimizer_render_header_options($options) {
     es_optimizer_render_checkbox_option(
         $options,
         'remove_wp_version',
-        esc_html__('Remove WordPress Version', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove WordPress version from header (security benefit)', 'simple-wp-optimizer-enginescript')
+        esc_html__('Remove WordPress Version', 'Simple-WP-Optimizer'),
+        esc_html__('Remove WordPress version from header (security benefit)', 'Simple-WP-Optimizer')
     );
     
     // WLW Manifest settings
     es_optimizer_render_checkbox_option(
         $options,
         'remove_wlw_manifest',
-        esc_html__('Remove WLW Manifest', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove Windows Live Writer manifest link', 'simple-wp-optimizer-enginescript')
+        esc_html__('Remove WLW Manifest', 'Simple-WP-Optimizer'),
+        esc_html__('Remove Windows Live Writer manifest link', 'Simple-WP-Optimizer')
     );
     
     // Shortlink settings
     es_optimizer_render_checkbox_option(
         $options,
         'remove_shortlink',
-        esc_html__('Remove Shortlink', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove WordPress shortlink URLs from header', 'simple-wp-optimizer-enginescript')
+        esc_html__('Remove Shortlink', 'Simple-WP-Optimizer'),
+        esc_html__('Remove WordPress shortlink URLs from header', 'Simple-WP-Optimizer')
     );
     
     // Recent Comments Style settings
     es_optimizer_render_checkbox_option(
         $options,
         'remove_recent_comments_style',
-        esc_html__('Remove Recent Comments Style', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove recent comments widget inline CSS', 'simple-wp-optimizer-enginescript')
+        esc_html__('Remove Recent Comments Style', 'Simple-WP-Optimizer'),
+        esc_html__('Remove recent comments widget inline CSS', 'Simple-WP-Optimizer')
     );
 }
 
@@ -236,24 +236,24 @@ function es_optimizer_render_additional_options($options) {
     es_optimizer_render_checkbox_option(
         $options,
         'enable_dns_prefetch',
-        esc_html__('Enable DNS Prefetch', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Add DNS prefetch for common external domains', 'simple-wp-optimizer-enginescript')
+        esc_html__('Enable DNS Prefetch', 'Simple-WP-Optimizer'),
+        esc_html__('Add DNS prefetch for common external domains', 'Simple-WP-Optimizer')
     );
     
     // DNS Prefetch Domains textarea
     es_optimizer_render_textarea_option(
         $options,
         'dns_prefetch_domains',
-        esc_html__('DNS Prefetch Domains', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Enter one domain per line. Include the full URL (e.g., https://fonts.googleapis.com)', 'simple-wp-optimizer-enginescript')
+        esc_html__('DNS Prefetch Domains', 'Simple-WP-Optimizer'),
+        esc_html__('Enter one domain per line. Include the full URL (e.g., https://fonts.googleapis.com)', 'Simple-WP-Optimizer')
     );
     
     // Jetpack Ads settings
     es_optimizer_render_checkbox_option(
         $options,
         'disable_jetpack_ads',
-        esc_html__('Disable Jetpack Ads', 'simple-wp-optimizer-enginescript'),
-        esc_html__('Remove Jetpack advertisements and promotions', 'simple-wp-optimizer-enginescript')
+        esc_html__('Disable Jetpack Ads', 'Simple-WP-Optimizer'),
+        esc_html__('Remove Jetpack advertisements and promotions', 'Simple-WP-Optimizer')
     );
 }
 
@@ -448,7 +448,7 @@ function es_optimizer_add_settings_link($links) {
     // The admin_url function is used to properly generate a URL within the WordPress admin area
     // Setting text is wrapped in translation function but doesn't need escaping here
     // as WordPress core handles this when rendering plugin links
-    $settings_link = '<a href="' . admin_url('options-general.php?page=es-optimizer-settings') . '">' . __('Settings') . '</a>';
+    $settings_link = '<a href="' . admin_url('options-general.php?page=es-optimizer-settings') . '">' . __('Settings', 'Simple-WP-Optimizer') . '</a>';
     array_unshift($links, $settings_link);
     return $links;
 }

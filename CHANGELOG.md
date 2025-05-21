@@ -5,13 +5,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added standardized readme.txt file for WordPress.org repository
-- Implemented automated "Tested up to" WordPress version checker using skaut/wordpress-version-checker GitHub Action
-- Added full plugin header information including plugin URI and License URI
-- Created .wordpress-version-checker.json configuration for WordPress compatibility checking
-- Enabled automatic PR creation for WordPress compatibility updates with "automated" and "documentation" labels
-- Added PHPUnit test framework with GitHub Actions workflow for automated testing
-- Configured cross-version PHP testing (7.4-8.2) with multisite support
+- Enhanced GitHub Actions workflows for plugin testing
+
+## [1.5.5] - 2025-05-21
+### Added
+- WordPress 6.8 compatibility
+- WordPress Plugin Check workflow for code quality verification
+- Automated GitHub issue creation for test failures
+
+### Fixed
+- Changed text domain from 'simple-wp-optimizer-enginescript' to 'Simple-WP-Optimizer' to comply with WordPress.org standards
+- Updated all internationalization function calls with the correct text domain
+- Added missing text domain parameter in translation functions
+- Fixed issue template formatting for automated GitHub issue creation
+
+### Improved
+- Made the plugin fully compatible with the WordPress Plugin Check tool
+- Enhanced plugin repo compatibility
+- Improved documentation and code comments
 
 ## [1.5.4] - 2025-05-04
 ### Changed

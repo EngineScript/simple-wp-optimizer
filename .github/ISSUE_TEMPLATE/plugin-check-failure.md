@@ -1,7 +1,7 @@
 ---
 title: WordPress Plugin Check Failure
 labels: bug, plugin-check, automated
-assignees: 
+assignees: []
 ---
 
 ## WordPress Plugin Check Failure
