@@ -266,11 +266,11 @@ function es_optimizer_render_additional_options($options) {
  * - WordPress checked() function is used for checkbox state
  *
  * @param array  $options       Plugin options
- * @param string $option_name   Option name
+ * @param string $optionName   Option name
  * @param string $title         Option title
  * @param string $description   Option description
  */
-function es_optimizer_render_checkbox_option($options, $option_name, $title, $description) {
+function es_optimizer_render_checkbox_option($options, $optionName, $title, $description) {
     ?>
     <tr valign="top">
         <th scope="row"><?php 
@@ -283,12 +283,12 @@ function es_optimizer_render_checkbox_option($options, $option_name, $title, $de
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                     /* 
                      * Using printf with esc_attr for attribute name which cannot be avoided.
-                     * The $option_name values are hardcoded strings from render functions, not user input.
+                     * The $optionName values are hardcoded strings from render functions, not user input.
                      * This is a controlled environment where these values are defined within the plugin.
                      */
-                    printf('es_optimizer_options[%s]', esc_attr($option_name));
+                    printf('es_optimizer_options[%s]', esc_attr($optionName));
                 ?>" value="1" 
-                    <?php checked(1, isset($options[$option_name]) ? $options[$option_name] : 0); ?> />
+                    <?php checked(1, isset($options[$optionName]) ? $options[$optionName] : 0); ?> />
                 <?php 
                     // Using esc_html for secure output of descriptions
                     echo esc_html( $description );
@@ -308,11 +308,11 @@ function es_optimizer_render_checkbox_option($options, $option_name, $title, $de
  * - Textarea content is escaped with esc_textarea()
  *
  * @param array  $options       Plugin options
- * @param string $option_name   Option name
+ * @param string $optionName   Option name
  * @param string $title         Option title
  * @param string $description   Option description
  */
-function es_optimizer_render_textarea_option($options, $option_name, $title, $description) {
+function es_optimizer_render_textarea_option($options, $optionName, $title, $description) {
     ?>
     <tr valign="top">
         <th scope="row"><?php 
@@ -328,19 +328,19 @@ function es_optimizer_render_textarea_option($options, $option_name, $title, $de
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 /* 
                  * Using printf with esc_attr for attribute name which cannot be avoided.
-                 * The $option_name values are hardcoded strings from render functions, not user input.
+                 * The $optionName values are hardcoded strings from render functions, not user input.
                  * This is a controlled environment where these values are defined within the plugin.
                  */
-                printf('es_optimizer_options[%s]', esc_attr($option_name));
+                printf('es_optimizer_options[%s]', esc_attr($optionName));
             ?>" rows="5" cols="50" class="large-text code"><?php 
-                if (isset($options[$option_name])) {
+                if (isset($options[$optionName])) {
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                     /* 
                      * Using printf with esc_textarea is the most appropriate approach.
                      * esc_textarea already properly escapes content for use inside textarea elements.
                      * This function is designed specifically for this purpose and ensures data is properly escaped.
                      */
-                    printf('%s', esc_textarea($options[$option_name]));
+                    printf('%s', esc_textarea($options[$optionName]));
                 }
             ?></textarea>
         </td>
@@ -379,7 +379,7 @@ function es_optimizer_validate_options($input) {
     // Validate and sanitize the DNS prefetch domains
     if (isset($input['dns_prefetch_domains'])) {
         $domains = explode("\n", trim($input['dns_prefetch_domains']));
-        $sanitized_domains = array();
+        $sanitizedDomains = array();
         
         foreach ($domains as $domain) {
             $domain = trim($domain);
@@ -388,12 +388,12 @@ function es_optimizer_validate_options($input) {
                 if (filter_var($domain, FILTER_VALIDATE_URL)) {
                     // Security: Use esc_url_raw to sanitize URLs before storing in database
                     // This prevents potential security issues with malformed URLs
-                    $sanitized_domains[] = esc_url_raw($domain);
+                    $sanitizedDomains[] = esc_url_raw($domain);
                 }
             }
         }
         
-        $valid['dns_prefetch_domains'] = implode("\n", $sanitized_domains);
+        $valid['dns_prefetch_domains'] = implode("\n", $sanitizedDomains);
     }
     
     return $valid;
@@ -448,8 +448,8 @@ function es_optimizer_add_settings_link($links) {
     // The admin_url function is used to properly generate a URL within the WordPress admin area
     // Setting text is wrapped in translation function but doesn't need escaping here
     // as WordPress core handles this when rendering plugin links
-    $settings_link = '<a href="' . admin_url('options-general.php?page=es-optimizer-settings') . '">' . __('Settings', 'Simple-WP-Optimizer') . '</a>';
-    array_unshift($links, $settings_link);
+    $settingsLink = '<a href="' . admin_url('options-general.php?page=es-optimizer-settings') . '">' . __('Settings', 'Simple-WP-Optimizer') . '</a>';
+    array_unshift($links, $settingsLink);
     return $links;
 }
 $plugin = plugin_basename(__FILE__);
@@ -472,13 +472,13 @@ function disable_emojis_tinymce($plugins) {
  * Remove emoji CDN hostname from DNS prefetching hints.
  *
  * @param array $urls URLs to print for resource hints.
- * @param string $relation_type The relation type the URLs are printed for.
+ * @param string $relationType The relation type the URLs are printed for.
  * @return array Difference betwen the two arrays.
  */
-function disable_emojis_remove_dns_prefetch($urls, $relation_type) {
-    if ('dns-prefetch' === $relation_type) {
-        $emoji_svg_url = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/');
-        $urls = array_diff($urls, array($emoji_svg_url));
+function disable_emojis_remove_dns_prefetch($urls, $relationType) {
+    if ('dns-prefetch' === $relationType) {
+        $emojiSvgUrl = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/');
+        $urls = array_diff($urls, array($emojiSvgUrl));
     }
     return $urls;
 }
@@ -600,7 +600,7 @@ function add_dns_prefetch() {
     
     // Output the prefetch links using WordPress core functions
     foreach ($domains as $domain) {
-        $escaped_domain = esc_url($domain);
+        $escapedDomain = esc_url($domain);
         
         /*
          * Using wp_print_resource_hints with array of sanitized domains would be the ideal approach,
@@ -610,10 +610,11 @@ function add_dns_prefetch() {
          */
         if (function_exists('esc_html')) {
             echo esc_html("\n");
-        } else {
-            echo "\n";
+            wp_print_link_tag('dns-prefetch', $escapedDomain);
+            return;
         }
-        wp_print_link_tag('dns-prefetch', $escaped_domain);
+        echo "\n";
+        wp_print_link_tag('dns-prefetch', $escapedDomain);
     }
 }
 // Hook after wp_head and before other elements are added

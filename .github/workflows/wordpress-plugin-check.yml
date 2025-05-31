@@ -416,13 +416,22 @@ jobs:
 
       - name: Install WordPress Coding Standards
         run: |
+          # Install WordPress Coding Standards globally
           composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer global require "squizlabs/php_codesniffer:*"
           composer global require "wp-coding-standards/wpcs:*"
-          phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
+          composer global require "phpcsstandards/phpcsutils:*"
+          composer global require "phpcsstandards/phpcsextra:*"
+          
+          # Set the installed paths for PHPCS
+          ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs,~/.composer/vendor/phpcsstandards/phpcsutils,~/.composer/vendor/phpcsstandards/phpcsextra
+          
+          # Verify installation
+          ~/.composer/vendor/bin/phpcs -i
 
       - name: Run PHPCS
         run: |
-          phpcs --standard=WordPress --extensions=php --ignore=vendor,tests,node_modules .
+          ~/.composer/vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor,tests,node_modules .
 
       - name: Create issue on PHPCS failure
         if: ${{ failure() }}
@@ -530,7 +539,7 @@ jobs:
           EOF
 
       - name: Run Psalm
-        run: ./vendor/bin/psalm --output-format=github
+        run: ./vendor/bin/psalm --show-info=true
 
       - name: Create issue on Psalm failure
         if: ${{ failure() }}
