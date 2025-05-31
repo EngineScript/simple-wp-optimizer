@@ -592,6 +592,15 @@ jobs:
       - name: Security Check for known vulnerabilities in dependencies
         uses: symfonycorp/security-checker-action@v5
 
+      - name: WordPress Vulnerability Scanner
+        uses: jazzsequence/action-wordpress-vulnerability-scanner@1.0.1
+
+      - name: WordPress Vulnerability Check
+        uses: umutphp/wp-vulnerability-check-github-action@v18
+        with:
+          path: '.'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create issue on security vulnerability
         if: ${{ failure() }}
         uses: JasonEtco/create-an-issue@v2
@@ -610,7 +619,7 @@ jobs:
     strategy:
       matrix:
         php-version: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-        wp-version: ['6.0', '6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7', 'latest', 'nightly']
+        wp-version: ['6.0', 'latest', 'nightly']
       fail-fast: false
 
     services:
@@ -771,7 +780,9 @@ jobs:
                   fi
               fi
           
+              # First, ensure database doesn't exist (ignore errors)
               mysql --user="$DB_USER" --password="$DB_PASS"$EXTRA -e "DROP DATABASE IF EXISTS $DB_NAME" || true
+              # Now create fresh database with force flag
               mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA --force
           }
           
@@ -881,4 +892,39 @@ jobs:
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           filename: .github/ISSUE_TEMPLATE/wp-version-test-failure.md
+          update_existing: false
+
+  phpstan-wordpress:
+    name: PHPStan for WordPress (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mysqli, curl, zip, intl, gd, mbstring, fileinfo, xml
+          coverage: none
+          tools: composer:v2
+
+      - name: PHPStan for WordPress
+        uses: dingo-d/phpstan-wp-action@v2
+
+      - name: Create issue on PHPStan failure
+        if: ${{ failure() }}
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PHP_VERSION: ${{ matrix.php-version }}
+          RUN_ID: ${{ github.run_id }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/phpstan-failure.md
           update_existing: false

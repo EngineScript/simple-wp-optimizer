@@ -1,9 +1,9 @@
 # Simple WP Optimizer
 
 ![GitHub License](https://img.shields.io/github/license/EngineScript/Simple-WP-Optimizer)
-![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.4-blue)
+![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.5-blue)
 ![WordPress Plugin Required PHP Version](https://img.shields.io/badge/php-7.4--8.4-green)
-![WordPress Plugin: Tested WP Version](https://img.shields.io/badge/wordpress-5.0--6.4-green)
+![WordPress Plugin: Tested WP Version](https://img.shields.io/badge/wordpress-6.0--6.8-green)
 
 A lightweight WordPress plugin designed to optimize your website by removing unnecessary scripts, styles, and header elements that can slow down your site.
 
@@ -67,7 +67,7 @@ Yes, hiding the WordPress version can provide a minor security benefit by making
 ### Requirements
 
 - PHP 7.4 or higher
-- WordPress 5.6 or higher
+- WordPress 6.0 or higher
 - Composer (for development and testing)
 
 ### Setting up the development environment
@@ -79,13 +79,13 @@ Yes, hiding the WordPress version can provide a minor security benefit by making
 
 ### PHP 8.x Compatibility
 
-This plugin is fully compatible with PHP versions 7.4 through 8.2. For testing with PHP 8.x, we provide a custom PHPUnit runner script that helps avoid common compatibility issues between PHPUnit and newer PHP versions:
+This plugin is fully compatible with PHP versions 7.4 through 8.4. For testing with PHP 8.x, we provide a custom PHPUnit runner script that helps avoid common compatibility issues between PHPUnit and newer PHP versions:
 
 ```bash
 # For PHP 7.4 (standard testing)
 composer test
 
-# For PHP 8.0, 8.1, and 8.2 (using the custom runner)
+# For PHP 8.0, 8.1, 8.2, 8.3, and 8.4 (using the custom runner)
 composer test:php8
 ```
 
@@ -107,8 +107,8 @@ This ensures our plugin stays up-to-date with the latest WordPress versions with
 
 The plugin includes a comprehensive PHPUnit test suite that runs automatically on GitHub Actions. Our testing matrix includes:
 
-- PHP versions: 7.4, 8.0, 8.1, 8.2
-- Latest WordPress version
+- PHP versions: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4
+- WordPress versions: 6.0, latest, nightly
 - Both single site and multisite installations
 
 This ensures code quality and compatibility across different PHP versions and WordPress configurations.
