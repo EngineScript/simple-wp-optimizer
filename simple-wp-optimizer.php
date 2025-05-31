@@ -465,10 +465,10 @@ add_filter("plugin_action_links_$plugin", 'es_optimizer_add_settings_link');
  * @return array Difference betwen the two arrays
  */
 function disable_emojis_tinymce($plugins) {
-    if (is_array($plugins)) {
-        return array_diff($plugins, array('wpemoji'));
+    if (!is_array($plugins)) {
+        $plugins = array();
     }
-    return array();
+    return array_diff($plugins, array('wpemoji'));
 }
 
 /**
