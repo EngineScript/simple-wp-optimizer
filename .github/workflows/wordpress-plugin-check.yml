@@ -592,9 +592,6 @@ jobs:
       - name: Security Check for known vulnerabilities in dependencies
         uses: symfonycorp/security-checker-action@v5
 
-      - name: WordPress Vulnerability Scanner
-        uses: jazzsequence/action-wordpress-vulnerability-scanner@1.0.1
-
       - name: WordPress Vulnerability Check
         uses: umutphp/wp-vulnerability-check-github-action@v18
         with:
@@ -916,6 +913,9 @@ jobs:
 
       - name: PHPStan for WordPress
         uses: dingo-d/phpstan-wp-action@v2
+        with:
+          path: '.'
+          args: 'simple-wp-optimizer.php'
 
       - name: Create issue on PHPStan failure
         if: ${{ failure() }}
@@ -927,4 +927,39 @@ jobs:
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           filename: .github/ISSUE_TEMPLATE/phpstan-failure.md
+          update_existing: false
+
+  monitor-wp-dependencies:
+    name: Monitor WordPress Dependencies (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mysqli, curl, zip, intl, gd, mbstring, fileinfo, xml
+          coverage: none
+          tools: composer:v2
+
+      - name: Monitor WordPress Dependencies
+        uses: fabiankaegy/monitor-wordpress-dependencies-action@v1.0.2
+
+      - name: Create issue on dependency monitoring failure
+        if: ${{ failure() }}
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PHP_VERSION: ${{ matrix.php-version }}
+          RUN_ID: ${{ github.run_id }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/wp-dependencies-failure.md
           update_existing: false
