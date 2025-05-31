@@ -4,8 +4,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.6] - 2025-05-31
 ### Added
-- Enhanced GitHub Actions workflows for plugin testing
+- Enhanced GitHub Actions workflows for comprehensive plugin testing and security analysis
+- PHPStan WordPress static analysis with proper WordPress stubs configuration
+- WordPress Vulnerability Scanner integration for security testing
+- Comprehensive WordPress security scanning using pattern analysis
+- Composer support with WordPress stubs for better development experience
+- PHPStan WordPress extension (szepeviktor/phpstan-wordpress) for enhanced analysis
+- Comprehensive security implementation documentation following OWASP guidelines
+- Detailed security implementation notes in plugin header
+- Enhanced input validation with strict type checking for all user inputs
+- Improved output escaping with context-appropriate WordPress functions (esc_html, esc_attr, esc_url, esc_textarea)
+- Proper capability checks for all admin functions using current_user_can('manage_options')
+- Secure coding patterns throughout the plugin codebase
+- Multi-layer domain validation for DNS prefetch functionality
+- Comprehensive code documentation with security explanations
+
+### Fixed
+- Fixed register_setting() function to use proper array parameters instead of string callback
+- Corrected remove_action() function calls to use proper parameter count (removed invalid 4th parameter)
+- Replaced non-existent wp_print_link_tag() function with proper HTML output using esc_url()
+- Fixed "unreachable statement" in disable_emojis_tinymce() function by restructuring logic
+- Resolved all PHPStan static analysis errors at level 5
+- Fixed WordPress Plugin Check compatibility issues
+- Fixed potential security vulnerabilities with proper WordPress best practices
+
+### Enhanced
+- Updated plugin to pass PHPStan level 5 analysis with zero errors
+- Improved workflow reliability by removing problematic external dependencies
+- Enhanced security scanning with WordPress-specific vulnerability patterns
+- Better WordPress API compliance and coding standards
+- Improved code quality and maintainability
+- Security headers and implementation comments for better code understanding
+- DNS prefetch domain validation with enhanced security measures
+- Settings validation and sanitization functions
+- Code structure and organization for better maintainability
+- Direct script access prevention with proper WordPress checks
+
+### Security
+- Enhanced all user input validation and output escaping
+- Added security-focused code comments explaining safety measures
+- Implemented OWASP-compliant security patterns throughout the codebase
 
 ## [1.5.5] - 2025-05-21
 ### Added
