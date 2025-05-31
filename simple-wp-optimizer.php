@@ -59,7 +59,10 @@ if (!defined('ES_WP_OPTIMIZER_VERSION')) {
  */
 function es_optimizer_init_settings() {
     // Register settings
-    register_setting('es_optimizer_settings', 'es_optimizer_options', 'es_optimizer_validate_options');
+    register_setting('es_optimizer_settings', 'es_optimizer_options', array(
+        'sanitize_callback' => 'es_optimizer_validate_options',
+        'default' => es_optimizer_get_default_options()
+    ));
     
     // Register default options if they don't exist
     if (false === get_option('es_optimizer_options')) {
@@ -545,7 +548,7 @@ function remove_header_items() {
     
     // Remove WP Shortlink URLs
     if (isset($options['remove_shortlink']) && $options['remove_shortlink']) {
-        remove_action('wp_head', 'wp_shortlink_wp_head', 10, 0);
+        remove_action('wp_head', 'wp_shortlink_wp_head', 10);
     }
 }
 add_action('init', 'remove_header_items');
@@ -609,12 +612,10 @@ function add_dns_prefetch() {
          * so we need to construct it ourselves.
          */
         if (function_exists('esc_html')) {
-            echo esc_html("\n");
-            wp_print_link_tag('dns-prefetch', $escapedDomain);
+            echo '<link rel="dns-prefetch" href="' . esc_url($escapedDomain) . '">' . "\n";
             return;
         }
-        echo "\n";
-        wp_print_link_tag('dns-prefetch', $escapedDomain);
+        echo '<link rel="dns-prefetch" href="' . esc_url($escapedDomain) . '">' . "\n";
     }
 }
 // Hook after wp_head and before other elements are added
