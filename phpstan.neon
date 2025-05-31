@@ -6,7 +6,7 @@ parameters:
     paths:
         - simple-wp-optimizer.php
     
-    autoload_files:
+    bootstrapFiles:
         - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
     
     ignoreErrors:
@@ -14,10 +14,3 @@ parameters:
         - '#Variable \$wpdb might not be defined#'
         - '#Variable \$wp_query might not be defined#'
         - '#Variable \$post might not be defined#'
-    
-    bootstrapFiles:
-        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
-    
-    wordpress:
-        # Enable WordPress-specific rules
-        constants_file: vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
