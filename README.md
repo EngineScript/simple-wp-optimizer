@@ -1,9 +1,14 @@
 # Simple WP Optimizer
 
-![GitHub License](https://img.shields.io/github/license/EngineScript/Simple-WP-Optimizer)
-![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.5-blue)
-![WordPress Plugin Required PHP Version](https://img.shields.io/badge/php-7.4--8.4-green)
-![WordPress Plugin: Tested WP Version](https://img.shields.io/badge/wordpress-6.0--6.8-green)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d81efac1703c4d3b8b998d2587cd696b)](https://app.codacy.com/gh/EngineScript/Simple-WP-Optimizer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Github License](https://img.shields.io/badge/License-GPL%20v3-green.svg?logo=gnu)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![WordPress Compatible](https://img.shields.io/badge/WordPress-6.0%2B-blue.svg?logo=wordpress)](https://wordpress.org/)
+[![PHP Compatible](https://img.shields.io/badge/PHP-7.4%2B-purple.svg?logo=php)](https://www.php.net/)
+
+## Current Version
+[![Version](https://img.shields.io/badge/Version-1.5.6-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.6/simple-wp-optimizer-1.5.6.zip)
+
+## Description
 
 A lightweight WordPress plugin designed to optimize your website by removing unnecessary scripts, styles, and header elements that can slow down your site.
 
