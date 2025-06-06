@@ -1,4 +1,6 @@
 ---
+name: "PHP Compatibility Test Failure"
+about: "Automated issue created when PHP compatibility tests fail"
 title: PHP {{ env.PHP_VERSION }} Compatibility Test Failure
 labels: bug, compatibility, automated
 assignees: []

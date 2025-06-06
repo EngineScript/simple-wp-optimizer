@@ -1,4 +1,6 @@
 ---
+name: "WordPress Version Compatibility Test Failure"
+about: "Automated issue created when WordPress version compatibility tests fail"
 title: "WordPress Version Compatibility Test Failed"
 labels: ["bug", "compatibility", "wordpress-version"]
 assignees: []

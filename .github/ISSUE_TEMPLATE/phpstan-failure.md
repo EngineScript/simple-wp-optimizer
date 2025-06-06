@@ -1,4 +1,6 @@
 ---
+name: "PHPStan Analysis Failure"
+about: "Automated issue created when PHPStan static analysis fails"
 title: "PHPStan for WordPress Analysis Failed - PHP {{ env.PHP_VERSION }}"
 labels: ["bug", "phpstan", "static-analysis", "wordpress"]
 assignees: []

@@ -1,4 +1,6 @@
 ---
+name: "PHPMD Code Quality Failure"
+about: "Automated issue created when PHPMD code quality check fails"
 title: "PHPMD Code Quality Check Failed"
 labels: ["bug", "phpmd", "code-quality"]
 assignees: []

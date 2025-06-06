@@ -1,4 +1,6 @@
 ---
+name: "Psalm Static Analysis Failure"
+about: "Automated issue created when Psalm static analysis fails"
 title: "Psalm Static Analysis Failed"
 labels: ["bug", "psalm", "static-analysis"]
 assignees: []

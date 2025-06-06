@@ -1,4 +1,6 @@
 ---
+name: "WordPress Dependencies Monitoring Failure"
+about: "Automated issue created when WordPress dependencies monitoring fails"
 title: "WordPress Dependencies Monitoring Failed - PHP {{ env.PHP_VERSION }}"
 labels: ["bug", "dependencies", "wordpress", "monitoring"]
 assignees: []

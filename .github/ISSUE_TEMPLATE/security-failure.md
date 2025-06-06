@@ -1,4 +1,6 @@
 ---
+name: "Security Vulnerability Detected"
+about: "Automated issue created when security vulnerabilities are detected"
 title: "Security Vulnerability Detected"
 labels: ["security", "vulnerability", "critical"]
 assignees: []

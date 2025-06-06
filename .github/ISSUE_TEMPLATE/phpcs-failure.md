@@ -1,4 +1,6 @@
 ---
+name: "PHPCS Code Standards Failure"
+about: "Automated issue created when PHPCS code standards check fails"
 title: "PHPCS Code Standards Check Failed"
 labels: ["bug", "phpcs", "code-standards"]
 assignees: []

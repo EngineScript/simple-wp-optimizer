@@ -1,4 +1,6 @@
 ---
+name: "WordPress Plugin Check Failure"
+about: "Automated issue created when WordPress Plugin Check fails"
 title: WordPress Plugin Check Failure
 labels: bug, plugin-check, automated
 assignees: []
