@@ -20,18 +20,6 @@ A lightweight WordPress plugin designed to optimize your website by removing unn
 - **DNS Prefetching:** Add DNS prefetch for common external domains to improve load times (HTTPS-only for security)
 - **Jetpack Optimization:** Remove Jetpack advertisements and promotions
 
-## Security Features
-
-This plugin implements comprehensive security measures following WordPress and OWASP best practices:
-
-- **CSRF Protection:** WordPress nonce verification for all form submissions
-- **Input Validation:** Multi-layer validation and sanitization for all user inputs
-- **Output Escaping:** Context-appropriate escaping for all outputs (HTML, attributes, URLs)
-- **HTTPS Enforcement:** DNS prefetch domains must use HTTPS protocol for security
-- **SSRF Prevention:** Blocks private IP ranges and localhost addresses
-- **Capability Checks:** Proper user permission verification for all admin functions
-- **Direct Access Prevention:** Prevents direct script execution outside WordPress
-
 ## Installation
 
 ### Manual Installation
@@ -60,6 +48,18 @@ composer require enginescript/simple-wp-optimizer
 2. **Header Cleanup Options:** Remove unnecessary elements from WordPress headers
 3. **Performance Options:** Disable emojis and jQuery Migrate
 4. **DNS Prefetch Configuration:** Add domains for DNS prefetching
+
+## Security Features
+
+This plugin implements comprehensive security measures following WordPress and OWASP best practices:
+
+- **CSRF Protection:** WordPress nonce verification for all form submissions
+- **Input Validation:** Multi-layer validation and sanitization for all user inputs
+- **Output Escaping:** Context-appropriate escaping for all outputs (HTML, attributes, URLs)
+- **HTTPS Enforcement:** DNS prefetch domains must use HTTPS protocol for security
+- **SSRF Prevention:** Blocks private IP ranges and localhost addresses
+- **Capability Checks:** Proper user permission verification for all admin functions
+- **Direct Access Prevention:** Prevents direct script execution outside WordPress
 
 ## Frequently Asked Questions
 
