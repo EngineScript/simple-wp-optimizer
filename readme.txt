@@ -99,10 +99,10 @@ No, the plugin has a simple interface where you can toggle features on and off.
 == Upgrade Notice ==
 
 = 1.5.7 =
-SECURITY UPDATE: This version adds important security enhancements including CSRF protection and enhanced DNS prefetch security. Update recommended for all users.
+SECURITY UPDATE: Important security enhancements including CSRF protection and DNS prefetch security. Update recommended.
 
 = 1.5.6 =
-Major security and code quality improvements with PHPStan analysis and WordPress best practices compliance.
+Major security and code quality improvements with PHPStan analysis and WordPress compliance.
 
 = 1.5.4 =
 * Security enhancements and code optimization
@@ -124,7 +124,7 @@ Major security enhancement update with comprehensive OWASP-compliant security im
 This update includes significant code quality improvements with comprehensive static analysis fixes and enhanced security scanning. The plugin now passes PHPStan level 5 analysis with zero errors and includes improved WordPress API compliance. Enhanced development workflow with proper WordPress stubs and more reliable testing.
 
 = 1.5.5 =
-This update adds compatibility with WordPress 6.8 and fixes text domain issues for better internationalization. The plugin now fully complies with WordPress.org plugin directory standards and passes all WordPress Plugin Check tests.
+WordPress 6.8 compatibility and internationalization fixes. Passes all Plugin Check tests.
 
 = 1.5.4 =
 This update includes security enhancements and code optimization.
