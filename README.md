@@ -6,7 +6,7 @@
 [![PHP Compatible](https://img.shields.io/badge/PHP-7.4%2B-purple.svg?logo=php)](https://www.php.net/)
 
 ## Current Version
-[![Version](https://img.shields.io/badge/Version-1.5.6-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.6/simple-wp-optimizer-1.5.6.zip)
+[![Version](https://img.shields.io/badge/Version-1.5.7-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.7/simple-wp-optimizer-1.5.7.zip)
 
 ## Description
 
@@ -17,8 +17,20 @@ A lightweight WordPress plugin designed to optimize your website by removing unn
 - **Header Cleanup:** Remove WordPress version, WLW manifest links, and shortlinks
 - **Script Optimization:** Disable WordPress emojis and remove jQuery Migrate
 - **Style Optimization:** Remove inline styles from recent comments widget and disable classic theme styles
-- **DNS Prefetching:** Add DNS prefetch for common external domains to improve load times
+- **DNS Prefetching:** Add DNS prefetch for common external domains to improve load times (HTTPS-only for security)
 - **Jetpack Optimization:** Remove Jetpack advertisements and promotions
+
+## Security Features
+
+This plugin implements comprehensive security measures following WordPress and OWASP best practices:
+
+- **CSRF Protection:** WordPress nonce verification for all form submissions
+- **Input Validation:** Multi-layer validation and sanitization for all user inputs
+- **Output Escaping:** Context-appropriate escaping for all outputs (HTML, attributes, URLs)
+- **HTTPS Enforcement:** DNS prefetch domains must use HTTPS protocol for security
+- **SSRF Prevention:** Blocks private IP ranges and localhost addresses
+- **Capability Checks:** Proper user permission verification for all admin functions
+- **Direct Access Prevention:** Prevents direct script execution outside WordPress
 
 ## Installation
 

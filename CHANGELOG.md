@@ -5,6 +5,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.7] - 2025-06-15
+### Added
+- WordPress nonce protection for CSRF security in settings forms
+- Enhanced DNS prefetch security with HTTPS-only domain enforcement
+- Private IP and localhost blocking for DNS prefetch domains to prevent SSRF attacks
+- Comprehensive domain validation with multi-layer security checks
+- User-friendly error messages for rejected domains with proper HTML escaping
+- Security event notifications for administrators when domains are rejected
+
+### Enhanced
+- Strengthened form security with wp_nonce_field() and wp_verify_nonce() implementation
+- Improved DNS prefetch domain validation with parse_url() and enhanced filtering
+- Enhanced error handling with proper WordPress admin notices and escaping
+- Updated help text to clearly indicate HTTPS requirement for DNS prefetch domains
+- Better user experience with informative security-related error messages
+- Comprehensive input validation preventing malicious domain submissions
+
+### Security
+- **CSRF Protection**: Added WordPress nonce verification for all form submissions
+- **HTTPS Enforcement**: DNS prefetch domains now require HTTPS protocol for security
+- **SSRF Prevention**: Blocked private IP ranges and localhost addresses in DNS prefetch
+- **Input Validation**: Enhanced multi-layer validation for all user-submitted domains  
+- **Output Escaping**: Improved HTML escaping for all error messages and user feedback
+- **Attack Surface Reduction**: Eliminated potential vectors for security exploitation
+
+### Fixed
+- Resolved potential XSS vulnerability in error message display by adding proper HTML escaping
+- Fixed domain validation to prevent bypass of security checks
+- Improved error message construction to prevent information disclosure
+
 ## [1.5.6] - 2025-05-31
 ### Added
 - Enhanced GitHub Actions workflows for comprehensive plugin testing and security analysis

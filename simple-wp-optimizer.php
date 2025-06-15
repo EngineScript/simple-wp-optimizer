@@ -3,7 +3,7 @@
 Plugin Name: EngineScript: Simple WP Optimization
 Plugin URI: https://github.com/EngineScript/Simple-WP-Optimizer
 Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
-Version: 1.5.6
+Version: 1.5.7
 Author: EngineScript
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) {
 
 // Define plugin version
 if (!defined('ES_WP_OPTIMIZER_VERSION')) {
-    define('ES_WP_OPTIMIZER_VERSION', '1.5.6');
+    define('ES_WP_OPTIMIZER_VERSION', '1.5.7');
 }
 
 /**
@@ -128,7 +128,10 @@ function es_optimizer_settings_page() {
         <p>Select which optimizations you want to enable and customize the DNS prefetch domains.</p>
         
         <form method="post" action="options.php">
-            <?php settings_fields('es_optimizer_settings'); ?>
+            <?php 
+            settings_fields('es_optimizer_settings'); 
+            wp_nonce_field('es_optimizer_settings_action', 'es_optimizer_settings_nonce');
+            ?>
             
             <table class="form-table">
                 <?php 
@@ -248,7 +251,7 @@ function es_optimizer_render_additional_options($options) {
         $options,
         'dns_prefetch_domains',
         esc_html__('DNS Prefetch Domains', 'Simple-WP-Optimizer'),
-        esc_html__('Enter one domain per line. Include the full URL (e.g., https://fonts.googleapis.com)', 'Simple-WP-Optimizer')
+        esc_html__('Enter one HTTPS domain per line (e.g., https://fonts.googleapis.com). Only secure HTTPS domains are allowed for security reasons.', 'Simple-WP-Optimizer')
     );
     
     // Jetpack Ads settings
@@ -355,8 +358,9 @@ function es_optimizer_render_textarea_option($options, $optionName, $title, $des
  * Validate options before saving
  * 
  * This function implements a security-focused validation system:
- * 1. Checkboxes are validated to ensure they contain only boolean values (0 or 1)
- * 2. DNS prefetch domains undergo multiple validation steps:
+ * 1. Verifies WordPress nonce for CSRF protection
+ * 2. Checkboxes are validated to ensure they contain only boolean values (0 or 1)
+ * 3. DNS prefetch domains undergo multiple validation steps:
  *    - Trimming to remove unwanted whitespace
  *    - Empty value checking
  *    - URL validation via filter_var()
@@ -366,6 +370,22 @@ function es_optimizer_render_textarea_option($options, $optionName, $title, $des
  * @return array Validated and sanitized options
  */
 function es_optimizer_validate_options($input) {
+    // Security: Verify nonce for CSRF protection
+    if (!isset($_POST['es_optimizer_settings_nonce']) || 
+        !wp_verify_nonce($_POST['es_optimizer_settings_nonce'], 'es_optimizer_settings_action')) {
+        
+        // Add admin notice for failed nonce verification
+        add_settings_error(
+            'es_optimizer_options',
+            'nonce_failed',
+            esc_html__('Security verification failed. Please try again.', 'Simple-WP-Optimizer'),
+            'error'
+        );
+        
+        // Return current options without changes
+        return get_option('es_optimizer_options', es_optimizer_get_default_options());
+    }
+    
     $valid = array();
     
     // Validate checkboxes (0 or 1)
@@ -379,21 +399,63 @@ function es_optimizer_validate_options($input) {
         $valid[$checkbox] = isset($input[$checkbox]) ? 1 : 0;
     }
     
-    // Validate and sanitize the DNS prefetch domains
+    // Validate and sanitize the DNS prefetch domains with enhanced security
     if (isset($input['dns_prefetch_domains'])) {
         $domains = explode("\n", trim($input['dns_prefetch_domains']));
         $sanitizedDomains = array();
+        $rejectedDomains = array();
         
         foreach ($domains as $domain) {
             $domain = trim($domain);
             if (!empty($domain)) {
-                // Basic URL validation
+                // Enhanced URL validation with security checks
                 if (filter_var($domain, FILTER_VALIDATE_URL)) {
-                    // Security: Use esc_url_raw to sanitize URLs before storing in database
-                    // This prevents potential security issues with malformed URLs
-                    $sanitizedDomains[] = esc_url_raw($domain);
+                    $parsedUrl = parse_url($domain);
+                    
+                    // Security: Enforce HTTPS-only domains for DNS prefetch
+                    if (isset($parsedUrl['scheme']) && $parsedUrl['scheme'] === 'https') {
+                        // Additional security checks
+                        if (isset($parsedUrl['host'])) {
+                            $host = $parsedUrl['host'];
+                            
+                            // Prevent localhost and private IP ranges for security
+                            if (!in_array($host, array('localhost', '127.0.0.1', '::1')) &&
+                                !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                                
+                                // Security: Use esc_url_raw to sanitize URLs before storing in database
+                                // This prevents potential security issues with malformed URLs
+                                $sanitizedDomains[] = esc_url_raw($domain);
+                            } else {
+                                $rejectedDomains[] = $domain . ' (private/local address not allowed)';
+                            }
+                        }
+                    } else {
+                        $rejectedDomains[] = $domain . ' (HTTPS required for security)';
+                    }
+                } else {
+                    $rejectedDomains[] = $domain . ' (invalid URL format)';
                 }
             }
+        }
+        
+        // Show admin notice if any domains were rejected for security reasons
+        if (!empty($rejectedDomains)) {
+            // Security: Properly escape and limit the rejected domains in error messages
+            $escapedRejectedDomains = array_map('esc_html', array_slice($rejectedDomains, 0, 3));
+            $rejectedMessage = implode(', ', $escapedRejectedDomains);
+            if (count($rejectedDomains) > 3) {
+                $rejectedMessage .= esc_html__('...', 'Simple-WP-Optimizer');
+            }
+            
+            add_settings_error(
+                'es_optimizer_options',
+                'dns_prefetch_security',
+                sprintf(
+                    esc_html__('Some DNS prefetch domains were rejected for security reasons: %s', 'Simple-WP-Optimizer'),
+                    $rejectedMessage
+                ),
+                'warning'
+            );
         }
         
         $valid['dns_prefetch_domains'] = implode("\n", $sanitizedDomains);

@@ -3,7 +3,7 @@ Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.0
 Tested up to: 6.8
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -42,6 +42,22 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 == Changelog ==
 
+= 1.5.7 =
+* **SECURITY ENHANCEMENT**: Added WordPress nonce protection for CSRF security in all form submissions
+* **SECURITY ENHANCEMENT**: Enhanced DNS prefetch security with HTTPS-only domain enforcement
+* **SECURITY ENHANCEMENT**: Added private IP and localhost blocking for DNS prefetch to prevent SSRF attacks
+* **SECURITY ENHANCEMENT**: Implemented comprehensive domain validation with multi-layer security checks
+* Added user-friendly error messages for rejected domains with proper HTML escaping
+* Added security event notifications for administrators when domains are rejected for security reasons
+* Strengthened form security with proper wp_nonce_field() and wp_verify_nonce() implementation
+* Improved DNS prefetch domain validation with enhanced URL parsing and filtering
+* Enhanced error handling with proper WordPress admin notices and comprehensive escaping
+* Updated help text to clearly indicate HTTPS requirement for DNS prefetch domains
+* Fixed potential XSS vulnerability in error message display through proper HTML escaping
+* Improved domain validation to prevent bypass of security checks and information disclosure
+* Better user experience with informative, security-focused error messages
+* Comprehensive input validation preventing malicious domain submissions and attacks
+
 = 1.5.6 =
 * Enhanced GitHub Actions workflows for comprehensive plugin testing and security analysis
 * Added PHPStan WordPress static analysis with proper WordPress stubs configuration
@@ -79,6 +95,14 @@ No, the plugin has a simple interface where you can toggle features on and off.
 * Fixed issue template formatting for automated GitHub issue creation
 * Made the plugin fully compatible with the WordPress Plugin Check tool
 * Improved documentation and code comments
+
+== Upgrade Notice ==
+
+= 1.5.7 =
+SECURITY UPDATE: This version adds important security enhancements including CSRF protection and enhanced DNS prefetch security. Update recommended for all users.
+
+= 1.5.6 =
+Major security and code quality improvements with PHPStan analysis and WordPress best practices compliance.
 
 = 1.5.4 =
 * Security enhancements and code optimization
