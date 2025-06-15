@@ -6,7 +6,7 @@
 [![PHP Compatible](https://img.shields.io/badge/PHP-7.4%2B-purple.svg?logo=php)](https://www.php.net/)
 
 ## Current Version
-[![Version](https://img.shields.io/badge/Version-1.5.7-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.7/simple-wp-optimizer-1.5.7.zip)
+[![Version](https://img.shields.io/badge/Version-1.5.8-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.8/simple-wp-optimizer-1.5.8.zip)
 
 ## Description
 
@@ -60,6 +60,16 @@ This plugin implements comprehensive security measures following WordPress and O
 - **SSRF Prevention:** Blocks private IP ranges and localhost addresses
 - **Capability Checks:** Proper user permission verification for all admin functions
 - **Direct Access Prevention:** Prevents direct script execution outside WordPress
+
+## WordPress.org Compliance
+
+This plugin is fully compliant with WordPress.org standards:
+
+- ✅ **Plugin Check Passed:** Passes all WordPress Plugin Check automated tests
+- ✅ **Security Standards:** Follows WordPress and OWASP security guidelines
+- ✅ **Coding Standards:** Adheres to WordPress coding conventions and best practices
+- ✅ **Internationalization:** Ready for translation with proper i18n implementation
+- ✅ **Performance:** Optimized code structure with reduced complexity
 
 ## Frequently Asked Questions
 

@@ -3,7 +3,7 @@ Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.0
 Tested up to: 6.8
-Stable tag: 1.5.7
+Stable tag: 1.5.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -41,6 +41,20 @@ The optimizations are carefully selected to be safe for most sites. You can enab
 No, the plugin has a simple interface where you can toggle features on and off.
 
 == Changelog ==
+
+= 1.5.8 =
+* **CODE QUALITY**: Fixed all WordPress Plugin Check compliance issues for WordPress.org standards
+* **CODE QUALITY**: Implemented camelCase variable naming convention throughout codebase
+* **CODE QUALITY**: Reduced function complexity by extracting DNS validation logic into separate functions
+* **CODE QUALITY**: Added proper translator comments for all internationalization strings with placeholders
+* **CODE QUALITY**: Enhanced $_POST data handling with proper sanitization using sanitize_text_field()
+* **CODE QUALITY**: Improved code organization with single responsibility principle
+* **CODE QUALITY**: Fixed upgrade notice character limits to meet WordPress.org requirements
+* **SECURITY**: Enhanced nonce verification with additional sanitization layer
+* **SECURITY**: Improved domain validation architecture with dedicated validation functions
+* **MAINTENANCE**: Optimized function structure for better maintainability and testing
+* **MAINTENANCE**: Updated code documentation for improved developer experience
+* **COMPLIANCE**: Full WordPress Plugin Check compatibility - passes all automated tests
 
 = 1.5.7 =
 * **SECURITY ENHANCEMENT**: Added WordPress nonce protection for CSRF security in all form submissions
@@ -117,11 +131,14 @@ Major security and code quality improvements with PHPStan analysis and WordPress
 
 == Upgrade Notice ==
 
-= 1.5.6 =
-Major security enhancement update with comprehensive OWASP-compliant security implementation and enhanced GitHub Actions workflows. This update includes detailed security documentation, enhanced input validation, improved output escaping, secure coding patterns, and comprehensive static analysis fixes. Recommended for all users to ensure optimal security posture and code quality.
+= 1.5.8 =
+CODE QUALITY UPDATE: Fixed all WordPress Plugin Check issues for full WordPress.org compliance. Enhanced code organization.
 
-= 1.5.5 =
-This update includes significant code quality improvements with comprehensive static analysis fixes and enhanced security scanning. The plugin now passes PHPStan level 5 analysis with zero errors and includes improved WordPress API compliance. Enhanced development workflow with proper WordPress stubs and more reliable testing.
+= 1.5.7 =
+SECURITY UPDATE: Important security enhancements including CSRF protection and DNS prefetch security. Update recommended.
+
+= 1.5.6 =
+Major security enhancement update with OWASP-compliant security implementation. Recommended for all users.
 
 = 1.5.5 =
 WordPress 6.8 compatibility and internationalization fixes. Passes all Plugin Check tests.

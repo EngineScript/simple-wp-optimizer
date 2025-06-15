@@ -5,6 +5,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.8] - 2025-06-15
+### Added
+- Enhanced code organization with single responsibility principle implementation
+- Dedicated DNS domain validation functions for improved maintainability
+- Proper translator comments for all internationalization strings with placeholders
+- Additional sanitization layer for nonce verification using sanitize_text_field()
+
+### Fixed
+- **WordPress Plugin Check Compliance**: Resolved all WordPress.org compatibility issues
+- **Variable Naming**: Implemented camelCase convention for all variables (nonceValue, domainsInput, etc.)
+- **Function Complexity**: Reduced cyclomatic complexity by extracting validation logic into separate functions
+- **Code Standards**: Fixed $_POST data handling with proper WordPress sanitization practices
+- **i18n Compliance**: Added missing translator comments for sprintf() placeholders
+- **Documentation**: Updated upgrade notice character limits to meet WordPress.org requirements
+
+### Enhanced
+- Improved code architecture with es_optimizer_validate_single_domain() function
+- Better error handling with es_optimizer_show_domain_rejection_notice() function
+- Enhanced maintainability through function separation and reduced complexity
+- Cleaner code structure following WordPress coding standards
+- Optimized function organization for better testing and debugging
+
+### Security
+- **Enhanced Nonce Handling**: Additional sanitization layer for CSRF protection
+- **Improved Input Validation**: Strengthened domain validation with dedicated functions
+- **WordPress Standards**: Full compliance with WordPress security best practices
+
 ## [1.5.7] - 2025-06-15
 ### Added
 - WordPress nonce protection for CSRF security in settings forms
