@@ -512,8 +512,8 @@ function es_optimizer_show_domain_rejection_notice($rejectedDomains) {
         $rejectedMessage .= esc_html__('...', 'Simple-WP-Optimizer');
     }
     
-    // translators: %s is the list of rejected domain names
     $message = sprintf(
+        // translators: %s is the list of rejected domain names
         esc_html__('Some DNS prefetch domains were rejected for security reasons: %s', 'Simple-WP-Optimizer'),
         $rejectedMessage
     );
