@@ -2,7 +2,7 @@
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d81efac1703c4d3b8b998d2587cd696b)](https://app.codacy.com/gh/EngineScript/Simple-WP-Optimizer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Github License](https://img.shields.io/badge/License-GPL%20v3-green.svg?logo=gnu)](https://www.gnu.org/licenses/gpl-3.0.html)
-[![WordPress Compatible](https://img.shields.io/badge/WordPress-6.0%2B-blue.svg?logo=wordpress)](https://wordpress.org/)
+[![WordPress Compatible](https://img.shields.io/badge/WordPress-6.5%2B-blue.svg?logo=wordpress)](https://wordpress.org/)
 [![PHP Compatible](https://img.shields.io/badge/PHP-7.4%2B-purple.svg?logo=php)](https://www.php.net/)
 
 ## Current Version
@@ -94,7 +94,7 @@ Yes, hiding the WordPress version can provide a minor security benefit by making
 ### Requirements
 
 - PHP 7.4 or higher
-- WordPress 6.0 or higher
+- WordPress 6.5 or higher
 - Composer (for development and testing)
 
 ### Setting up the development environment
@@ -135,7 +135,7 @@ This ensures our plugin stays up-to-date with the latest WordPress versions with
 The plugin includes a comprehensive PHPUnit test suite that runs automatically on GitHub Actions. Our testing matrix includes:
 
 - PHP versions: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4
-- WordPress versions: 6.0, latest, nightly
+- WordPress versions: 6.5, latest, nightly
 - Both single site and multisite installations
 
 This ensures code quality and compatibility across different PHP versions and WordPress configurations.

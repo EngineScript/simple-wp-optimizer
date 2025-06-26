@@ -1,7 +1,7 @@
 === EngineScript: Simple WP Optimization ===
 Contributors: enginescript
 Tags: optimization, performance, cleanup
-Requires at least: 6.0
+Requires at least: 6.5
 Tested up to: 6.8
 Stable tag: 1.5.8
 Requires PHP: 7.4
@@ -41,6 +41,14 @@ The optimizations are carefully selected to be safe for most sites. You can enab
 No, the plugin has a simple interface where you can toggle features on and off.
 
 == Changelog ==
+
+= Unreleased =
+* REQUIREMENTS: Updated minimum WordPress version requirement to 6.5+ across all files for modern WordPress compatibility
+* FILES CREATED: Added changelog.txt for WordPress.org compatibility as per version control guidelines
+* INTERNATIONALIZATION: Created languages/simple-wp-optimizer.pot file for translation support
+* DOCUMENTATION: Updated all version references to reflect new WordPress 6.5+ minimum requirement
+* WORKFLOW: Updated GitHub Actions workflow compatibility testing from WordPress 6.0 to 6.5
+* COMPLIANCE: Enhanced project structure compliance with copilot coding standards and documentation guidelines
 
 = 1.5.8 =
 * **CODE QUALITY**: Fixed all WordPress Plugin Check compliance issues for WordPress.org standards
@@ -99,8 +107,6 @@ No, the plugin has a simple interface where you can toggle features on and off.
 * Improved workflow reliability by removing problematic external dependencies
 * Added Composer support with WordPress stubs for better development experience
 * Updated code to pass PHPStan level 5 analysis with zero errors
-
-= 1.5.5 =
 * Added compatibility with WordPress 6.8
 * Fixed text domain to comply with WordPress.org standards (changed from 'simple-wp-optimizer-enginescript' to 'Simple-WP-Optimizer')
 * Updated all internationalization function calls with proper text domain
@@ -109,25 +115,6 @@ No, the plugin has a simple interface where you can toggle features on and off.
 * Fixed issue template formatting for automated GitHub issue creation
 * Made the plugin fully compatible with the WordPress Plugin Check tool
 * Improved documentation and code comments
-
-== Upgrade Notice ==
-
-= 1.5.7 =
-SECURITY UPDATE: Important security enhancements including CSRF protection and DNS prefetch security. Update recommended.
-
-= 1.5.6 =
-Major security and code quality improvements with PHPStan analysis and WordPress compliance.
-
-= 1.5.4 =
-* Security enhancements and code optimization
-
-= 1.5.3 =
-* Added compatibility with WordPress 6.3
-* Fixed minor issues
-
-= 1.5.2 =
-* Performance improvements
-* Bug fixes
 
 == Upgrade Notice ==
 

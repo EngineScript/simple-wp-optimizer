@@ -2,7 +2,7 @@
 # It runs multiple validation processes including:
 # - WordPress Plugin Check for WordPress.org compatibility
 # - PHP compatibility testing across multiple PHP versions (7.4, 8.0, 8.1, 8.2, 8.3, 8.4)
-# - WordPress compatibility testing across multiple WP versions (6.0, latest, nightly)
+# - WordPress compatibility testing across multiple WP versions (6.5, latest, nightly)
 # - PHPStan static analysis for WordPress-specific code quality
 # - WordPress security vulnerability scanning using pattern analysis
 # - PHPCS code standards validation for WordPress coding standards
@@ -129,6 +129,9 @@ jobs:
           composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global require --dev squizlabs/php_codesniffer:"^3.7"
           composer global require --dev wp-coding-standards/wpcs:"^3.0"
+          composer global require --dev phpcompatibility/php-compatibility:"^9.3"
+          composer global require --dev phpcompatibility/phpcompatibility-wp:"^2.1" 
+          composer global require --dev automattic/vipwpcs:"^3.0"
           composer global require --dev dealerdirect/phpcodesniffer-composer-installer:"^1.0"
           
           # Add composer bin to PATH
@@ -188,14 +191,9 @@ jobs:
 
       - name: Run PHPMD
         run: |
-          # Use WordPress-specific PHPMD configuration to suppress WordPress-specific patterns
-          if [ -f phpmd-wordpress.xml ]; then
-            echo "Using WordPress-specific PHPMD configuration..."
-            phpmd . text phpmd-wordpress.xml --exclude vendor,tests,node_modules
-          else
-            echo "WordPress PHPMD config not found, using standard rules..."
-            phpmd . text cleancode,codesize,controversial,design,naming,unusedcode --exclude vendor,tests,node_modules
-          fi
+          # Use WordPress-specific PHPMD configuration (WordPress snake_case compatible)
+          echo "Using WordPress-specific PHPMD configuration (WordPress snake_case compatible)..."
+          phpmd simple-wp-optimizer.php text phpmd.xml
 
       - name: Create issue on PHPMD failure
         if: ${{ failure() }}
@@ -376,7 +374,7 @@ jobs:
     strategy:
       matrix:
         php-version: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-        wp-version: ['6.0', 'latest', 'nightly']
+        wp-version: ['6.5', 'latest', 'nightly']
       fail-fast: false
 
     services:
@@ -595,7 +593,7 @@ jobs:
                   $this->assertNotEmpty($wp_version, 'WordPress version should be available');
                   
                   // Test that we're running on a supported WordPress version
-                  $min_wp_version = '5.0';
+                  $min_wp_version = '6.5';
                   $this->assertTrue(version_compare($wp_version, $min_wp_version, '>='), 
                       "WordPress version {$wp_version} should be >= {$min_wp_version}");
               }

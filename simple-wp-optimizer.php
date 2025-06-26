@@ -8,7 +8,7 @@ Author: EngineScript
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: Simple-WP-Optimizer
-Requires at least: 6.0
+Requires at least: 6.5
 Requires PHP: 7.4
 Tested up to: 6.8
 Security: Follows OWASP security guidelines and WordPress best practices

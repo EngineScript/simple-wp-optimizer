@@ -1,0 +1,130 @@
+== Changelog ==
+
+= Unreleased =
+* REQUIREMENTS: Updated minimum WordPress version requirement to 6.5+ across all files for modern WordPress compatibility
+* FILES CREATED: Added changelog.txt for WordPress.org compatibility as per version control guidelines
+* INTERNATIONALIZATION: Created languages/simple-wp-optimizer.pot file for translation support
+* DOCUMENTATION: Updated all version references to reflect new WordPress 6.5+ minimum requirement
+* WORKFLOW: Updated GitHub Actions workflow compatibility testing from WordPress 6.0 to 6.5
+* COMPLIANCE: Enhanced project structure compliance with copilot coding standards and documentation guidelines
+
+= 1.5.8 =
+* CODE QUALITY: Fixed all WordPress Plugin Check compliance issues for WordPress.org standards
+* CODE QUALITY: Implemented camelCase variable naming convention throughout codebase
+* CODE QUALITY: Reduced function complexity by extracting DNS validation logic into separate functions
+* CODE QUALITY: Added proper translator comments for all internationalization strings with placeholders
+* CODE QUALITY: Enhanced $_POST data handling with proper sanitization using sanitize_text_field()
+* CODE QUALITY: Improved code organization with single responsibility principle
+* CODE QUALITY: Fixed upgrade notice character limits to meet WordPress.org requirements
+* SECURITY: Enhanced nonce verification with additional sanitization layer
+* SECURITY: Improved domain validation architecture with dedicated validation functions
+* MAINTENANCE: Optimized function structure for better maintainability and testing
+* MAINTENANCE: Updated code documentation for improved developer experience
+* COMPLIANCE: Full WordPress Plugin Check compatibility - passes all automated tests
+
+= 1.5.7 =
+* SECURITY ENHANCEMENT: Added WordPress nonce protection for CSRF security in all form submissions
+* SECURITY ENHANCEMENT: Enhanced DNS prefetch security with HTTPS-only domain enforcement
+* SECURITY ENHANCEMENT: Added private IP and localhost blocking for DNS prefetch to prevent SSRF attacks
+* SECURITY ENHANCEMENT: Implemented comprehensive domain validation with multi-layer security checks
+* Added user-friendly error messages for rejected domains with proper HTML escaping
+* Added security event notifications for administrators when domains are rejected for security reasons
+* Strengthened form security with proper wp_nonce_field() and wp_verify_nonce() implementation
+* Improved DNS prefetch domain validation with enhanced URL parsing and filtering
+* Enhanced error handling with proper WordPress admin notices and comprehensive escaping
+* Updated help text to clearly indicate HTTPS requirement for DNS prefetch domains
+* Fixed potential XSS vulnerability in error message display through proper HTML escaping
+* Improved domain validation to prevent bypass of security checks and information disclosure
+* Better user experience with informative, security-focused error messages
+* Comprehensive input validation preventing malicious domain submissions and attacks
+
+= 1.5.6 =
+* Enhanced GitHub Actions workflows for comprehensive plugin testing and security analysis
+* Added PHPStan WordPress static analysis with proper WordPress stubs configuration
+* Integrated WordPress Vulnerability Scanner and comprehensive security scanning
+* Fixed PHPStan static analysis errors: register_setting(), remove_action(), wp_print_link_tag() replacement, disable_emojis_tinymce() logic
+* Enhanced security implementation with comprehensive OWASP-compliant documentation
+* Added detailed security implementation notes following WordPress best practices
+* Improved input validation with strict type checking for all user inputs
+* Enhanced output escaping with context-appropriate WordPress functions (esc_html, esc_attr, esc_url, esc_textarea)
+* Added proper capability checks for all admin functions using current_user_can('manage_options')
+* Implemented secure coding patterns and multi-layer domain validation for DNS prefetch
+* Added comprehensive code documentation with security explanations and best practices
+* Fixed potential security vulnerabilities with proper WordPress coding standards
+* Improved code structure and organization for better maintainability
+* Enhanced development workflow with reliable testing and WordPress stubs support
+
+= 1.5.5 =
+* Enhanced code quality with comprehensive static analysis fixes
+* Fixed register_setting function to use proper array parameters instead of string callback
+* Corrected remove_action function calls to use proper parameter count (2-3 parameters)
+* Replaced non-existent wp_print_link_tag function with proper HTML output using esc_url()
+* Improved disable_emojis_tinymce function logic to eliminate unreachable code
+* Added comprehensive PHPStan WordPress static analysis with proper WordPress stubs
+* Enhanced security scanning with WordPress-specific vulnerability patterns
+* Improved workflow reliability by removing problematic external dependencies
+* Added Composer support with WordPress stubs for better development experience
+
+= 1.5.4 =
+* Enhanced DNS prefetch functionality with configurable domains
+* Added settings page for managing optimization options
+* Improved security with proper input validation and sanitization
+* Added support for custom DNS prefetch domains via textarea input
+* Enhanced user interface with better organization and descriptions
+* Fixed various PHP compatibility issues
+* Improved code structure and documentation
+
+= 1.5.3 =
+* Added DNS prefetch for common external domains
+* Improved performance optimization features
+* Enhanced security with input validation
+* Fixed compatibility issues with latest WordPress versions
+* Improved code organization and structure
+
+= 1.5.2 =
+* Added option to disable Jetpack advertisements
+* Improved plugin settings interface
+* Enhanced code quality and security
+* Fixed various minor bugs and issues
+
+= 1.5.1 =
+* Added settings page for configuration
+* Improved code structure and organization
+* Enhanced security features
+* Fixed compatibility issues
+
+= 1.5.0 =
+* Major code refactoring and improvement
+* Added comprehensive security features
+* Improved performance optimizations
+* Enhanced user interface
+
+= 1.4.1 =
+* Added DNS prefetch functionality
+* Improved performance features
+* Enhanced security measures
+
+= 1.4.0 =
+* Added header cleanup options
+* Improved optimization features
+* Enhanced code quality
+
+= 1.3.0 =
+* Added classic theme styles removal
+* Improved jQuery handling
+* Enhanced performance features
+
+= 1.2.0 =
+* Added emoji removal functionality
+* Improved script optimization
+* Enhanced user experience
+
+= 1.1.0 =
+* Added jQuery Migrate removal
+* Improved performance features
+* Enhanced compatibility
+
+= 1.0.0 =
+* Initial release
+* Basic optimization features
+* WordPress integration
