@@ -4,11 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.9] - 2025-06-26
 ### Updated
 - **Requirements**: Updated minimum WordPress version requirement to 6.5+ across all files for modern WordPress compatibility
 - **Files Created**: Added changelog.txt for WordPress.org compatibility as per version control guidelines
 - **Internationalization**: Created languages/simple-wp-optimizer.pot file for translation support
 - **Documentation**: Updated all version references to reflect new WordPress 6.5+ minimum requirement
+- **Workflow**: Updated GitHub Actions workflow compatibility testing from WordPress 6.0 to 6.5
+- **Compliance**: Enhanced project structure compliance with copilot coding standards and documentation guidelines
 
 ## [1.5.8] - 2025-06-15
 ### Added

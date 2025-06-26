@@ -3,7 +3,7 @@ Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.5
 Tested up to: 6.8
-Stable tag: 1.5.8
+Stable tag: 1.5.9
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -43,6 +43,8 @@ No, the plugin has a simple interface where you can toggle features on and off.
 == Changelog ==
 
 = Unreleased =
+
+= 1.5.9 =
 * REQUIREMENTS: Updated minimum WordPress version requirement to 6.5+ across all files for modern WordPress compatibility
 * FILES CREATED: Added changelog.txt for WordPress.org compatibility as per version control guidelines
 * INTERNATIONALIZATION: Created languages/simple-wp-optimizer.pot file for translation support
@@ -117,6 +119,9 @@ No, the plugin has a simple interface where you can toggle features on and off.
 * Improved documentation and code comments
 
 == Upgrade Notice ==
+
+= 1.5.9 =
+REQUIREMENTS UPDATE: Updated minimum WordPress version to 6.5+. Added translation support and enhanced compliance.
 
 = 1.5.8 =
 CODE QUALITY UPDATE: Fixed all WordPress Plugin Check issues for full WordPress.org compliance. Enhanced code organization.

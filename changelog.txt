@@ -1,6 +1,8 @@
 == Changelog ==
 
 = Unreleased =
+
+= 1.5.9 =
 * REQUIREMENTS: Updated minimum WordPress version requirement to 6.5+ across all files for modern WordPress compatibility
 * FILES CREATED: Added changelog.txt for WordPress.org compatibility as per version control guidelines
 * INTERNATIONALIZATION: Created languages/simple-wp-optimizer.pot file for translation support

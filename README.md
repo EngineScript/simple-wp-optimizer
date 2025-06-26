@@ -6,7 +6,7 @@
 [![PHP Compatible](https://img.shields.io/badge/PHP-7.4%2B-purple.svg?logo=php)](https://www.php.net/)
 
 ## Current Version
-[![Version](https://img.shields.io/badge/Version-1.5.8-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.8/simple-wp-optimizer-1.5.8.zip)
+[![Version](https://img.shields.io/badge/Version-1.5.9-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.9/simple-wp-optimizer-1.5.9.zip)
 
 ## Description
 
