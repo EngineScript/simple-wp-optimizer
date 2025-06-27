@@ -43,10 +43,11 @@ No, the plugin has a simple interface where you can toggle features on and off.
 == Changelog ==
 
 = Unreleased =
+* FILE CLEANUP: Removed changelog.txt file as per updated version control guidelines - only maintaining readme.txt (WordPress.org) and CHANGELOG.md (developers)
+* DOCUMENTATION: Updated copilot instructions to streamline changelog maintenance to two files instead of three
 
 = 1.5.9 =
 * REQUIREMENTS: Updated minimum WordPress version requirement to 6.5+ across all files for modern WordPress compatibility
-* FILES CREATED: Added changelog.txt for WordPress.org compatibility as per version control guidelines
 * INTERNATIONALIZATION: Created languages/simple-wp-optimizer.pot file for translation support
 * DOCUMENTATION: Updated all version references to reflect new WordPress 6.5+ minimum requirement
 * WORKFLOW: Updated GitHub Actions workflow compatibility testing from WordPress 6.0 to 6.5
