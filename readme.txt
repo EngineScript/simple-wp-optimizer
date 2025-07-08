@@ -1,9 +1,9 @@
-=== EngineScript: Simple WP Optimization ===
+=== Simple WP Optimizer ===
 Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.5
 Tested up to: 6.8
-Stable tag: 1.5.9
+Stable tag: 1.5.10
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -40,11 +40,13 @@ The optimizations are carefully selected to be safe for most sites. You can enab
 
 No, the plugin has a simple interface where you can toggle features on and off.
 
+
 == Changelog ==
 
-= Unreleased =
-* FILE CLEANUP: Removed changelog.txt file as per updated version control guidelines - only maintaining readme.txt (WordPress.org) and CHANGELOG.md (developers)
-* DOCUMENTATION: Updated copilot instructions to streamline changelog maintenance to two files instead of three
+= 1.5.10 =
+* MAINTENANCE: Updated changelog and version references across documentation files for new release
+* DOCUMENTATION: Synced CHANGELOG.md and readme.txt as per project standards
+* NO CODE CHANGES: This release is documentation and changelog only
 
 = 1.5.9 =
 * REQUIREMENTS: Updated minimum WordPress version requirement to 6.5+ across all files for modern WordPress compatibility

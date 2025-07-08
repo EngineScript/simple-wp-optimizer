@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: EngineScript: Simple WP Optimization
+Plugin Name: Simple WP Optimizer
 Plugin URI: https://github.com/EngineScript/Simple-WP-Optimizer
 Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
-Version: 1.5.9
+Version: 1.5.10
 Author: EngineScript
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) {
 
 // Define plugin version
 if (!defined('ES_WP_OPTIMIZER_VERSION')) {
-    define('ES_WP_OPTIMIZER_VERSION', '1.5.9');
+    define('ES_WP_OPTIMIZER_VERSION', '1.5.10');
 }
 
 /**
