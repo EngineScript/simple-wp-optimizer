@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No code changes in this release; documentation and changelog only
 
 ## [Unreleased]
+### Code Quality
+- **WordPress Coding Standards**: Converted all code to use spaces instead of tabs for indentation
+- **Code Style**: Fixed file comment header to use "/**" style instead of "/*" style
+- **Code Style**: Added proper spacing around operators (e.g., `! defined` instead of `!defined`)
+- **Code Style**: Added proper full stops to inline comments for consistency
+- **Code Style**: Removed trailing whitespace from documentation blocks
+- **Variable Naming**: Converted variable names to use snake_case instead of camelCase for WordPress compliance
+- **Function Formatting**: Improved function parameter spacing and alignment
+- **Array Formatting**: Enhanced array formatting with proper alignment and trailing commas
 
 ## [1.5.9] - 2025-06-26
 ### Updated
