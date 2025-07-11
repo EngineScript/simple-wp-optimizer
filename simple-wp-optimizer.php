@@ -93,11 +93,11 @@ function es_optimizer_get_default_options() {
         'remove_recent_comments_style' => 1,
         'enable_dns_prefetch'          => 1,
         'dns_prefetch_domains'         => implode( "\n", array(
-            'https://fonts.googleapis.com',
-            'https://fonts.gstatic.com',
-            'https://ajax.googleapis.com',
-            'https://apis.google.com',
-            'https://www.google-analytics.com',
+                'https://fonts.googleapis.com',
+                'https://fonts.gstatic.com',
+                'https://ajax.googleapis.com',
+                'https://apis.google.com',
+                'https://www.google-analytics.com',
             )
         ),
         'disable_jetpack_ads'          => 1,
