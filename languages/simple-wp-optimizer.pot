@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Simple WP Optimizer plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple WP Optimizer 1.5.10\n"
+"Project-Id-Version: Simple WP Optimizer 1.5.11\n"
 "Report-Msgid-Bugs-To: https://github.com/EngineScript/Simple-WP-Optimizer/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"

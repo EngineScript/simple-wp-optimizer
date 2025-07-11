@@ -3,7 +3,7 @@
  * Plugin Name: Simple WP Optimizer
  * Plugin URI: https://github.com/EngineScript/Simple-WP-Optimizer
  * Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
- * Version: 1.5.10
+ * Version: 1.5.11
  * Author: EngineScript
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define plugin version.
 if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
-    define( 'ES_WP_OPTIMIZER_VERSION', '1.5.10' );
+    define( 'ES_WP_OPTIMIZER_VERSION', '1.5.11' );
 }
 
 /**
@@ -98,7 +98,8 @@ function es_optimizer_get_default_options() {
             'https://ajax.googleapis.com',
             'https://apis.google.com',
             'https://www.google-analytics.com',
-        ) ),
+        )
+        ),
         'disable_jetpack_ads'          => 1,
     );
 }

@@ -3,16 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
-## [1.5.10] - 2025-07-07
-### Maintenance
-- Updated changelog and version references across documentation files for new release
-### Documentation
-- Synced CHANGELOG.md and readme.txt as per project standards
-### Note
-- No code changes in this release; documentation and changelog only
-
-## [Unreleased]
+## [1.5.11] - 2025-07-11
 ### Code Quality
 - **WordPress Coding Standards**: Converted all code to use spaces instead of tabs for indentation
 - **Code Style**: Fixed file comment header to use "/**" style instead of "/*" style
@@ -22,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Variable Naming**: Converted variable names to use snake_case instead of camelCase for WordPress compliance
 - **Function Formatting**: Improved function parameter spacing and alignment
 - **Array Formatting**: Enhanced array formatting with proper alignment and trailing commas
+
+## [1.5.10] - 2025-07-07
+### Maintenance
+- Updated changelog and version references across documentation files for new release
+### Documentation
+- Synced CHANGELOG.md and readme.txt as per project standards
+### Note
+- No code changes in this release; documentation and changelog only
 
 ## [1.5.9] - 2025-06-26
 ### Updated
