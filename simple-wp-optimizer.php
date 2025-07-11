@@ -98,7 +98,7 @@ function es_optimizer_get_default_options() {
             'https://ajax.googleapis.com',
             'https://apis.google.com',
             'https://www.google-analytics.com',
-        )
+            )
         ),
         'disable_jetpack_ads'          => 1,
     );
