@@ -36,6 +36,10 @@
             <property name="tabIndent" value="false"/>
         </properties>
     </rule>
+    
+    <!-- Disallow inline tabs -->
+    <rule ref="Universal.WhiteSpace.DisallowInlineTabs">
+    </rule>
 
     <!-- Additional WordPress-specific spacing rules -->
     <rule ref="WordPress.WhiteSpace.ControlStructureSpacing"/>
@@ -82,6 +86,8 @@
 
     <!-- WordPress PHP compatibility -->
     <rule ref="PHPCompatibilityWP"/>
+        <include-pattern>*\.php$</include-pattern>
+    </rule>
     <config name="minimum_supported_wp_version" value="6.5"/>
     <config name="testVersion" value="7.4-"/>
 
