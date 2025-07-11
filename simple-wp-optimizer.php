@@ -61,10 +61,14 @@ if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
  */
 function es_optimizer_init_settings() {
     // Register settings.
-    register_setting( 'es_optimizer_settings', 'es_optimizer_options', array(
-        'sanitize_callback' => 'es_optimizer_validate_options',
-        'default'           => es_optimizer_get_default_options(),
-    ) );
+    register_setting(
+        'es_optimizer_settings',
+        'es_optimizer_options',
+        array(
+            'sanitize_callback' => 'es_optimizer_validate_options',
+            'default'           => es_optimizer_get_default_options(),
+        )
+    );
 
     // Register default options if they don't exist.
     if ( false === get_option( 'es_optimizer_options' ) ) {
@@ -80,22 +84,22 @@ add_action( 'admin_init', 'es_optimizer_init_settings' );
  */
 function es_optimizer_get_default_options() {
     return array(
-        'disable_emojis'                => 1,
-        'remove_jquery_migrate'         => 1,
-        'disable_classic_theme_styles'  => 1,
-        'remove_wp_version'             => 1,
-        'remove_wlw_manifest'           => 1,
-        'remove_shortlink'              => 1,
-        'remove_recent_comments_style'  => 1,
-        'enable_dns_prefetch'           => 1,
-        'dns_prefetch_domains'          => implode( "\n", array(
+        'disable_emojis'               => 1,
+        'remove_jquery_migrate'        => 1,
+        'disable_classic_theme_styles' => 1,
+        'remove_wp_version'            => 1,
+        'remove_wlw_manifest'          => 1,
+        'remove_shortlink'             => 1,
+        'remove_recent_comments_style' => 1,
+        'enable_dns_prefetch'          => 1,
+        'dns_prefetch_domains'         => implode( "\n", array(
             'https://fonts.googleapis.com',
             'https://fonts.gstatic.com',
             'https://ajax.googleapis.com',
             'https://apis.google.com',
             'https://www.google-analytics.com',
         ) ),
-        'disable_jetpack_ads'           => 1,
+        'disable_jetpack_ads'          => 1,
     );
 }
 
