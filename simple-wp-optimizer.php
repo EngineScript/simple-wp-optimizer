@@ -80,7 +80,7 @@ add_action( 'admin_init', 'es_optimizer_init_settings' );
 /**
  * Get default plugin options
  *
- * @return array Default options
+ * @return array Default options.
  */
 function es_optimizer_get_default_options() {
     return array(
@@ -172,7 +172,7 @@ function es_optimizer_settings_page() {
 /**
  * Render performance optimization options
  *
- * @param array $options Plugin options
+ * @param array $options Plugin options.
  */
 function es_optimizer_render_performance_options( $options ) {
     // Emoji settings.
@@ -203,7 +203,7 @@ function es_optimizer_render_performance_options( $options ) {
 /**
  * Render header cleanup options
  *
- * @param array $options Plugin options
+ * @param array $options Plugin options.
  */
 function es_optimizer_render_header_options( $options ) {
     // WordPress Version settings.
@@ -242,7 +242,7 @@ function es_optimizer_render_header_options( $options ) {
 /**
  * Render additional optimization options
  *
- * @param array $options Plugin options
+ * @param array $options Plugin options.
  */
 function es_optimizer_render_additional_options( $options ) {
     // DNS Prefetch settings.
@@ -278,10 +278,10 @@ function es_optimizer_render_additional_options( $options ) {
  * - Attribute values are escaped with esc_attr()
  * - WordPress checked() function is used for checkbox state
  *
- * @param array  $options       Plugin options
- * @param string $option_name   Option name
- * @param string $title         Option title
- * @param string $description   Option description
+ * @param array  $options       Plugin options.
+ * @param string $option_name   Option name.
+ * @param string $title         Option title.
+ * @param string $description   Option description.
  */
 function es_optimizer_render_checkbox_option( $options, $option_name, $title, $description ) {
     ?>
@@ -320,10 +320,10 @@ function es_optimizer_render_checkbox_option( $options, $option_name, $title, $d
  * - Attribute values are escaped with esc_attr()
  * - Textarea content is escaped with esc_textarea()
  *
- * @param array  $options       Plugin options
- * @param string $option_name   Option name
- * @param string $title         Option title
- * @param string $description   Option description
+ * @param array  $options       Plugin options.
+ * @param string $option_name   Option name.
+ * @param string $title         Option title.
+ * @param string $description   Option description.
  */
 function es_optimizer_render_textarea_option( $options, $option_name, $title, $description ) {
     ?>
@@ -373,8 +373,8 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
  *    - URL validation via filter_var()
  *    - Sanitization via esc_url_raw()
  *
- * @param array $input User submitted options
- * @return array Validated and sanitized options
+ * @param array $input User submitted options.
+ * @return array Validated and sanitized options.
  */
 function es_optimizer_validate_options( $input ) {
     // Security: Verify nonce for CSRF protection when using WordPress Settings API.
@@ -400,9 +400,15 @@ function es_optimizer_validate_options( $input ) {
 
     // Validate checkboxes (0 or 1).
     $checkboxes = array(
-        'disable_emojis', 'remove_jquery_migrate', 'disable_classic_theme_styles',
-        'remove_wp_version', 'remove_wlw_manifest', 'remove_shortlink',
-        'remove_recent_comments_style', 'enable_dns_prefetch', 'disable_jetpack_ads',
+        'disable_emojis',
+        'remove_jquery_migrate',
+        'disable_classic_theme_styles',
+        'remove_wp_version',
+        'remove_wlw_manifest',
+        'remove_shortlink',
+        'remove_recent_comments_style',
+        'enable_dns_prefetch',
+        'disable_jetpack_ads',
     );
 
     foreach ( $checkboxes as $checkbox ) {
@@ -420,13 +426,13 @@ function es_optimizer_validate_options( $input ) {
 /**
  * Validate DNS prefetch domains with enhanced security
  *
- * @param string $domains_input Raw domain input from user
- * @return string Validated and sanitized domains
+ * @param string $domains_input Raw domain input from user.
+ * @return string Validated and sanitized domains.
  */
 function es_optimizer_validate_dns_domains( $domains_input ) {
-    $domains = explode( "\n", trim( $domains_input ) );
+    $domains           = explode( "\n", trim( $domains_input ) );
     $sanitized_domains = array();
-    $rejected_domains = array();
+    $rejected_domains  = array();
 
     foreach ( $domains as $domain ) {
         $domain = trim( $domain );
@@ -454,7 +460,7 @@ function es_optimizer_validate_dns_domains( $domains_input ) {
 /**
  * Validate a single DNS prefetch domain
  *
- * @param string $domain Domain to validate
+ * @param string $domain Domain to validate.
  * @return array Validation result with 'valid' boolean and 'domain' or 'error'
  */
 function es_optimizer_validate_single_domain( $domain ) {
@@ -488,7 +494,7 @@ function es_optimizer_validate_single_domain( $domain ) {
     $host = $parsed_url['host'];
 
     // Prevent localhost and private IP ranges for security.
-    $is_local = in_array( $host, array( 'localhost', '127.0.0.1', '::1' ) );
+    $is_local     = in_array( $host, array( 'localhost', '127.0.0.1', '::1' ), true );
     $is_private_ip = false !== filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 
     if ( $is_local || ! $is_private_ip ) {
@@ -508,11 +514,11 @@ function es_optimizer_validate_single_domain( $domain ) {
 /**
  * Show admin notice for rejected domains
  *
- * @param array $rejected_domains Array of rejected domain strings
+ * @param array $rejected_domains Array of rejected domain strings.
  */
 function es_optimizer_show_domain_rejection_notice( $rejected_domains ) {
     // Security: Properly escape and limit the rejected domains in error messages.
-    $escaped_domains = array_map( 'esc_html', array_slice( $rejected_domains, 0, 3 ) );
+    $escaped_domains  = array_map( 'esc_html', array_slice( $rejected_domains, 0, 3 ) );
     $rejected_message = implode( ', ', $escaped_domains );
 
     if ( count( $rejected_domains ) > 3 ) {
@@ -575,8 +581,8 @@ add_action( 'init', 'disable_emojis' );
 /**
  * Add settings link to plugins page
  *
- * @param array $links Plugin action links
- * @return array Modified plugin action links
+ * @param array $links Plugin action links.
+ * @return array Modified plugin action links.
  */
 function es_optimizer_add_settings_link( $links ) {
     // The admin_url function is used to properly generate a URL within the WordPress admin area.
@@ -586,14 +592,14 @@ function es_optimizer_add_settings_link( $links ) {
     array_unshift( $links, $settings_link );
     return $links;
 }
-$plugin = plugin_basename( __FILE__ );
-add_filter( "plugin_action_links_$plugin", 'es_optimizer_add_settings_link' );
+$plugin_basename = plugin_basename( __FILE__ );
+add_filter( "plugin_action_links_{$plugin_basename}", 'es_optimizer_add_settings_link' );
 
 /**
  * Filter function used to remove the tinymce emoji plugin.
  *
- * @param array $plugins
- * @return array Difference betwen the two arrays
+ * @param array $plugins Array of TinyMCE plugins.
+ * @return array Difference betwen the two arrays.
  */
 function disable_emojis_tinymce( $plugins ) {
     if ( ! is_array( $plugins ) ) {
@@ -612,7 +618,7 @@ function disable_emojis_tinymce( $plugins ) {
 function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
     if ( 'dns-prefetch' === $relation_type ) {
         $emoji_svg_url = apply_filters( 'emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/' );
-        $urls = array_diff( $urls, array( $emoji_svg_url ) );
+        $urls          = array_diff( $urls, array( $emoji_svg_url ) );
     }
     return $urls;
 }
@@ -624,7 +630,7 @@ function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
  * Modern themes and plugins generally don't need it, so removing it improves load time.
  *
  * @since 1.0.0
- * @param WP_Scripts $scripts WP_Scripts object
+ * @param WP_Scripts $scripts WP_Scripts object.
  */
 function remove_jquery_migrate( $scripts ) {
     $options = get_option( 'es_optimizer_options' );
@@ -662,7 +668,7 @@ function disable_classic_theme_styles() {
 add_action( 'wp_enqueue_scripts', 'disable_classic_theme_styles', 100 );
 
 /**
- * Remove WordPress version, WLW manifest, and shortlink
+ * Remove WordPress version, WLW manifest, and shortlink.
  */
 function remove_header_items() {
     $options = get_option( 'es_optimizer_options' );
@@ -685,7 +691,7 @@ function remove_header_items() {
 add_action( 'init', 'remove_header_items' );
 
 /**
- * Remove Recent Comments Widget CSS Styles
+ * Remove Recent Comments Widget CSS Styles.
  */
 function remove_recent_comments_style() {
     $options = get_option( 'es_optimizer_options' );
@@ -698,7 +704,7 @@ function remove_recent_comments_style() {
 add_action( 'init', 'remove_recent_comments_style' );
 
 /**
- * Add DNS prefetching for common external domains
+ * Add DNS prefetching for common external domains.
  *
  * DNS prefetching can reduce latency when connecting to common external services.
  * This is particularly helpful for sites using Google Fonts, Analytics, etc.
@@ -753,7 +759,7 @@ function add_dns_prefetch() {
 add_action( 'wp_head', 'add_dns_prefetch', 0 );
 
 /**
- * Disable Jetpack advertisements
+ * Disable Jetpack advertisements.
  */
 function disable_jetpack_ads() {
     $options = get_option( 'es_optimizer_options' );
