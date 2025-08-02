@@ -144,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automated GitHub issue creation for test failures
 
 ### Fixed
-- Changed text domain from 'simple-wp-optimizer-enginescript' to 'Simple-WP-Optimizer' to comply with WordPress.org standards
+- Changed text domain from 'simple-wp-optimizer-enginescript' to 'simple-wp-optimizer' to comply with WordPress.org standards
 - Updated all internationalization function calls with the correct text domain
 - Added missing text domain parameter in translation functions
 - Fixed issue template formatting for automated GitHub issue creation
