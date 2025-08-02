@@ -94,7 +94,7 @@ jobs:
           TMP_FILE=$(mktemp)
           
           # Update the version badge with the new version and logo
-          sed -E 's/\[\!Version\]\(https:\/\/img\.shields\.io\/badge\/Version-[0-9]+\.[0-9]+\.[0-9]+-orange\.svg\?logo=github\)\]\(https:\/\/github\.com\/EngineScript\/Simple-WP-Optimizer\/releases\/latest\/download\/simple-wp-optimizer-[0-9]+\.[0-9]+\.[0-9]+\.zip\)/\[\!Version\]\(https:\/\/img\.shields\.io\/badge\/Version-'"$VERSION"'-orange\.svg\?logo=github\)\]\(https:\/\/github\.com\/EngineScript\/Simple-WP-Optimizer\/releases\/latest\/download\/simple-wp-optimizer-'"$VERSION"'\.zip\)/g' "$README_FILE" > "$TMP_FILE"
+          sed -E 's/\[\!Version\]\(https:\/\/img\.shields\.io\/badge\/Version-[0-9]+\.[0-9]+\.[0-9]+-orange\.svg\?logo=github\)\]\(https:\/\/github\.com\/EngineScript\/simple-wp-optimizer\/releases\/latest\/download\/simple-wp-optimizer-[0-9]+\.[0-9]+\.[0-9]+\.zip\)/\[\!Version\]\(https:\/\/img\.shields\.io\/badge\/Version-'"$VERSION"'-orange\.svg\?logo=github\)\]\(https:\/\/github\.com\/EngineScript\/simple-wp-optimizer\/releases\/latest\/download\/simple-wp-optimizer-'"$VERSION"'\.zip\)/g' "$README_FILE" > "$TMP_FILE"
           
           # Replace file if changes were made
           if ! cmp -s "$README_FILE" "$TMP_FILE"; then

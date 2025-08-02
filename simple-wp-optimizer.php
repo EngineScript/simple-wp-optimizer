@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Simple WP Optimizer
- * Plugin URI: https://github.com/EngineScript/Simple-WP-Optimizer
+ * Plugin URI: https://github.com/EngineScript/simple-wp-optimizer
  * Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
  * Version: 1.5.12
  * Author: EngineScript

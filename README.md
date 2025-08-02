@@ -1,11 +1,11 @@
 # Simple WP Optimizer
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6a23f01f0c0c440a958ce5857154ea70)](https://app.codacy.com/gh/EngineScript/Simple-WP-Optimizer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)[![Github License](https://img.shields.io/badge/License-GPL%20v3-green.svg?logo=gnu)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6a23f01f0c0c440a958ce5857154ea70)](https://app.codacy.com/gh/EngineScript/simple-wp-optimizer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)[![Github License](https://img.shields.io/badge/License-GPL%20v3-green.svg?logo=gnu)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![WordPress Compatible](https://img.shields.io/badge/WordPress-6.5%2B-blue.svg?logo=wordpress)](https://wordpress.org/)
 [![PHP Compatible](https://img.shields.io/badge/PHP-7.4%2B-purple.svg?logo=php)](https://www.php.net/)
 
 ## Current Version
-[![Version](https://img.shields.io/badge/Version-1.5.12-orange.svg?logo=github)](https://github.com/EngineScript/Simple-WP-Optimizer/releases/download/v1.5.12/simple-wp-optimizer-1.5.12.zip)
+[![Version](https://img.shields.io/badge/Version-1.5.12-orange.svg?logo=github)](https://github.com/EngineScript/simple-wp-optimizer/releases/download/v1.5.12/simple-wp-optimizer-1.5.12.zip)
 
 ## Description
 
@@ -23,7 +23,7 @@ A lightweight WordPress plugin designed to optimize your website by removing unn
 
 ### Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/EngineScript/Simple-WP-Optimizer/releases)
+1. Download the latest release from the [releases page](https://github.com/EngineScript/simple-wp-optimizer/releases)
 2. Upload the plugin files to the `/wp-content/plugins/simple-wp-optimizer` directory
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Configure the plugin settings via the 'WP Optimizer' menu
@@ -98,7 +98,7 @@ Yes, hiding the WordPress version can provide a minor security benefit by making
 
 ### Setting up the development environment
 
-1. Clone this repository: `git clone https://github.com/EngineScript/Simple-WP-Optimizer.git`
+1. Clone this repository: `git clone https://github.com/EngineScript/simple-wp-optimizer.git`
 2. Install dependencies: `composer install`
 3. Set up the test environment: `bin/install-wp-tests.sh wordpress_test root '' localhost latest`
 4. Run tests: `composer test`
