@@ -3,7 +3,7 @@
  * Plugin Name: Simple WP Optimizer
  * Plugin URI: https://github.com/EngineScript/Simple-WP-Optimizer
  * Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
- * Version: 1.5.11
+ * Version: 1.5.12
  * Author: EngineScript
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define plugin version.
 if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
-    define( 'ES_WP_OPTIMIZER_VERSION', '1.5.11' );
+    define( 'ES_WP_OPTIMIZER_VERSION', '1.5.12' );
 }
 
 /**
@@ -101,6 +101,7 @@ function es_optimizer_get_default_options() {
         )
         ),
         'disable_jetpack_ads'          => 1,
+        'disable_post_via_email'       => 1,
     );
 }
 
@@ -268,6 +269,14 @@ function es_optimizer_render_additional_options( $options ) {
         esc_html__( 'Disable Jetpack Ads', 'Simple-WP-Optimizer' ),
         esc_html__( 'Remove Jetpack advertisements and promotions', 'Simple-WP-Optimizer' )
     );
+
+    // Post via Email settings.
+    es_optimizer_render_checkbox_option(
+        $options,
+        'disable_post_via_email',
+        esc_html__( 'Disable Post via Email', 'Simple-WP-Optimizer' ),
+        esc_html__( 'Disable WordPress post via email functionality for security and performance', 'Simple-WP-Optimizer' )
+    );
 }
 
 /**
@@ -409,6 +418,7 @@ function es_optimizer_validate_options( $input ) {
         'remove_recent_comments_style',
         'enable_dns_prefetch',
         'disable_jetpack_ads',
+        'disable_post_via_email',
     );
 
     foreach ( $checkboxes as $checkbox ) {
@@ -698,7 +708,7 @@ function remove_recent_comments_style() {
 
     // Only proceed if the option is enabled.
     if ( isset( $options['remove_recent_comments_style'] ) && $options['remove_recent_comments_style'] ) {
-        add_filter( 'show_recent_comments_widget_style', '__return_false', 99 );
+        add_filter( 'show_recent_comments_widget_style', '__return_false', PHP_INT_MAX );
     }
 }
 add_action( 'init', 'remove_recent_comments_style' );
@@ -766,9 +776,22 @@ function disable_jetpack_ads() {
 
     // Only proceed if the option is enabled.
     if ( isset( $options['disable_jetpack_ads'] ) && $options['disable_jetpack_ads'] ) {
-        add_filter( 'jetpack_just_in_time_msgs', '__return_false', 20 );
-        add_filter( 'jetpack_show_promotions', '__return_false', 20 );
-        add_filter( 'jetpack_blaze_enabled', '__return_false' );
+        add_filter( 'jetpack_just_in_time_msgs', '__return_false', PHP_INT_MAX );
+        add_filter( 'jetpack_show_promotions', '__return_false', PHP_INT_MAX );
+        add_filter( 'jetpack_blaze_enabled', '__return_false', PHP_INT_MAX );
     }
 }
 add_action( 'init', 'disable_jetpack_ads' );
+
+/**
+ * Disable WordPress post via email functionality.
+ */
+function disable_post_via_email() {
+    $options = get_option( 'es_optimizer_options' );
+
+    // Only proceed if the option is enabled.
+    if ( isset( $options['disable_post_via_email'] ) && $options['disable_post_via_email'] ) {
+        add_filter( 'enable_post_by_email_configuration', '__return_false', PHP_INT_MAX );
+    }
+}
+add_action( 'init', 'disable_post_via_email' );

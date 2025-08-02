@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.12] - 2025-08-02
+### Added
+- **Disable Post via Email**: New option to disable the post-via-email feature for enhanced security and performance.
+
+### Security
+- **Hardened Disabling Filters**: Updated all feature-disabling filters to use `PHP_INT_MAX` priority, ensuring they cannot be overridden by other plugins or themes.
+
 ## [1.5.11] - 2025-07-11
 ### Code Quality
 - **WordPress Coding Standards**: Converted all code to use spaces instead of tabs for indentation

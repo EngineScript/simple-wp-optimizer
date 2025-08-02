@@ -3,7 +3,7 @@ Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.5
 Tested up to: 6.8
-Stable tag: 1.5.11
+Stable tag: 1.5.12
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -42,6 +42,20 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 
 == Changelog ==
+
+= 1.5.12 =
+* ADDED: New option to disable the post-via-email feature for enhanced security and performance.
+* SECURITY: Hardened all feature-disabling filters to use `PHP_INT_MAX` priority, ensuring they cannot be overridden by other plugins or themes.
+
+= 1.5.11 =
+* CODE QUALITY: Converted all code to use spaces instead of tabs for indentation
+* CODE STYLE: Fixed file comment header to use "/**" style instead of "/*" style
+* CODE STYLE: Added proper spacing around operators (e.g., `! defined` instead of `!defined`)
+* CODE STYLE: Added proper full stops to inline comments for consistency
+* CODE STYLE: Removed trailing whitespace from documentation blocks
+* VARIABLE NAMING: Converted variable names to use snake_case instead of camelCase for WordPress compliance
+* FUNCTION FORMATTING: Improved function parameter spacing and alignment
+* ARRAY FORMATTING: Enhanced array formatting with proper alignment and trailing commas
 
 = 1.5.10 =
 * MAINTENANCE: Updated changelog and version references across documentation files for new release
