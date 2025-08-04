@@ -306,19 +306,19 @@ function es_optimizer_render_checkbox_option( $options, $option_name, $title, $d
         <td>
             <label>
                 <input type="checkbox" name="<?php
-                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-                    /*
-                     * Using printf with esc_attr for attribute name which cannot be avoided.
-                     * The $option_name values are hardcoded strings from render functions, not user input.
-                     * This is a controlled environment where these values are defined within the plugin.
-                     */
-                    printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-                    ?>" value="1"
+                /*
+                 * Using printf with esc_attr for attribute name which cannot be avoided.
+                 * The $option_name values are hardcoded strings from render functions, not user input.
+                 * This is a controlled environment where these values are defined within the plugin.
+                 */
+                printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
+                ?>" value="1"
                     <?php checked( 1, isset( $options[ $option_name ] ) ? $options[ $option_name ] : 0 ); ?> />
                 <?php
-                    // Using esc_html for secure output of descriptions.
-                    echo esc_html( $description );
+                // Using esc_html for secure output of descriptions.
+                echo esc_html( $description );
                 ?>
             </label>
         </td>
@@ -356,16 +356,19 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
                 ?>
             </small></p>
             <textarea name="<?php
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                /*
-                 * Using printf with esc_attr for attribute name which cannot be avoided.
-                 * The $option_name values are hardcoded strings from render functions, not user input.
-                 * This is a controlled environment where these values are defined within the plugin.
-                 */
-                printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-                ?>" rows="5" cols="50" class="large-text code"><?php
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+            /*
+             * Using printf with esc_attr for attribute name which cannot be avoided.
+             * The $option_name values are hardcoded strings from render functions, not user input.
+             * This is a controlled environment where these values are defined within the plugin.
+             */
+            printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
+            ?>" rows="5" cols="50" class="large-text code">
+                <?php
                 if ( isset( $options[ $option_name ] ) ) {
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
                     /*
                      * Using printf with esc_textarea is the most appropriate approach.
                      * esc_textarea already properly escapes content for use inside textarea elements.
