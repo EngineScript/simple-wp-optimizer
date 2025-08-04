@@ -92,13 +92,15 @@ function es_optimizer_get_default_options() {
         'remove_shortlink'             => 1,
         'remove_recent_comments_style' => 1,
         'enable_dns_prefetch'          => 1,
-        'dns_prefetch_domains'         => implode( "\n", array(
-            'https://fonts.googleapis.com',
-            'https://fonts.gstatic.com',
-            'https://ajax.googleapis.com',
-            'https://apis.google.com',
-            'https://www.google-analytics.com',
-        )
+        'dns_prefetch_domains'         => implode(
+            "\n",
+            array(
+                'https://fonts.googleapis.com',
+                'https://fonts.gstatic.com',
+                'https://ajax.googleapis.com',
+                'https://apis.google.com',
+                'https://www.google-analytics.com',
+            )
         ),
         'disable_jetpack_ads'          => 1,
         'disable_post_via_email'       => 1,
@@ -295,21 +297,24 @@ function es_optimizer_render_additional_options( $options ) {
 function es_optimizer_render_checkbox_option( $options, $option_name, $title, $description ) {
     ?>
     <tr valign="top">
-        <th scope="row"><?php
+        <th scope="row">
+            <?php
             // Using esc_html for secure output of titles.
             echo esc_html( $title );
-        ?></th>
+            ?>
+        </th>
         <td>
             <label>
                 <input type="checkbox" name="<?php
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
                     /*
                      * Using printf with esc_attr for attribute name which cannot be avoided.
                      * The $option_name values are hardcoded strings from render functions, not user input.
                      * This is a controlled environment where these values are defined within the plugin.
                      */
                     printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-                ?>" value="1"
+                    ?>" value="1"
                     <?php checked( 1, isset( $options[ $option_name ] ) ? $options[ $option_name ] : 0 ); ?> />
                 <?php
                     // Using esc_html for secure output of descriptions.
@@ -337,15 +342,19 @@ function es_optimizer_render_checkbox_option( $options, $option_name, $title, $d
 function es_optimizer_render_textarea_option( $options, $option_name, $title, $description ) {
     ?>
     <tr valign="top">
-        <th scope="row"><?php
+        <th scope="row">
+            <?php
             // Using esc_html for secure output of titles.
             echo esc_html( $title );
-        ?></th>
+            ?>
+        </th>
         <td>
-            <p><small><?php
+            <p><small>
+                <?php
                 // Using esc_html for secure output of descriptions.
                 echo esc_html( $description );
-            ?></small></p>
+                ?>
+            </small></p>
             <textarea name="<?php
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 /*
@@ -354,7 +363,7 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
                  * This is a controlled environment where these values are defined within the plugin.
                  */
                 printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-            ?>" rows="5" cols="50" class="large-text code"><?php
+                ?>" rows="5" cols="50" class="large-text code"><?php
                 if ( isset( $options[ $option_name ] ) ) {
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                     /*
@@ -364,7 +373,8 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
                      */
                     printf( '%s', esc_textarea( $options[ $option_name ] ) );
                 }
-            ?></textarea>
+                ?>
+            </textarea>
         </td>
     </tr>
     <?php
@@ -504,7 +514,7 @@ function es_optimizer_validate_single_domain( $domain ) {
     $host = $parsed_url['host'];
 
     // Prevent localhost and private IP ranges for security.
-    $is_local     = in_array( $host, array( 'localhost', '127.0.0.1', '::1' ), true );
+    $is_local      = in_array( $host, array( 'localhost', '127.0.0.1', '::1' ), true );
     $is_private_ip = false !== filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 
     if ( $is_local || ! $is_private_ip ) {
@@ -636,7 +646,7 @@ function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
 /**
  * Remove JQuery Migrate
  *
- * jQuery Migrate is primarily used for backward compatibility with older jQuery code.
+ * JQuery Migrate is primarily used for backward compatibility with older jQuery code.
  * Modern themes and plugins generally don't need it, so removing it improves load time.
  *
  * @since 1.0.0
