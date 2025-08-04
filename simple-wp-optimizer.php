@@ -314,7 +314,8 @@ function es_optimizer_render_checkbox_option( $options, $option_name, $title, $d
                  * This is a controlled environment where these values are defined within the plugin.
                  */
                 printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-                ?>" value="1"
+                ?>
+                " value="1"
                     <?php checked( 1, isset( $options[ $option_name ] ) ? $options[ $option_name ] : 0 ); ?> />
                 <?php
                 // Using esc_html for secure output of descriptions.
@@ -364,7 +365,8 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
              * This is a controlled environment where these values are defined within the plugin.
              */
             printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-            ?>" rows="5" cols="50" class="large-text code">
+            ?>
+            " rows="5" cols="50" class="large-text code">
                 <?php
                 if ( isset( $options[ $option_name ] ) ) {
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
