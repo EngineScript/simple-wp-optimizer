@@ -305,7 +305,8 @@ function es_optimizer_render_checkbox_option( $options, $option_name, $title, $d
         </th>
         <td>
             <label>
-                <input type="checkbox" name="<?php
+                <input type="checkbox" name="
+                <?php
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
                 /*
@@ -356,7 +357,8 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
                 echo esc_html( $description );
                 ?>
             </small></p>
-            <textarea name="<?php
+            <textarea name="
+            <?php
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
             /*
