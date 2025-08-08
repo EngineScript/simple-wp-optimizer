@@ -3,6 +3,30 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- **Performance Optimization**: Implemented conditional admin asset loading - admin scripts and styles now only load on the plugin settings page
+- **Option Caching System**: Added `es_optimizer_get_options()` function with static caching to reduce database queries throughout the plugin
+- **DNS Prefetch Security Enhancement**: Enhanced DNS prefetch validation to reject file paths, query parameters, and fragments - only clean domains are now accepted
+- **Documentation Enhancement**: Added @since version tags to all PHPDoc blocks for better change tracking
+- **Developer Guidelines**: Created comprehensive CONTRIBUTING.md file with development standards, security requirements, and contribution workflow
+
+### Enhanced
+- **DNS Prefetch Optimization**: Improved DNS prefetch function with static caching, duplicate removal, AJAX detection, and enhanced domain validation
+- **Security Validation**: Strengthened DNS prefetch domain validation to prevent file path injection (e.g., `https://google.com/file.php` is now rejected)
+- **User Experience**: Updated DNS prefetch textarea description to clearly explain that only clean domains are allowed
+- **Code Quality**: Enhanced function documentation and maintained WordPress coding standards compliance
+
+### Security
+- **Domain Validation**: Enhanced DNS prefetch security to block file paths, query parameters, and URL fragments
+- **Input Sanitization**: Maintained comprehensive input validation and output escaping throughout all changes
+- **Clean Domain Output**: DNS prefetch now automatically strips paths and returns only clean domain URLs for security
+
+### Performance
+- **Reduced Database Queries**: Option caching system minimizes repeated database calls
+- **Conditional Loading**: Admin assets only load when needed, reducing unnecessary resource usage
+- **Optimized DNS Prefetch**: Enhanced processing efficiency with static caching and validation improvements
+
 ## [1.5.12] - 2025-08-02
 ### Added
 - **Disable Post via Email**: New option to disable the post-via-email feature for enhanced security and performance.

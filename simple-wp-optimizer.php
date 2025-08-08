@@ -58,6 +58,8 @@ if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
 
 /**
  * Initialize the plugin settings
+ *
+ * @since 1.0.0
  */
 function es_optimizer_init_settings() {
     // Register settings.
@@ -80,6 +82,7 @@ add_action( 'admin_init', 'es_optimizer_init_settings' );
 /**
  * Get default plugin options
  *
+ * @since 1.0.0
  * @return array Default options.
  */
 function es_optimizer_get_default_options() {
@@ -108,21 +111,80 @@ function es_optimizer_get_default_options() {
 }
 
 /**
+ * Get cached plugin options to reduce database queries
+ *
+ * @since 1.5.13
+ * @return array Plugin options.
+ */
+function es_optimizer_get_options() {
+    static $cached_options = null;
+    
+    if ( null === $cached_options ) {
+        $cached_options = get_option( 'es_optimizer_options', es_optimizer_get_default_options() );
+    }
+    
+    return $cached_options;
+}
+
+/**
+ * Clear the options cache (used when options are updated)
+ *
+ * @since 1.5.13
+ */
+function es_optimizer_clear_options_cache() {
+    // Clear the static cache by accessing the static variable
+    $clear_cache = function() {
+        static $cached_options = null;
+        $cached_options = null;
+    };
+    $clear_cache();
+}
+
+/**
  * Add settings page to the admin menu
+ *
+ * @since 1.0.0
  */
 function es_optimizer_add_settings_page() {
-    add_options_page(
+    $hook = add_options_page(
         'WP Optimizer Settings',
         'WP Optimizer',
         'manage_options',
         'es-optimizer-settings',
         'es_optimizer_settings_page'
     );
+    
+    // Only load admin scripts/styles on our settings page
+    if ( $hook ) {
+        add_action( "load-{$hook}", 'es_optimizer_load_admin_assets' );
+    }
 }
 add_action( 'admin_menu', 'es_optimizer_add_settings_page' );
 
 /**
+ * Load admin assets only on plugin settings page
+ *
+ * @since 1.5.13
+ */
+function es_optimizer_load_admin_assets() {
+    // Only enqueue scripts/styles if we're on the plugin settings page
+    add_action( 'admin_enqueue_scripts', 'es_optimizer_enqueue_admin_scripts' );
+}
+
+/**
+ * Enqueue admin scripts and styles for plugin settings page
+ *
+ * @since 1.5.13
+ */
+function es_optimizer_enqueue_admin_scripts() {
+    // Add any future admin CSS/JS here - currently none needed
+    // This function is prepared for future admin styling if needed
+}
+
+/**
  * Render the settings page
+ *
+ * @since 1.0.0
  */
 function es_optimizer_settings_page() {
     // Security: Check user capabilities before displaying the page.
@@ -131,7 +193,7 @@ function es_optimizer_settings_page() {
         wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'simple-wp-optimizer' ) );
     }
 
-    $options = get_option( 'es_optimizer_options' );
+    $options = es_optimizer_get_options();
     ?>
     <div class="wrap">
         <h1>WP Optimizer Settings</h1>
@@ -175,6 +237,7 @@ function es_optimizer_settings_page() {
 /**
  * Render performance optimization options
  *
+ * @since 1.0.0
  * @param array $options Plugin options.
  */
 function es_optimizer_render_performance_options( $options ) {
@@ -206,6 +269,7 @@ function es_optimizer_render_performance_options( $options ) {
 /**
  * Render header cleanup options
  *
+ * @since 1.0.0
  * @param array $options Plugin options.
  */
 function es_optimizer_render_header_options( $options ) {
@@ -245,6 +309,7 @@ function es_optimizer_render_header_options( $options ) {
 /**
  * Render additional optimization options
  *
+ * @since 1.0.0
  * @param array $options Plugin options.
  */
 function es_optimizer_render_additional_options( $options ) {
@@ -261,7 +326,7 @@ function es_optimizer_render_additional_options( $options ) {
         $options,
         'dns_prefetch_domains',
         esc_html__( 'DNS Prefetch Domains', 'simple-wp-optimizer' ),
-        esc_html__( 'Enter one HTTPS domain per line (e.g., https://fonts.googleapis.com). Only secure HTTPS domains are allowed for security reasons.', 'simple-wp-optimizer' )
+        esc_html__( 'Enter one HTTPS domain per line (e.g., https://fonts.googleapis.com). Only clean domains are allowed - no file paths, query parameters, or fragments. Only secure HTTPS domains are accepted for security reasons.', 'simple-wp-optimizer' )
     );
 
     // Jetpack Ads settings.
@@ -289,6 +354,7 @@ function es_optimizer_render_additional_options( $options ) {
  * - Attribute values are escaped with esc_attr()
  * - WordPress checked() function is used for checkbox state
  *
+ * @since 1.0.0
  * @param array  $options       Plugin options.
  * @param string $option_name   Option name.
  * @param string $title         Option title.
@@ -336,6 +402,7 @@ function es_optimizer_render_checkbox_option( $options, $option_name, $title, $d
  * - Attribute values are escaped with esc_attr()
  * - Textarea content is escaped with esc_textarea()
  *
+ * @since 1.0.0
  * @param array  $options       Plugin options.
  * @param string $option_name   Option name.
  * @param string $title         Option title.
@@ -453,6 +520,7 @@ function es_optimizer_validate_options( $input ) {
 /**
  * Validate DNS prefetch domains with enhanced security
  *
+ * @since 1.4.0
  * @param string $domains_input Raw domain input from user.
  * @return string Validated and sanitized domains.
  */
@@ -487,6 +555,7 @@ function es_optimizer_validate_dns_domains( $domains_input ) {
 /**
  * Validate a single DNS prefetch domain
  *
+ * @since 1.4.0
  * @param string $domain Domain to validate.
  * @return array Validation result with 'valid' boolean and 'domain' or 'error'
  */
@@ -518,6 +587,22 @@ function es_optimizer_validate_single_domain( $domain ) {
         );
     }
 
+    // Security: DNS prefetch should only use clean domains, not file paths
+    // Reject URLs with paths, query parameters, or fragments
+    if ( isset( $parsed_url['path'] ) && $parsed_url['path'] !== '/' && $parsed_url['path'] !== '' ) {
+        return array(
+            'valid' => false,
+            'error' => $domain . ' (file paths not allowed for DNS prefetch - use domain only)',
+        );
+    }
+
+    if ( isset( $parsed_url['query'] ) || isset( $parsed_url['fragment'] ) ) {
+        return array(
+            'valid' => false,
+            'error' => $domain . ' (query parameters and fragments not allowed for DNS prefetch)',
+        );
+    }
+
     $host = $parsed_url['host'];
 
     // Prevent localhost and private IP ranges for security.
@@ -531,10 +616,18 @@ function es_optimizer_validate_single_domain( $domain ) {
         );
     }
 
+    // Return clean domain URL with only scheme and host (no paths)
+    $clean_domain = $parsed_url['scheme'] . '://' . $parsed_url['host'];
+    
+    // Add port if specified and not default HTTPS port
+    if ( isset( $parsed_url['port'] ) && 443 !== $parsed_url['port'] ) {
+        $clean_domain .= ':' . $parsed_url['port'];
+    }
+
     // Security: Use esc_url_raw to sanitize URLs before storing in database.
     return array(
         'valid'  => true,
-        'domain' => esc_url_raw( $domain ),
+        'domain' => esc_url_raw( $clean_domain ),
     );
 }
 
@@ -660,7 +753,7 @@ function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
  * @param WP_Scripts $scripts WP_Scripts object.
  */
 function remove_jquery_migrate( $scripts ) {
-    $options = get_option( 'es_optimizer_options' );
+    $options = es_optimizer_get_options();
 
     // Only proceed if the option is enabled.
     if ( ! isset( $options['remove_jquery_migrate'] ) || ! $options['remove_jquery_migrate'] ) {
@@ -680,9 +773,11 @@ add_action( 'wp_default_scripts', 'remove_jquery_migrate' );
 
 /**
  * Disable classic-themes css added in WP 6.1
+ *
+ * @since 1.3.0
  */
 function disable_classic_theme_styles() {
-    $options = get_option( 'es_optimizer_options' );
+    $options = es_optimizer_get_options();
 
     // Only proceed if the option is enabled.
     if ( ! isset( $options['disable_classic_theme_styles'] ) || ! $options['disable_classic_theme_styles'] ) {
@@ -696,9 +791,11 @@ add_action( 'wp_enqueue_scripts', 'disable_classic_theme_styles', 100 );
 
 /**
  * Remove WordPress version, WLW manifest, and shortlink.
+ *
+ * @since 1.0.0
  */
 function remove_header_items() {
-    $options = get_option( 'es_optimizer_options' );
+    $options = es_optimizer_get_options();
 
     // Remove WordPress Version from Header.
     if ( isset( $options['remove_wp_version'] ) && $options['remove_wp_version'] ) {
@@ -736,50 +833,60 @@ add_action( 'init', 'remove_recent_comments_style' );
  * DNS prefetching can reduce latency when connecting to common external services.
  * This is particularly helpful for sites using Google Fonts, Analytics, etc.
  *
- * Security note: All output is properly escaped with esc_attr() before output to prevent XSS.
+ * Security note: All output is properly escaped with esc_url() before output to prevent XSS.
  *
  * @since 1.4.1
  */
 function add_dns_prefetch() {
-    $options = get_option( 'es_optimizer_options' );
-
-    // Only proceed if the option is enabled.
-    if ( ! isset( $options['enable_dns_prefetch'] ) || ! $options['enable_dns_prefetch'] ) {
+    // Only add if not admin and not doing AJAX
+    if ( is_admin() || wp_doing_ajax() ) {
         return;
     }
 
-    // Only add if not admin.
-    if ( is_admin() ) {
-        return;
-    }
-
-    // Get domains from settings.
-    $domains = array();
-    if ( isset( $options['dns_prefetch_domains'] ) && ! empty( $options['dns_prefetch_domains'] ) ) {
-        // The following steps ensure secure handling of domain data:
-        // 1. Split the string by newlines.
-        $domains = explode( "\n", $options['dns_prefetch_domains'] );
-        // 2. Trim each value to remove whitespace.
-        $domains = array_map( 'trim', $domains );
-        // 3. Remove empty values.
-        $domains = array_filter( $domains );
-    }
-
-    // Output the prefetch links using WordPress core functions.
-    foreach ( $domains as $domain ) {
-        $escaped_domain = esc_url( $domain );
-
-        /*
-         * Using wp_print_resource_hints with array of sanitized domains would be the ideal approach,
-         * but we need to output these individually since we're adding custom domains.
-         * WordPress core doesn't have a direct function for outputting single dns-prefetch tags,
-         * so we need to construct it ourselves.
-         */
-        if ( function_exists( 'esc_html' ) ) {
-            echo '<link rel="dns-prefetch" href="' . esc_url( $escaped_domain ) . '">' . "\n";
+    // Use static caching to avoid repeated option retrieval
+    static $domains_cache = null;
+    static $options_checked = false;
+    
+    if ( ! $options_checked ) {
+        $options = get_option( 'es_optimizer_options' );
+        $options_checked = true;
+        
+        // Only proceed if the option is enabled
+        if ( ! isset( $options['enable_dns_prefetch'] ) || ! $options['enable_dns_prefetch'] ) {
+            $domains_cache = array(); // Cache empty array to avoid re-checking
             return;
         }
-        echo '<link rel="dns-prefetch" href="' . esc_url( $escaped_domain ) . '">' . "\n";
+
+        // Get and process domains from settings
+        if ( isset( $options['dns_prefetch_domains'] ) && ! empty( $options['dns_prefetch_domains'] ) ) {
+            // Process domains with optimization
+            $domains = explode( "\n", $options['dns_prefetch_domains'] );
+            $domains = array_map( 'trim', $domains );
+            $domains = array_filter( $domains );
+            
+            // Remove duplicates and validate domains
+            $domains = array_unique( $domains );
+            $valid_domains = array();
+            
+            foreach ( $domains as $domain ) {
+                // Validate URL format and ensure HTTPS
+                if ( filter_var( $domain, FILTER_VALIDATE_URL ) && strpos( $domain, 'https://' ) === 0 ) {
+                    $valid_domains[] = $domain;
+                }
+            }
+            
+            $domains_cache = $valid_domains;
+        } else {
+            $domains_cache = array();
+        }
+    }
+
+    // Output the prefetch links
+    if ( ! empty( $domains_cache ) ) {
+        foreach ( $domains_cache as $domain ) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<link rel="dns-prefetch" href="' . esc_url( $domain ) . '">' . "\n";
+        }
     }
 }
 // Hook after wp_head and before other elements are added.

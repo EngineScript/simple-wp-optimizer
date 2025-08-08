@@ -43,6 +43,17 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 == Changelog ==
 
+= Unreleased =
+* **PERFORMANCE**: Implemented conditional admin asset loading - admin scripts and styles now only load on plugin settings page
+* **PERFORMANCE**: Added option caching system with `es_optimizer_get_options()` function to reduce database queries
+* **PERFORMANCE**: Enhanced DNS prefetch function with static caching, duplicate removal, and AJAX detection
+* **SECURITY**: Enhanced DNS prefetch validation to reject file paths, query parameters, and fragments - only clean domains accepted
+* **SECURITY**: Strengthened domain validation to prevent file path injection (e.g., `https://google.com/file.php` now rejected)
+* **DOCUMENTATION**: Added @since version tags to all PHPDoc blocks for better change tracking
+* **DEVELOPER EXPERIENCE**: Created comprehensive CONTRIBUTING.md file with development standards and security requirements
+* **USER EXPERIENCE**: Updated DNS prefetch textarea description to clearly explain clean domain requirements
+* **CODE QUALITY**: Enhanced function documentation while maintaining WordPress coding standards compliance
+
 = 1.5.12 =
 * ADDED: New option to disable the post-via-email feature for enhanced security and performance.
 * SECURITY: Hardened all feature-disabling filters to use `PHP_INT_MAX` priority, ensuring they cannot be overridden by other plugins or themes.
