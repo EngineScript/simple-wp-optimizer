@@ -118,11 +118,11 @@ function es_optimizer_get_default_options() {
  */
 function es_optimizer_get_options() {
     static $cached_options = null;
-    
+
     if ( null === $cached_options ) {
         $cached_options = get_option( 'es_optimizer_options', es_optimizer_get_default_options() );
     }
-    
+
     return $cached_options;
 }
 
