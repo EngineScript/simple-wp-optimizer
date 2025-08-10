@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<phpunit
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    stopOnFailure="false"
+    testdox="true"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutChangesToGlobalState="true"
+>
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/integration</directory>
+        </testsuite>
+    </testsuites>
+    
+    <filter>
+        <whitelist>
+            <file>simple-wp-optimizer.php</file>
+        </whitelist>
+    </filter>
+    
+    <coverage>
+        <report>
+            <html outputDirectory="coverage/html"/>
+            <clover outputFile="coverage/clover.xml"/>
+            <text outputFile="php://stdout" showUncoveredFiles="true"/>
+        </report>
+        <include>
+            <file>simple-wp-optimizer.php</file>
+        </include>
+    </coverage>
+    
+    <logging>
+        <junit outputFile="coverage/junit.xml"/>
+    </logging>
+    
+    <php>
+        <const name="WP_TESTS_PHPUNIT_POLYFILLS_PATH" value="vendor/yoast/phpunit-polyfills"/>
+    </php>
+</phpunit>

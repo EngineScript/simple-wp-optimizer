@@ -49,6 +49,10 @@ No, the plugin has a simple interface where you can toggle features on and off.
 * **PERFORMANCE**: Enhanced DNS prefetch function with static caching, duplicate removal, and AJAX detection
 * **SECURITY**: Enhanced DNS prefetch validation to reject file paths, query parameters, and fragments - only clean domains accepted
 * **SECURITY**: Strengthened domain validation to prevent file path injection (e.g., `https://google.com/file.php` now rejected)
+* **TESTING**: Implemented comprehensive unit testing infrastructure with PHPUnit and WP_Mock
+* **TESTING**: Added 18 core function tests with 80% coverage requirement and security validation
+* **TESTING**: Created CI/CD pipeline with GitHub Actions for multi-PHP version testing (7.4-8.4)
+* **TESTING**: Integrated automated code quality checks with PHPCS, PHPMD, and PHPStan
 * **DOCUMENTATION**: Added @since version tags to all PHPDoc blocks for better change tracking
 * **DEVELOPER EXPERIENCE**: Created comprehensive CONTRIBUTING.md file with development standards and security requirements
 * **USER EXPERIENCE**: Updated DNS prefetch textarea description to clearly explain clean domain requirements

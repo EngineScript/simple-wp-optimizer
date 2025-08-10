@@ -10,22 +10,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **DNS Prefetch Security Enhancement**: Enhanced DNS prefetch validation to reject file paths, query parameters, and fragments - only clean domains are now accepted
 - **Documentation Enhancement**: Added @since version tags to all PHPDoc blocks for better change tracking
 - **Developer Guidelines**: Created comprehensive CONTRIBUTING.md file with development standards, security requirements, and contribution workflow
+- **Comprehensive Unit Testing**: Implemented complete testing infrastructure with PHPUnit, WP_Mock, and 80% coverage requirement
+  - **Test Coverage**: 18 core functions with comprehensive unit and integration tests
+  - **Security Testing**: XSS prevention, DNS validation, CSRF protection, and input sanitization validation
+  - **Performance Testing**: Caching mechanisms, optimization effects, and conditional loading verification
+  - **CI/CD Integration**: GitHub Actions workflow with multi-PHP version testing (7.4-8.4) and automated quality checks
 
 ### Enhanced
 - **DNS Prefetch Optimization**: Improved DNS prefetch function with static caching, duplicate removal, AJAX detection, and enhanced domain validation
 - **Security Validation**: Strengthened DNS prefetch domain validation to prevent file path injection (e.g., `https://google.com/file.php` is now rejected)
 - **User Experience**: Updated DNS prefetch textarea description to clearly explain that only clean domains are allowed
 - **Code Quality**: Enhanced function documentation and maintained WordPress coding standards compliance
+- **Testing Infrastructure**: Complete test suite with fixtures, helpers, and comprehensive coverage reporting
 
 ### Security
 - **Domain Validation**: Enhanced DNS prefetch security to block file paths, query parameters, and URL fragments
 - **Input Sanitization**: Maintained comprehensive input validation and output escaping throughout all changes
 - **Clean Domain Output**: DNS prefetch now automatically strips paths and returns only clean domain URLs for security
+- **Security Testing**: Comprehensive security validation tests including XSS prevention and malicious input handling
 
 ### Performance
 - **Reduced Database Queries**: Option caching system minimizes repeated database calls
 - **Conditional Loading**: Admin assets only load when needed, reducing unnecessary resource usage
 - **Optimized DNS Prefetch**: Enhanced processing efficiency with static caching and validation improvements
+
+### Developer Experience
+- **Testing Framework**: PHPUnit with WP_Mock for WordPress-specific testing
+- **Code Coverage**: 80% minimum coverage requirement with detailed reporting
+- **Quality Assurance**: PHPCS, PHPMD, and PHPStan integration for code quality
+- **Development Workflow**: Automated testing with GitHub Actions CI/CD pipeline
 
 ## [1.5.12] - 2025-08-02
 ### Added
