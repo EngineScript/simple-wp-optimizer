@@ -9,6 +9,10 @@
  * @since 1.5.12
  */
 
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+// phpcs:disable WordPress.WP.AlternativeFunctions.parse_url_parse_url
+// phpcs:disable WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+
 // Define test constants
 if ( ! defined( 'SIMPLE_WP_OPTIMIZER_TESTING' ) ) {
 	define( 'SIMPLE_WP_OPTIMIZER_TESTING', true );

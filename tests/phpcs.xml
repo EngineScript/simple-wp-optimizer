@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<ruleset name="Test Files Coding Standards">
+    <description>PHP coding standards for test files</description>
+
+    <!-- Files to check -->
+    <file>.</file>
+
+    <!-- Use PSR-12 coding standards for test files -->
+    <rule ref="PSR12">
+        <!-- Allow longer lines for test assertions -->
+        <exclude name="Generic.Files.LineLength"/>
+    </rule>
+
+    <!-- Allow direct use of parse_url, strip_tags, etc. in tests -->
+    <rule ref="WordPress.WP.AlternativeFunctions">
+        <exclude name="WordPress.WP.AlternativeFunctions"/>
+    </rule>
+
+    <!-- Allow output without escaping in test files -->
+    <rule ref="WordPress.Security.EscapeOutput">
+        <exclude name="WordPress.Security.EscapeOutput"/>
+    </rule>
+
+    <!-- Allow localhost and URLs in test files -->
+    <rule ref="WordPress.WP.EnqueuedResources">
+        <exclude name="WordPress.WP.EnqueuedResources"/>
+    </rule>
+
+    <!-- Allow direct echo/print in test output -->
+    <rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
+        <exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
+    </rule>
+
+    <!-- ENFORCE SPACES INSTEAD OF TABS -->
+    <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="indent" value="4"/>
+            <property name="tabIndent" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- File formatting -->
+    <rule ref="Generic.Files.ByteOrderMark"/>
+    <rule ref="Generic.Files.LineEndings">
+        <properties>
+            <property name="eolChar" value="\n"/>
+        </properties>
+    </rule>
+
+    <!-- Show progress -->
+    <arg value="p"/>
+    
+    <!-- Show sniff codes in all reports -->
+    <arg value="s"/>
+    
+    <!-- Use colors in output -->
+    <arg name="colors"/>
+
+</ruleset>

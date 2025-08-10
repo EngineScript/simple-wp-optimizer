@@ -36,6 +36,10 @@
     "test:unit": "phpunit --testsuite=unit",
     "test:integration": "phpunit --testsuite=integration",
     "test:watch": "phpunit --watch",
-    "coverage:check": "phpunit --coverage-clover=coverage.xml --colors=never && php scripts/coverage-check.php 80"
+    "coverage:check": "phpunit --coverage-clover=coverage.xml --colors=never && php scripts/coverage-check.php 80",
+    "phpcs": "phpcs",
+    "phpcs:tests": "phpcs --standard=tests/phpcs.xml tests/",
+    "phpcbf": "phpcbf",
+    "phpstan": "phpstan analyse"
   }
 }
