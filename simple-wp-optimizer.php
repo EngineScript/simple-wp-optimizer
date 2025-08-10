@@ -868,14 +868,14 @@ function add_dns_prefetch() {
             // Remove duplicates and validate domains.
             $domains       = array_unique( $domains );
             $valid_domains = array();
-            
+
             foreach ( $domains as $domain ) {
                 // Validate URL format and ensure HTTPS.
                 if ( filter_var( $domain, FILTER_VALIDATE_URL ) && strpos( $domain, 'https://' ) === 0 ) {
                     $valid_domains[] = $domain;
                 }
             }
-            
+
             $domains_cache = $valid_domains;
         } else {
             $domains_cache = array();
