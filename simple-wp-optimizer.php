@@ -864,7 +864,7 @@ function add_dns_prefetch() {
             $domains = explode( "\n", $options['dns_prefetch_domains'] );
             $domains = array_map( 'trim', $domains );
             $domains = array_filter( $domains );
-            
+
             // Remove duplicates and validate domains.
             $domains       = array_unique( $domains );
             $valid_domains = array();
