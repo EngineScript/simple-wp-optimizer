@@ -146,7 +146,7 @@ function es_optimizer_clear_options_cache() {
  * @since 1.0.0
  */
 function es_optimizer_add_settings_page() {
-    $hook = add_options_page(
+    add_options_page(
         'WP Optimizer Settings',
         'WP Optimizer',
         'manage_options',
@@ -619,7 +619,7 @@ function es_optimizer_validate_single_domain( $domain ) {
 
     // Return clean domain URL with only scheme and host (no paths).
     $clean_domain = $parsed_url['scheme'] . '://' . $parsed_url['host'];
-    
+
     // Add port if specified and not default HTTPS port.
     if ( isset( $parsed_url['port'] ) && 443 !== $parsed_url['port'] ) {
         $clean_domain .= ':' . $parsed_url['port'];
