@@ -3,7 +3,7 @@ Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.5
 Tested up to: 6.8
-Stable tag: 1.5.12
+Stable tag: 1.6.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -43,16 +43,12 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 == Changelog ==
 
-= Unreleased =
+= 1.6.0 =
 * **PERFORMANCE**: Implemented conditional admin asset loading - admin scripts and styles now only load on plugin settings page
 * **PERFORMANCE**: Added option caching system with `es_optimizer_get_options()` function to reduce database queries
 * **PERFORMANCE**: Enhanced DNS prefetch function with static caching, duplicate removal, and AJAX detection
 * **SECURITY**: Enhanced DNS prefetch validation to reject file paths, query parameters, and fragments - only clean domains accepted
 * **SECURITY**: Strengthened domain validation to prevent file path injection (e.g., `https://google.com/file.php` now rejected)
-* **TESTING**: Implemented comprehensive unit testing infrastructure with PHPUnit and WP_Mock
-* **TESTING**: Added 18 core function tests with 80% coverage requirement and security validation
-* **TESTING**: Created CI/CD pipeline with GitHub Actions for multi-PHP version testing (7.4-8.4)
-* **TESTING**: Integrated automated code quality checks with PHPCS, PHPMD, and PHPStan
 * **DOCUMENTATION**: Added @since version tags to all PHPDoc blocks for better change tracking
 * **DEVELOPER EXPERIENCE**: Created comprehensive CONTRIBUTING.md file with development standards and security requirements
 * **USER EXPERIENCE**: Updated DNS prefetch textarea description to clearly explain clean domain requirements

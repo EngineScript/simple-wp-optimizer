@@ -4,17 +4,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.6.0] - 2025-08-10
 ### Added
 - **Performance Optimization**: Implemented conditional admin asset loading - admin scripts and styles now only load on the plugin settings page
 - **Option Caching System**: Added `es_optimizer_get_options()` function with static caching to reduce database queries throughout the plugin
 - **DNS Prefetch Security Enhancement**: Enhanced DNS prefetch validation to reject file paths, query parameters, and fragments - only clean domains are now accepted
 - **Documentation Enhancement**: Added @since version tags to all PHPDoc blocks for better change tracking
 - **Developer Guidelines**: Created comprehensive CONTRIBUTING.md file with development standards, security requirements, and contribution workflow
-- **Comprehensive Unit Testing**: Implemented complete testing infrastructure with PHPUnit, WP_Mock, and 80% coverage requirement
-  - **Test Coverage**: 18 core functions with comprehensive unit and integration tests
-  - **Security Testing**: XSS prevention, DNS validation, CSRF protection, and input sanitization validation
-  - **Performance Testing**: Caching mechanisms, optimization effects, and conditional loading verification
-  - **CI/CD Integration**: GitHub Actions workflow with multi-PHP version testing (7.4-8.4) and automated quality checks
 
 ### Enhanced
 - **DNS Prefetch Optimization**: Improved DNS prefetch function with static caching, duplicate removal, AJAX detection, and enhanced domain validation

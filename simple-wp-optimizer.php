@@ -3,7 +3,7 @@
  * Plugin Name: Simple WP Optimizer
  * Plugin URI: https://github.com/EngineScript/simple-wp-optimizer
  * Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
- * Version: 1.5.12
+ * Version: 1.6.0
  * Author: EngineScript
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define plugin version.
 if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
-    define( 'ES_WP_OPTIMIZER_VERSION', '1.5.12' );
+    define( 'ES_WP_OPTIMIZER_VERSION', '1.6.0' );
 }
 
 /**
@@ -132,8 +132,8 @@ function es_optimizer_get_options() {
  * @since 1.5.13
  */
 function es_optimizer_clear_options_cache() {
-    // Clear the static cache by accessing the static variable
-    $clear_cache = function() {
+    // Clear the static cache by accessing the static variable.
+    $clear_cache = function () {
         static $cached_options = null;
         $cached_options = null;
     };
@@ -153,11 +153,12 @@ function es_optimizer_add_settings_page() {
         'es-optimizer-settings',
         'es_optimizer_settings_page'
     );
-    
-    // Only load admin scripts/styles on our settings page
-    if ( $hook ) {
-        add_action( "load-{$hook}", 'es_optimizer_load_admin_assets' );
+
+    // Only load admin scripts/styles on our settings page.
+    if ( ! is_admin() ) {
+        return;
     }
+    // Only enqueue scripts/styles if we're on the plugin settings page.
 }
 add_action( 'admin_menu', 'es_optimizer_add_settings_page' );
 
@@ -167,7 +168,7 @@ add_action( 'admin_menu', 'es_optimizer_add_settings_page' );
  * @since 1.5.13
  */
 function es_optimizer_load_admin_assets() {
-    // Only enqueue scripts/styles if we're on the plugin settings page
+    // Only enqueue scripts/styles if we're on the plugin settings page.
     add_action( 'admin_enqueue_scripts', 'es_optimizer_enqueue_admin_scripts' );
 }
 
@@ -177,8 +178,8 @@ function es_optimizer_load_admin_assets() {
  * @since 1.5.13
  */
 function es_optimizer_enqueue_admin_scripts() {
-    // Add any future admin CSS/JS here - currently none needed
-    // This function is prepared for future admin styling if needed
+    // Add any future admin CSS/JS here - currently none needed.
+    // This function is prepared for future admin styling if needed.
 }
 
 /**
@@ -587,9 +588,9 @@ function es_optimizer_validate_single_domain( $domain ) {
         );
     }
 
-    // Security: DNS prefetch should only use clean domains, not file paths
-    // Reject URLs with paths, query parameters, or fragments
-    if ( isset( $parsed_url['path'] ) && $parsed_url['path'] !== '/' && $parsed_url['path'] !== '' ) {
+    // Security: DNS prefetch should only use clean domains, not file paths.
+    // Reject URLs with paths, query parameters, or fragments.
+    if ( isset( $parsed_url['path'] ) && '/' !== $parsed_url['path'] && '' !== $parsed_url['path'] ) {
         return array(
             'valid' => false,
             'error' => $domain . ' (file paths not allowed for DNS prefetch - use domain only)',
@@ -616,10 +617,10 @@ function es_optimizer_validate_single_domain( $domain ) {
         );
     }
 
-    // Return clean domain URL with only scheme and host (no paths)
+    // Return clean domain URL with only scheme and host (no paths).
     $clean_domain = $parsed_url['scheme'] . '://' . $parsed_url['host'];
     
-    // Add port if specified and not default HTTPS port
+    // Add port if specified and not default HTTPS port.
     if ( isset( $parsed_url['port'] ) && 443 !== $parsed_url['port'] ) {
         $clean_domain .= ':' . $parsed_url['port'];
     }
@@ -838,38 +839,38 @@ add_action( 'init', 'remove_recent_comments_style' );
  * @since 1.4.1
  */
 function add_dns_prefetch() {
-    // Only add if not admin and not doing AJAX
+    // Only add if not admin and not doing AJAX.
     if ( is_admin() || wp_doing_ajax() ) {
         return;
     }
 
-    // Use static caching to avoid repeated option retrieval
-    static $domains_cache = null;
-    static $options_checked = false;
+    // Use static caching to avoid repeated option retrieval.
+    static $domains_cache      = null;
+    static $options_checked    = false;
     
     if ( ! $options_checked ) {
-        $options = get_option( 'es_optimizer_options' );
+        $options         = get_option( 'es_optimizer_options' );
         $options_checked = true;
         
-        // Only proceed if the option is enabled
+        // Only proceed if the option is enabled.
         if ( ! isset( $options['enable_dns_prefetch'] ) || ! $options['enable_dns_prefetch'] ) {
-            $domains_cache = array(); // Cache empty array to avoid re-checking
+            $domains_cache = array(); // Cache empty array to avoid re-checking.
             return;
         }
 
-        // Get and process domains from settings
+        // Get and process domains from settings.
         if ( isset( $options['dns_prefetch_domains'] ) && ! empty( $options['dns_prefetch_domains'] ) ) {
-            // Process domains with optimization
+            // Process domains with optimization.
             $domains = explode( "\n", $options['dns_prefetch_domains'] );
             $domains = array_map( 'trim', $domains );
             $domains = array_filter( $domains );
             
-            // Remove duplicates and validate domains
-            $domains = array_unique( $domains );
+            // Remove duplicates and validate domains.
+            $domains       = array_unique( $domains );
             $valid_domains = array();
             
             foreach ( $domains as $domain ) {
-                // Validate URL format and ensure HTTPS
+                // Validate URL format and ensure HTTPS.
                 if ( filter_var( $domain, FILTER_VALIDATE_URL ) && strpos( $domain, 'https://' ) === 0 ) {
                     $valid_domains[] = $domain;
                 }
@@ -881,7 +882,7 @@ function add_dns_prefetch() {
         }
     }
 
-    // Output the prefetch links
+    // Output the prefetch links.
     if ( ! empty( $domains_cache ) ) {
         foreach ( $domains_cache as $domain ) {
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
