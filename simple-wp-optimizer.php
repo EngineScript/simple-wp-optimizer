@@ -134,7 +134,7 @@ function es_optimizer_get_options() {
 function es_optimizer_clear_options_cache() {
     // Clear the static cache by accessing the static variable.
     $clear_cache = function () {
-        static $cached_options = null;
+        static $cached_options        = null;
         $cached_options = null;
     };
     $clear_cache();
@@ -845,9 +845,9 @@ function add_dns_prefetch() {
     }
 
     // Use static caching to avoid repeated option retrieval.
-    static $domains_cache      = null;
-    static $options_checked    = false;
-    
+    static $domains_cache   = null;
+    static $options_checked = false;
+
     if ( ! $options_checked ) {
         $options         = get_option( 'es_optimizer_options' );
         $options_checked = true;
