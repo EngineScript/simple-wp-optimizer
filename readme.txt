@@ -3,7 +3,7 @@ Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.5
 Tested up to: 6.8
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -42,6 +42,17 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 
 == Changelog ==
+
+= 1.7.0 =
+* **ARCHITECTURE**: Major plugin architecture refactor - completely restructured initialization to use WordPress `plugins_loaded` hook
+* **ARCHITECTURE**: Improved plugin load order by removing immediate global scope execution
+* **ARCHITECTURE**: Consolidated plugin initialization into proper WordPress lifecycle management
+* **ARCHITECTURE**: Enhanced plugin activation, deactivation, and uninstall lifecycle management
+* **SECURITY**: Fixed curl command in AI workflows to properly handle secrets via environment variables
+* **SECURITY**: Enhanced security in GitHub Actions workflows to prevent credential exposure
+* **CODE QUALITY**: Removed unused `es_optimizer_enqueue_admin_scripts()` function (dead code removal)
+* **CODE QUALITY**: Fixed inline comment punctuation to comply with WordPress coding standards
+* **STABILITY**: Enhanced plugin stability and compatibility with other WordPress plugins
 
 = 1.6.0 =
 * **PERFORMANCE**: Implemented conditional admin asset loading - admin scripts and styles now only load on plugin settings page

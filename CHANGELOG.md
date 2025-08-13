@@ -5,6 +5,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-01-27
+
+### Changed
+- **Major Plugin Architecture Refactor**: Completely restructured plugin initialization to use WordPress `plugins_loaded` hook
+- Improved plugin load order by removing immediate global scope execution
+- Consolidated plugin initialization into proper WordPress lifecycle management
+- Moved all `add_action` and `add_filter` calls into structured initialization functions
+- Enhanced plugin activation, deactivation, and uninstall lifecycle management
+
+### Removed
+- Removed unused `es_optimizer_enqueue_admin_scripts()` function (dead code removal)
+- Cleaned up scattered global scope function calls
+
+### Fixed
+- Fixed inline comment punctuation to comply with WordPress coding standards
+- Improved code organization and readability
+- Enhanced plugin stability and compatibility with other WordPress plugins
+
 ## [1.6.0] - 2025-08-10
 ### Added
 - **Performance Optimization**: Implemented conditional admin asset loading - admin scripts and styles now only load on the plugin settings page
