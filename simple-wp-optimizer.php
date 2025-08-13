@@ -66,16 +66,16 @@ if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
  * @since 1.6.0
  */
 function es_optimizer_init_plugin() {
-    // Clear options cache to ensure fresh data after all plugins are loaded
+    // Clear options cache to ensure fresh data after all plugins are loaded.
     es_optimizer_clear_options_cache();
     
-    // Initialize admin functionality
+    // Initialize admin functionality.
     es_optimizer_init_admin();
     
-    // Initialize frontend optimizations
+    // Initialize frontend optimizations.
     es_optimizer_init_frontend_optimizations();
     
-    // Initialize plugin settings link
+    // Initialize plugin settings link.
     es_optimizer_init_plugin_links();
 }
 add_action( 'plugins_loaded', 'es_optimizer_init_plugin' );
@@ -86,12 +86,12 @@ add_action( 'plugins_loaded', 'es_optimizer_init_plugin' );
  * @since 1.6.0
  */
 function es_optimizer_activate_plugin() {
-    // Ensure default options are set on activation
+    // Ensure default options are set on activation.
     if ( false === get_option( 'es_optimizer_options' ) ) {
         add_option( 'es_optimizer_options', es_optimizer_get_default_options() );
     }
     
-    // Clear any cached data
+    // Clear any cached data.
     es_optimizer_clear_options_cache();
 }
 register_activation_hook( __FILE__, 'es_optimizer_activate_plugin' );
@@ -102,11 +102,11 @@ register_activation_hook( __FILE__, 'es_optimizer_activate_plugin' );
  * @since 1.6.0
  */
 function es_optimizer_deactivate_plugin() {
-    // Clear any cached data on deactivation
+    // Clear any cached data on deactivation.
     es_optimizer_clear_options_cache();
     
-    // Note: We don't delete options on deactivation to preserve user settings
-    // Options are only deleted on plugin uninstall
+    // Note: We don't delete options on deactivation to preserve user settings.
+    // Options are only deleted on plugin uninstall.
 }
 register_deactivation_hook( __FILE__, 'es_optimizer_deactivate_plugin' );
 
@@ -249,17 +249,6 @@ function es_optimizer_add_settings_page() {
     if ( ! is_admin() ) {
         return;
     }
-    // Only enqueue scripts/styles if we're on the plugin settings page.
-}
-
-/**
- * Enqueue admin scripts and styles for plugin settings page
- *
- * @since 1.5.13
- */
-function es_optimizer_enqueue_admin_scripts() {
-    // Add any future admin CSS/JS here - currently none needed.
-    // This function is prepared for future admin styling if needed.
 }
 
 /**
@@ -786,8 +775,8 @@ function disable_emojis() {
  */
 function es_optimizer_add_settings_link( $links ) {
     // The admin_url function is used to properly generate a URL within the WordPress admin area.
-    // Setting text is wrapped in translation function but doesn't need escaping here
-    // as WordPress core handles this when rendering plugin links.
+    // Setting text is wrapped in translation function but doesn't need escaping here.
+    // WordPress core handles escaping when rendering plugin links.
     $settings_link = '<a href="' . admin_url( 'options-general.php?page=es-optimizer-settings' ) . '">' . __( 'Settings', 'simple-wp-optimizer' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;

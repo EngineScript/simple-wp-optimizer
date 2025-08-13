@@ -31,13 +31,16 @@ jobs:
 
       - name: Get PR diff safely
         id: pr-diff
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # SECURITY: Get diff without checking out untrusted code
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
           
           # Use GitHub API to get diff instead of git checkout
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          # SECURITY: Use environment variable for token to avoid exposure in logs
+          curl -H "Authorization: token $GITHUB_TOKEN" \
                -H "Accept: application/vnd.github.v3.diff" \
                "https://api.github.com/repos/${{ github.repository }}/compare/$BASE_SHA...$HEAD_SHA" \
                > pr_diff.txt
