@@ -5,7 +5,7 @@
  * Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
  * Version: 1.6.0
  * Author: EngineScript
- * License: GPL v2 or later
+ * License: GPL-3.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: simple-wp-optimizer
  * Requires at least: 6.5
@@ -57,6 +57,98 @@ if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
 }
 
 /**
+ * Initialize the Simple WP Optimizer plugin
+ *
+ * This function is hooked to 'plugins_loaded' to ensure all other plugins
+ * have been loaded first, preventing potential conflicts and ensuring
+ * WordPress core functions and other plugin APIs are available.
+ *
+ * @since 1.6.0
+ */
+function es_optimizer_init_plugin() {
+    // Clear options cache to ensure fresh data after all plugins are loaded
+    es_optimizer_clear_options_cache();
+    
+    // Initialize admin functionality
+    es_optimizer_init_admin();
+    
+    // Initialize frontend optimizations
+    es_optimizer_init_frontend_optimizations();
+    
+    // Initialize plugin settings link
+    es_optimizer_init_plugin_links();
+}
+add_action( 'plugins_loaded', 'es_optimizer_init_plugin' );
+
+/**
+ * Plugin activation hook
+ *
+ * @since 1.6.0
+ */
+function es_optimizer_activate_plugin() {
+    // Ensure default options are set on activation
+    if ( false === get_option( 'es_optimizer_options' ) ) {
+        add_option( 'es_optimizer_options', es_optimizer_get_default_options() );
+    }
+    
+    // Clear any cached data
+    es_optimizer_clear_options_cache();
+}
+register_activation_hook( __FILE__, 'es_optimizer_activate_plugin' );
+
+/**
+ * Plugin deactivation hook
+ *
+ * @since 1.6.0
+ */
+function es_optimizer_deactivate_plugin() {
+    // Clear any cached data on deactivation
+    es_optimizer_clear_options_cache();
+    
+    // Note: We don't delete options on deactivation to preserve user settings
+    // Options are only deleted on plugin uninstall
+}
+register_deactivation_hook( __FILE__, 'es_optimizer_deactivate_plugin' );
+
+/**
+ * Initialize admin-related functionality
+ *
+ * @since 1.6.0
+ */
+function es_optimizer_init_admin() {
+    if ( is_admin() ) {
+        add_action( 'admin_init', 'es_optimizer_init_settings' );
+        add_action( 'admin_menu', 'es_optimizer_add_settings_page' );
+    }
+}
+
+/**
+ * Initialize frontend optimization functionality
+ *
+ * @since 1.6.0
+ */
+function es_optimizer_init_frontend_optimizations() {
+    add_action( 'init', 'disable_emojis' );
+    add_action( 'wp_default_scripts', 'remove_jquery_migrate' );
+    add_action( 'wp_enqueue_scripts', 'disable_classic_theme_styles', 100 );
+    add_action( 'init', 'remove_header_items' );
+    add_action( 'init', 'remove_recent_comments_style' );
+    add_action( 'wp_head', 'add_dns_prefetch', 0 );
+    add_action( 'init', 'disable_jetpack_ads' );
+    add_action( 'init', 'disable_post_via_email' );
+}
+
+/**
+ * Initialize plugin action links
+ *
+ * @since 1.6.0
+ */
+function es_optimizer_init_plugin_links() {
+    $plugin_basename = plugin_basename( __FILE__ );
+    add_filter( "plugin_action_links_{$plugin_basename}", 'es_optimizer_add_settings_link' );
+}
+
+/**
  * Initialize the plugin settings
  *
  * @since 1.0.0
@@ -77,7 +169,6 @@ function es_optimizer_init_settings() {
         add_option( 'es_optimizer_options', es_optimizer_get_default_options() );
     }
 }
-add_action( 'admin_init', 'es_optimizer_init_settings' );
 
 /**
  * Get default plugin options
@@ -159,17 +250,6 @@ function es_optimizer_add_settings_page() {
         return;
     }
     // Only enqueue scripts/styles if we're on the plugin settings page.
-}
-add_action( 'admin_menu', 'es_optimizer_add_settings_page' );
-
-/**
- * Load admin assets only on plugin settings page
- *
- * @since 1.5.13
- */
-function es_optimizer_load_admin_assets() {
-    // Only enqueue scripts/styles if we're on the plugin settings page.
-    add_action( 'admin_enqueue_scripts', 'es_optimizer_enqueue_admin_scripts' );
 }
 
 /**
@@ -697,7 +777,6 @@ function disable_emojis() {
     // Remove emoji DNS prefetch.
     add_filter( 'wp_resource_hints', 'disable_emojis_remove_dns_prefetch', 10, 2 );
 }
-add_action( 'init', 'disable_emojis' );
 
 /**
  * Add settings link to plugins page
@@ -713,8 +792,6 @@ function es_optimizer_add_settings_link( $links ) {
     array_unshift( $links, $settings_link );
     return $links;
 }
-$plugin_basename = plugin_basename( __FILE__ );
-add_filter( "plugin_action_links_{$plugin_basename}", 'es_optimizer_add_settings_link' );
 
 /**
  * Filter function used to remove the tinymce emoji plugin.
@@ -770,7 +847,6 @@ function remove_jquery_migrate( $scripts ) {
         }
     }
 }
-add_action( 'wp_default_scripts', 'remove_jquery_migrate' );
 
 /**
  * Disable classic-themes css added in WP 6.1
@@ -788,7 +864,6 @@ function disable_classic_theme_styles() {
     wp_deregister_style( 'classic-theme-styles' );
     wp_dequeue_style( 'classic-theme-styles' );
 }
-add_action( 'wp_enqueue_scripts', 'disable_classic_theme_styles', 100 );
 
 /**
  * Remove WordPress version, WLW manifest, and shortlink.
@@ -813,7 +888,6 @@ function remove_header_items() {
         remove_action( 'wp_head', 'wp_shortlink_wp_head', 10 );
     }
 }
-add_action( 'init', 'remove_header_items' );
 
 /**
  * Remove Recent Comments Widget CSS Styles.
@@ -826,7 +900,6 @@ function remove_recent_comments_style() {
         add_filter( 'show_recent_comments_widget_style', '__return_false', PHP_INT_MAX );
     }
 }
-add_action( 'init', 'remove_recent_comments_style' );
 
 /**
  * Add DNS prefetching for common external domains.
@@ -890,8 +963,6 @@ function add_dns_prefetch() {
         }
     }
 }
-// Hook after wp_head and before other elements are added.
-add_action( 'wp_head', 'add_dns_prefetch', 0 );
 
 /**
  * Disable Jetpack advertisements.
@@ -906,7 +977,6 @@ function disable_jetpack_ads() {
         add_filter( 'jetpack_blaze_enabled', '__return_false', PHP_INT_MAX );
     }
 }
-add_action( 'init', 'disable_jetpack_ads' );
 
 /**
  * Disable WordPress post via email functionality.
@@ -919,4 +989,3 @@ function disable_post_via_email() {
         add_filter( 'enable_post_by_email_configuration', '__return_false', PHP_INT_MAX );
     }
 }
-add_action( 'init', 'disable_post_via_email' );
