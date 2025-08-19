@@ -193,6 +193,7 @@ jobs:
             - [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/)
             - [Plugin Security Guidelines](https://developer.wordpress.org/plugins/security/)
             - [WordPress Performance Optimization](https://developer.wordpress.org/apis/handbook/performance/)
+              [WooCommerce Developer Documentation](https://woocommerce.com/document/create-a-plugin/)
             
             ### 💡 Available Commands
             Try these commands with @gemini-cli:

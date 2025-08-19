@@ -31,16 +31,13 @@ jobs:
 
       - name: Get PR diff safely
         id: pr-diff
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # SECURITY: Get diff without checking out untrusted code
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
           
           # Use GitHub API to get diff instead of git checkout
-          # SECURITY: Use environment variable for token to avoid exposure in logs
-          curl -H "Authorization: token $GITHUB_TOKEN" \
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -H "Accept: application/vnd.github.v3.diff" \
                "https://api.github.com/repos/${{ github.repository }}/compare/$BASE_SHA...$HEAD_SHA" \
                > pr_diff.txt
@@ -53,13 +50,12 @@ jobs:
         uses: google-github-actions/run-gemini-cli@v0.1.11
         with:
           prompt: |
-            You are an expert WordPress plugin developer and security consultant reviewing a pull request for the "Simple WP Optimizer" WordPress plugin.
+            You are an expert WordPress plugin developer and security consultant reviewing a pull request for the "Optimizations ACE MC" WordPress plugin.
             
             PLUGIN CONTEXT:
-            - WordPress performance optimization plugin
-            - Removes unnecessary WordPress features and scripts to improve performance
+            - WordPress optimization plugin for WooCommerce and WP Store Locator
             - Supports WordPress 6.5+ and PHP 7.4+
-            - Features include emoji removal, jQuery migrate removal, header cleanup, DNS prefetch optimization
+            - Single-site deployment (WooCommerce and WPSL guaranteed active)
             
             COMPREHENSIVE REVIEW CHECKLIST:
             
@@ -95,11 +91,10 @@ jobs:
             5. Naming conventions
             
             🔧 PLUGIN-SPECIFIC:
-            1. WordPress optimization best practices
-            2. Performance impact assessment
+            1. WooCommerce integration best practices
+            2. WP Store Locator compatibility
             3. Admin interface usability
             4. Plugin activation/deactivation handling
-            5. Compatibility with WordPress core features
             
             REVIEW FORMAT:
             For each category, provide:
