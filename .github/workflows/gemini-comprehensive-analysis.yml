@@ -112,11 +112,11 @@ jobs:
           - Proper use of transients
           
           ### PLUGIN-SPECIFIC CHECKS:
-          - WooCommerce integration best practices
+          - WordPress optimization best practices
+          - Performance improvement techniques
           - Admin interface conventions
-          - REST API implementation
-          - Custom post type registration
-          - Meta box implementation
+          - WordPress core feature interaction
+          - Feature toggle implementation
           
           ### COMPATIBILITY:
           - PHP version compatibility (7.4+)

@@ -50,12 +50,13 @@ jobs:
         uses: google-github-actions/run-gemini-cli@v0.1.11
         with:
           prompt: |
-            You are an expert WordPress plugin developer and security consultant reviewing a pull request for the "Optimizations ACE MC" WordPress plugin.
+            You are an expert WordPress plugin developer and security consultant reviewing a pull request for the "Simple WP Optimizer" WordPress plugin.
             
             PLUGIN CONTEXT:
-            - WordPress optimization plugin for WooCommerce and WP Store Locator
+            - WordPress performance optimization plugin
+            - Removes unnecessary WordPress features and scripts to improve performance
             - Supports WordPress 6.5+ and PHP 7.4+
-            - Single-site deployment (WooCommerce and WPSL guaranteed active)
+            - Features include emoji removal, jQuery migrate removal, header cleanup, DNS prefetch optimization
             
             COMPREHENSIVE REVIEW CHECKLIST:
             
@@ -91,10 +92,11 @@ jobs:
             5. Naming conventions
             
             🔧 PLUGIN-SPECIFIC:
-            1. WooCommerce integration best practices
-            2. WP Store Locator compatibility
+            1. WordPress optimization best practices
+            2. Performance impact assessment
             3. Admin interface usability
             4. Plugin activation/deactivation handling
+            5. Compatibility with WordPress core features
             
             REVIEW FORMAT:
             For each category, provide:

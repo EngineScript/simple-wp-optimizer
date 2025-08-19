@@ -107,7 +107,7 @@ jobs:
             Hi @${author}! I've completed a comprehensive analysis of this pull request.
             
             ### 📊 Review Summary
-            - **Plugin:** Optimizations ACE MC
+            - **Plugin:** Simple WP Optimizer
             - **Commit:** \`${headSha.substring(0, 7)}\`
             - **WordPress Compatibility:** 6.5+
             - **PHP Compatibility:** 7.4+
@@ -118,7 +118,7 @@ jobs:
             ✅ **WordPress Coding Standards** (PSR-4, naming, structure)  
             ✅ **Performance Optimization** (queries, caching, scalability)  
             ✅ **Code Quality & Architecture** (complexity, error handling)  
-            ✅ **Plugin-Specific Best Practices** (WooCommerce, WPSL integration)  
+            ✅ **Plugin-Specific Best Practices** (WordPress optimization techniques)  
             
             ### 🛡️ Security Analysis
             All code changes have been analyzed for common WordPress vulnerabilities including:
