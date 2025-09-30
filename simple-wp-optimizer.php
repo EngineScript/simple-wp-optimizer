@@ -178,14 +178,14 @@ function es_optimizer_init_settings() {
  */
 function es_optimizer_get_default_options() {
 	return array(
-		'disable_emojis'               => 1,
-		'remove_jquery_migrate'        => 1,
-		'disable_classic_theme_styles' => 1,
-		'remove_wp_version'            => 1,
-		'remove_wlw_manifest'          => 1,
-		'remove_shortlink'             => 1,
-		'remove_recent_comments_style' => 1,
-		'enable_dns_prefetch'          => 1,
+		'disable_emojis'               => 0,
+		'remove_jquery_migrate'        => 0,
+		'disable_classic_theme_styles' => 0,
+		'remove_wp_version'            => 0,
+		'remove_wlw_manifest'          => 0,
+		'remove_shortlink'             => 0,
+		'remove_recent_comments_style' => 0,
+		'enable_dns_prefetch'          => 0,
 		'dns_prefetch_domains'         => implode(
 			"\n",
 			array(
@@ -193,11 +193,10 @@ function es_optimizer_get_default_options() {
 				'https://fonts.gstatic.com',
 				'https://ajax.googleapis.com',
 				'https://apis.google.com',
-				'https://www.google-analytics.com',
 			)
 		),
-		'disable_jetpack_ads'          => 1,
-		'disable_post_via_email'       => 1,
+		'disable_jetpack_ads'          => 0,
+		'disable_post_via_email'       => 0,
 	);
 }
 
@@ -505,8 +504,7 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
 			 */
 			printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
 			?>
-			" rows="5" cols="50" class="large-text code">
-				<?php
+			" rows="5" cols="50" class="large-text code"><?php
 				if ( isset( $options[ $option_name ] ) ) {
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -517,8 +515,7 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
 					 */
 					printf( '%s', esc_textarea( $options[ $option_name ] ) );
 				}
-				?>
-			</textarea>
+				?></textarea>
 		</td>
 	</tr>
 	<?php
