@@ -139,7 +139,8 @@ jobs:
           composer global require --dev phpcompatibility/php-compatibility:"^9.3"
           composer global require --dev phpcompatibility/phpcompatibility-wp:"^2.1" 
           composer global require --dev automattic/vipwpcs:"^3.0"
-          composer global require --dev dealerdirect/phpcodesniffer-composer-installer:"^1.1"          
+          composer global require --dev dealerdirect/phpcodesniffer-composer-installer:"^1.1"
+          
           # Add composer bin to PATH
           echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
           
