@@ -43,6 +43,13 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 == Changelog ==
 
+= Unreleased =
+* **FEATURE**: Added new option to remove RSD (Really Simple Discovery) link from WordPress header
+* **ENHANCEMENT**: Added DNS prefetch domains for WordPress.org, WordPress.com, and Cloudflare CDN
+* **OPTIMIZATION**: Updated default DNS prefetch domains by removing deprecated Google CDN URLs
+* **USER EXPERIENCE**: All optimization options are now disabled by default for better user control
+* **CODE QUALITY**: Fixed WordPress coding standards compliance for PHP tag formatting and indentation
+
 = 1.7.0 =
 * **ARCHITECTURE**: Major plugin architecture refactor - completely restructured initialization to use WordPress `plugins_loaded` hook
 * **ARCHITECTURE**: Improved plugin load order by removing immediate global scope execution

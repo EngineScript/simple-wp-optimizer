@@ -5,6 +5,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added new option to remove RSD (Really Simple Discovery) link from WordPress header
+- Added DNS prefetch domains: `https://s.w.org`, `https://wordpress.com`, and `https://cdnjs.cloudflare.com`
+
+### Changed
+- Updated default DNS prefetch domains to remove deprecated Google CDN URLs (`ajax.googleapis.com` and `apis.google.com`)
+- All optimization options are now disabled by default for better user control
+- Improved DNS prefetch textarea display to eliminate extra whitespace on first line
+
+### Fixed
+- Fixed WordPress coding standards compliance: PHP opening and closing tags now on separate lines
+- Fixed indentation in textarea rendering function (3 tabs instead of 4)
+
 ## [1.7.0] - 2025-01-27
 
 ### Changed

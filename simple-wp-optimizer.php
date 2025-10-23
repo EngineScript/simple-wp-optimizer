@@ -182,6 +182,7 @@ function es_optimizer_get_default_options() {
 		'remove_jquery_migrate'        => 0,
 		'disable_classic_theme_styles' => 0,
 		'remove_wp_version'            => 0,
+		'remove_rsd_link'              => 0,
 		'remove_wlw_manifest'          => 0,
 		'remove_shortlink'             => 0,
 		'remove_recent_comments_style' => 0,
@@ -191,8 +192,9 @@ function es_optimizer_get_default_options() {
 			array(
 				'https://fonts.googleapis.com',
 				'https://fonts.gstatic.com',
-				'https://ajax.googleapis.com',
-				'https://apis.google.com',
+				'https://s.w.org',
+				'https://wordpress.com',
+				'https://cdnjs.cloudflare.com',
 			)
 		),
 		'disable_jetpack_ads'          => 0,
@@ -350,6 +352,14 @@ function es_optimizer_render_header_options( $options ) {
 		esc_html__( 'Remove WordPress version from header (security benefit)', 'simple-wp-optimizer' )
 	);
 
+	// RSD Link settings.
+	es_optimizer_render_checkbox_option(
+		$options,
+		'remove_rsd_link',
+		esc_html__( 'Remove RSD Link', 'simple-wp-optimizer' ),
+		esc_html__( 'Remove Really Simple Discovery (RSD) link from header', 'simple-wp-optimizer' )
+	);
+
 	// WLW Manifest settings.
 	es_optimizer_render_checkbox_option(
 		$options,
@@ -504,18 +514,20 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
 			 */
 			printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
 			?>
-			" rows="5" cols="50" class="large-text code"><?php
-				if ( isset( $options[ $option_name ] ) ) {
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			" rows="5" cols="50" class="large-text code">
+			<?php
+			if ( isset( $options[ $option_name ] ) ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-					/*
-					 * Using printf with esc_textarea is the most appropriate approach.
-					 * esc_textarea already properly escapes content for use inside textarea elements.
-					 * This function is designed specifically for this purpose and ensures data is properly escaped.
-					 */
-					printf( '%s', esc_textarea( $options[ $option_name ] ) );
-				}
-				?></textarea>
+				/*
+				 * Using printf with esc_textarea is the most appropriate approach.
+				 * esc_textarea already properly escapes content for use inside textarea elements.
+				 * This function is designed specifically for this purpose and ensures data is properly escaped.
+				 */
+				printf( '%s', esc_textarea( $options[ $option_name ] ) );
+			}
+			?>
+			</textarea>
 		</td>
 	</tr>
 	<?php
@@ -564,6 +576,7 @@ function es_optimizer_validate_options( $input ) {
 		'remove_jquery_migrate',
 		'disable_classic_theme_styles',
 		'remove_wp_version',
+		'remove_rsd_link',
 		'remove_wlw_manifest',
 		'remove_shortlink',
 		'remove_recent_comments_style',
@@ -862,6 +875,11 @@ function remove_header_items() {
 	// Remove WordPress Version from Header.
 	if ( isset( $options['remove_wp_version'] ) && $options['remove_wp_version'] ) {
 		remove_action( 'wp_head', 'wp_generator' );
+	}
+
+	// Remove RSD Link.
+	if ( isset( $options['remove_rsd_link'] ) && $options['remove_rsd_link'] ) {
+		remove_action( 'wp_head', 'rsd_link' );
 	}
 
 	// Remove Windows Live Writer Manifest.
