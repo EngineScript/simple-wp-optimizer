@@ -7,12 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added new option to remove RSD (Really Simple Discovery) link from WordPress header
-- Added DNS prefetch domains: `https://s.w.org`, `https://wordpress.com`, and `https://cdnjs.cloudflare.com`
+- **NEW FEATURE**: Added separate DNS Prefetch option alongside Preconnect for better resource hint control
+  - DNS-prefetch performs lighter-weight DNS-only lookups for less critical domains
+  - Preconnect performs full connection setup (DNS + TCP + TLS) for critical domains
+  - Clear UI explanations help users understand when to use each option
+- Added preconnect domains: `https://s.w.org`, `https://wordpress.com`, `https://cdnjs.cloudflare.com`, and `https://www.googletagmanager.com`
+- Added DNS prefetch domain: `https://adservice.google.com`
 
 ### Changed
-- Updated default DNS prefetch domains to remove deprecated Google CDN URLs (`ajax.googleapis.com` and `apis.google.com`)
+- **PERFORMANCE UPGRADE**: Changed from DNS-prefetch to Preconnect for better performance
+  - Preconnect establishes full connection (DNS + TCP + TLS) vs dns-prefetch which only does DNS lookup
+  - Adds `crossorigin` attribute for font domains (required for CORS requests)
+  - Improves Largest Contentful Paint (LCP) and First Contentful Paint (FCP) metrics
+- Updated default preconnect domains to remove deprecated Google CDN URLs (`ajax.googleapis.com` and `apis.google.com`)
 - All optimization options are now disabled by default for better user control
-- Improved DNS prefetch textarea display to eliminate extra whitespace on first line
+- Improved preconnect textarea display to eliminate extra whitespace on first line
 
 ### Fixed
 - Fixed WordPress coding standards compliance: PHP opening and closing tags now on separate lines

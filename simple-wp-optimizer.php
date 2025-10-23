@@ -133,6 +133,7 @@ function es_optimizer_init_frontend_optimizations() {
 	add_action( 'wp_enqueue_scripts', 'disable_classic_theme_styles', 100 );
 	add_action( 'init', 'remove_header_items' );
 	add_action( 'init', 'remove_recent_comments_style' );
+	add_action( 'wp_head', 'add_preconnect', 0 );
 	add_action( 'wp_head', 'add_dns_prefetch', 0 );
 	add_action( 'init', 'disable_jetpack_ads' );
 	add_action( 'init', 'disable_post_via_email' );
@@ -186,8 +187,8 @@ function es_optimizer_get_default_options() {
 		'remove_wlw_manifest'          => 0,
 		'remove_shortlink'             => 0,
 		'remove_recent_comments_style' => 0,
-		'enable_dns_prefetch'          => 0,
-		'dns_prefetch_domains'         => implode(
+		'enable_preconnect'            => 0,
+		'preconnect_domains'           => implode(
 			"\n",
 			array(
 				'https://fonts.googleapis.com',
@@ -195,8 +196,11 @@ function es_optimizer_get_default_options() {
 				'https://s.w.org',
 				'https://wordpress.com',
 				'https://cdnjs.cloudflare.com',
+				'https://www.googletagmanager.com',
 			)
 		),
+		'enable_dns_prefetch'          => 0,
+		'dns_prefetch_domains'         => 'https://adservice.google.com',
 		'disable_jetpack_ads'          => 0,
 		'disable_post_via_email'       => 0,
 	);
@@ -392,22 +396,6 @@ function es_optimizer_render_header_options( $options ) {
  * @param array $options Plugin options.
  */
 function es_optimizer_render_additional_options( $options ) {
-	// DNS Prefetch settings.
-	es_optimizer_render_checkbox_option(
-		$options,
-		'enable_dns_prefetch',
-		esc_html__( 'Enable DNS Prefetch', 'simple-wp-optimizer' ),
-		esc_html__( 'Add DNS prefetch for common external domains', 'simple-wp-optimizer' )
-	);
-
-	// DNS Prefetch Domains textarea.
-	es_optimizer_render_textarea_option(
-		$options,
-		'dns_prefetch_domains',
-		esc_html__( 'DNS Prefetch Domains', 'simple-wp-optimizer' ),
-		esc_html__( 'Enter one HTTPS domain per line (e.g., https://fonts.googleapis.com). Only clean domains are allowed - no file paths, query parameters, or fragments. Only secure HTTPS domains are accepted for security reasons.', 'simple-wp-optimizer' )
-	);
-
 	// Jetpack Ads settings.
 	es_optimizer_render_checkbox_option(
 		$options,
@@ -422,6 +410,38 @@ function es_optimizer_render_additional_options( $options ) {
 		'disable_post_via_email',
 		esc_html__( 'Disable Post via Email', 'simple-wp-optimizer' ),
 		esc_html__( 'Disable WordPress post via email functionality for security and performance', 'simple-wp-optimizer' )
+	);
+
+	// Preconnect settings.
+	es_optimizer_render_checkbox_option(
+		$options,
+		'enable_preconnect',
+		esc_html__( 'Enable Preconnect', 'simple-wp-optimizer' ),
+		esc_html__( 'Preconnect to external domains for faster resource loading', 'simple-wp-optimizer' )
+	);
+
+	// Preconnect Domains textarea.
+	es_optimizer_render_textarea_option(
+		$options,
+		'preconnect_domains',
+		esc_html__( 'Preconnect Domains', 'simple-wp-optimizer' ),
+		esc_html__( 'Use preconnect for domains that host critical, frequently used resources, like Google Fonts. This hint tells the browser to establish a connection (including DNS lookup, TCP handshake, and TLS negotiation) as soon as possible, which can save 100–500ms on the subsequent request. Enter one HTTPS domain per line (e.g., https://fonts.googleapis.com). Only clean domains are allowed - no file paths, query parameters, or fragments.', 'simple-wp-optimizer' )
+	);
+
+	// DNS Prefetch settings.
+	es_optimizer_render_checkbox_option(
+		$options,
+		'enable_dns_prefetch',
+		esc_html__( 'Enable DNS Prefetch', 'simple-wp-optimizer' ),
+		esc_html__( 'DNS prefetch for less critical external domains', 'simple-wp-optimizer' )
+	);
+
+	// DNS Prefetch Domains textarea.
+	es_optimizer_render_textarea_option(
+		$options,
+		'dns_prefetch_domains',
+		esc_html__( 'DNS Prefetch Domains', 'simple-wp-optimizer' ),
+		esc_html__( 'DNS-prefetch is a lighter-weight alternative to preconnect that performs only the DNS lookup. Use it for less critical domains or as a fallback for browsers that don\'t support preconnect. Enter one HTTPS domain per line (e.g., https://adservice.google.com). Only clean domains are allowed - no file paths, query parameters, or fragments.', 'simple-wp-optimizer' )
 	);
 }
 
@@ -580,6 +600,7 @@ function es_optimizer_validate_options( $input ) {
 		'remove_wlw_manifest',
 		'remove_shortlink',
 		'remove_recent_comments_style',
+		'enable_preconnect',
 		'enable_dns_prefetch',
 		'disable_jetpack_ads',
 		'disable_post_via_email',
@@ -589,22 +610,27 @@ function es_optimizer_validate_options( $input ) {
 		$valid[ $checkbox ] = isset( $input[ $checkbox ] ) ? 1 : 0;
 	}
 
+	// Validate and sanitize the preconnect domains with enhanced security.
+	if ( isset( $input['preconnect_domains'] ) ) {
+		$valid['preconnect_domains'] = es_optimizer_validate_preconnect_domains( $input['preconnect_domains'] );
+	}
+
 	// Validate and sanitize the DNS prefetch domains with enhanced security.
 	if ( isset( $input['dns_prefetch_domains'] ) ) {
-		$valid['dns_prefetch_domains'] = es_optimizer_validate_dns_domains( $input['dns_prefetch_domains'] );
+		$valid['dns_prefetch_domains'] = es_optimizer_validate_dns_prefetch_domains( $input['dns_prefetch_domains'] );
 	}
 
 	return $valid;
 }
 
 /**
- * Validate DNS prefetch domains with enhanced security
+ * Validate preconnect domains with enhanced security
  *
  * @since 1.4.0
  * @param string $domains_input Raw domain input from user.
  * @return string Validated and sanitized domains.
  */
-function es_optimizer_validate_dns_domains( $domains_input ) {
+function es_optimizer_validate_preconnect_domains( $domains_input ) {
 	$domains           = explode( "\n", trim( $domains_input ) );
 	$sanitized_domains = array();
 	$rejected_domains  = array();
@@ -633,7 +659,71 @@ function es_optimizer_validate_dns_domains( $domains_input ) {
 }
 
 /**
- * Validate a single DNS prefetch domain
+ * Validate DNS prefetch domains with enhanced security
+ *
+ * @since 1.8.0
+ * @param string $domains_input Raw domain input from user.
+ * @return string Validated and sanitized domains.
+ */
+function es_optimizer_validate_dns_prefetch_domains( $domains_input ) {
+	$domains           = explode( "\n", trim( $domains_input ) );
+	$sanitized_domains = array();
+	$rejected_domains  = array();
+
+	foreach ( $domains as $domain ) {
+		$domain = trim( $domain );
+		if ( empty( $domain ) ) {
+			continue;
+		}
+
+		$validation_result = es_optimizer_validate_single_domain( $domain );
+
+		if ( $validation_result['valid'] ) {
+			$sanitized_domains[] = $validation_result['domain'];
+		} else {
+			$rejected_domains[] = $validation_result['error'];
+		}
+	}
+
+	// Show admin notice if any domains were rejected for security reasons.
+	if ( ! empty( $rejected_domains ) ) {
+		es_optimizer_show_dns_prefetch_rejection_notice( $rejected_domains );
+	}
+
+	return implode( "\n", $sanitized_domains );
+}
+
+/**
+ * Show admin notice for rejected DNS prefetch domains
+ *
+ * @since 1.8.0
+ * @param array $rejected_domains Array of rejected domain strings.
+ */
+function es_optimizer_show_dns_prefetch_rejection_notice( $rejected_domains ) {
+	// Security: Properly escape and limit the rejected domains in error messages.
+	$escaped_domains  = array_map( 'esc_html', array_slice( $rejected_domains, 0, 3 ) );
+	$rejected_message = implode( ', ', $escaped_domains );
+
+	if ( count( $rejected_domains ) > 3 ) {
+		$rejected_message .= esc_html__( '...', 'simple-wp-optimizer' );
+	}
+
+	$message = sprintf(
+		// translators: %s is the list of rejected domain names.
+		esc_html__( 'Some DNS prefetch domains were rejected for security reasons: %s', 'simple-wp-optimizer' ),
+		$rejected_message
+	);
+
+	add_settings_error(
+		'es_optimizer_options',
+		'dns_prefetch_security',
+		$message,
+		'warning'
+	);
+}
+
+/**
+ * Validate a single preconnect domain
  *
  * @since 1.4.0
  * @param string $domain Domain to validate.
@@ -651,7 +741,7 @@ function es_optimizer_validate_single_domain( $domain ) {
 	// Use wp_parse_url instead of parse_url for WordPress compatibility.
 	$parsed_url = wp_parse_url( $domain );
 
-	// Security: Enforce HTTPS-only domains for DNS prefetch.
+	// Security: Enforce HTTPS-only domains for preconnect.
 	if ( ! isset( $parsed_url['scheme'] ) || 'https' !== $parsed_url['scheme'] ) {
 		return array(
 			'valid' => false,
@@ -667,19 +757,19 @@ function es_optimizer_validate_single_domain( $domain ) {
 		);
 	}
 
-	// Security: DNS prefetch should only use clean domains, not file paths.
+	// Security: Preconnect should only use clean domains, not file paths.
 	// Reject URLs with paths, query parameters, or fragments.
 	if ( isset( $parsed_url['path'] ) && '/' !== $parsed_url['path'] && '' !== $parsed_url['path'] ) {
 		return array(
 			'valid' => false,
-			'error' => $domain . ' (file paths not allowed for DNS prefetch - use domain only)',
+			'error' => $domain . ' (file paths not allowed for preconnect - use domain only)',
 		);
 	}
 
 	if ( isset( $parsed_url['query'] ) || isset( $parsed_url['fragment'] ) ) {
 		return array(
 			'valid' => false,
-			'error' => $domain . ' (query parameters and fragments not allowed for DNS prefetch)',
+			'error' => $domain . ' (query parameters and fragments not allowed for preconnect)',
 		);
 	}
 
@@ -727,13 +817,13 @@ function es_optimizer_show_domain_rejection_notice( $rejected_domains ) {
 
 	$message = sprintf(
 		// translators: %s is the list of rejected domain names.
-		esc_html__( 'Some DNS prefetch domains were rejected for security reasons: %s', 'simple-wp-optimizer' ),
+		esc_html__( 'Some preconnect domains were rejected for security reasons: %s', 'simple-wp-optimizer' ),
 		$rejected_message
 	);
 
 	add_settings_error(
 		'es_optimizer_options',
-		'dns_prefetch_security',
+		'preconnect_security',
 		$message,
 		'warning'
 	);
@@ -906,14 +996,81 @@ function remove_recent_comments_style() {
 }
 
 /**
- * Add DNS prefetching for common external domains.
+ * Add preconnect hints for common external domains.
  *
- * DNS prefetching can reduce latency when connecting to common external services.
- * This is particularly helpful for sites using Google Fonts, Analytics, etc.
+ * Preconnect establishes early connections (DNS + TCP + TLS handshake) to third-party domains.
+ * This reduces latency when loading resources from external origins and improves LCP/FCP metrics.
+ * More effective than dns-prefetch as it completes the full connection setup.
  *
  * Security note: All output is properly escaped with esc_url() before output to prevent XSS.
  *
  * @since 1.4.1
+ */
+function add_preconnect() {
+	// Only add if not admin and not doing AJAX.
+	if ( is_admin() || wp_doing_ajax() ) {
+		return;
+	}
+
+	// Use static caching to avoid repeated option retrieval.
+	static $domains_cache   = null;
+	static $options_checked = false;
+
+	if ( ! $options_checked ) {
+		$options         = get_option( 'es_optimizer_options' );
+		$options_checked = true;
+
+		// Only proceed if the option is enabled.
+		if ( ! isset( $options['enable_preconnect'] ) || ! $options['enable_preconnect'] ) {
+			$domains_cache = array(); // Cache empty array to avoid re-checking.
+			return;
+		}
+
+		// Get and process domains from settings.
+		if ( isset( $options['preconnect_domains'] ) && ! empty( $options['preconnect_domains'] ) ) {
+			// Process domains with optimization.
+			$domains = explode( "\n", $options['preconnect_domains'] );
+			$domains = array_map( 'trim', $domains );
+			$domains = array_filter( $domains );
+
+			// Remove duplicates and validate domains.
+			$domains       = array_unique( $domains );
+			$valid_domains = array();
+
+			foreach ( $domains as $domain ) {
+				// Validate URL format and ensure HTTPS.
+				if ( filter_var( $domain, FILTER_VALIDATE_URL ) && strpos( $domain, 'https://' ) === 0 ) {
+					$valid_domains[] = $domain;
+				}
+			}
+
+			$domains_cache = $valid_domains;
+		} else {
+			$domains_cache = array();
+		}
+	}
+
+	// Output the preconnect links.
+	if ( ! empty( $domains_cache ) ) {
+		foreach ( $domains_cache as $domain ) {
+			// Add crossorigin attribute for font domains (required for CORS requests).
+			$crossorigin = ( strpos( $domain, 'fonts.g' ) !== false || strpos( $domain, 'gstatic' ) !== false ) ? ' crossorigin' : '';
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<link rel="preconnect" href="' . esc_url( $domain ) . '"' . $crossorigin . '>' . "\n";
+		}
+	}
+}
+
+/**
+ * Add DNS prefetch hints for external domains.
+ *
+ * DNS-prefetch performs only the DNS lookup for third-party domains.
+ * This is a lighter-weight alternative to preconnect for less critical resources.
+ * Use for domains that may not be used immediately or as a fallback.
+ *
+ * Security note: All output is properly escaped with esc_url() before output to prevent XSS.
+ *
+ * @since 1.8.0
  */
 function add_dns_prefetch() {
 	// Only add if not admin and not doing AJAX.
@@ -959,7 +1116,7 @@ function add_dns_prefetch() {
 		}
 	}
 
-	// Output the prefetch links.
+	// Output the DNS prefetch links.
 	if ( ! empty( $domains_cache ) ) {
 		foreach ( $domains_cache as $domain ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

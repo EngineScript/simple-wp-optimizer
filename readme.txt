@@ -45,8 +45,14 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 = Unreleased =
 * **FEATURE**: Added new option to remove RSD (Really Simple Discovery) link from WordPress header
-* **ENHANCEMENT**: Added DNS prefetch domains for WordPress.org, WordPress.com, and Cloudflare CDN
-* **OPTIMIZATION**: Updated default DNS prefetch domains by removing deprecated Google CDN URLs
+* **FEATURE**: Added separate DNS Prefetch option for lighter-weight domain lookups
+* **PERFORMANCE**: Upgraded from DNS-prefetch to Preconnect for critical resources
+* **PERFORMANCE**: Preconnect now establishes full connections (DNS + TCP + TLS) instead of just DNS lookup
+* **PERFORMANCE**: Added crossorigin attribute for font domains to improve CORS request handling
+* **ENHANCEMENT**: Added helpful descriptions explaining when to use Preconnect vs DNS-prefetch
+* **ENHANCEMENT**: Added preconnect for Google Tag Manager and additional critical domains
+* **ENHANCEMENT**: Added DNS prefetch for Google Ad Service as lighter-weight fallback
+* **OPTIMIZATION**: Updated default preconnect domains by removing deprecated Google CDN URLs
 * **USER EXPERIENCE**: All optimization options are now disabled by default for better user control
 * **CODE QUALITY**: Fixed WordPress coding standards compliance for PHP tag formatting and indentation
 
