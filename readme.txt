@@ -3,7 +3,7 @@ Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.5
 Tested up to: 6.8
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -43,7 +43,7 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 == Changelog ==
 
-= Unreleased =
+= 1.8.0 - 2025-10-23 =
 * **FEATURE**: Added new option to remove RSD (Really Simple Discovery) link from WordPress header
 * **FEATURE**: Added separate DNS Prefetch option for lighter-weight domain lookups
 * **PERFORMANCE**: Upgraded from DNS-prefetch to Preconnect for critical resources

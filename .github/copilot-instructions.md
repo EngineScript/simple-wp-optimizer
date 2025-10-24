@@ -17,12 +17,14 @@ applyTo: '**'
 ## 📋 Essential Requirements
 
 ### WordPress Compatibility
+
 - **WordPress:** 6.5+ minimum
 - **PHP:** 7.4+ minimum  
 - **WooCommerce:** 5.0+ (when applicable)
 - Follow [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/) for PHP, JS, CSS, HTML, and accessibility
 
 ### Code Quality Standards
+
 1. **Security First:** Always sanitize input (`sanitize_*()`) and escape output (`esc_*()`)
 2. **WordPress APIs:** Use WP functions instead of raw PHP/SQL
 3. **Hook System:** Proper use of `add_action()` and `add_filter()`
@@ -55,7 +57,7 @@ applyTo: '**'
 
 **Version Release Process (only when instructed):**
 - Follow semantic versioning (MAJOR.MINOR.PATCH)
-- Update version in: plugin header, README.md, readme.txt, CHANGELOG.md
+- Update version in: plugin header, README.md, readme.txt, CHANGELOG.md, GEMINI.md, and language files (.pot)
 - Update version in: constants section, .pot files, package.json, composer.json
 - Move "Unreleased" changes to new version section in both changelogs
 - **Never auto-update versions** - wait for explicit instruction

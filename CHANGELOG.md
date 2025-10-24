@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+## [1.8.0] - 2025-10-23
+
+### Added
 - Added new option to remove RSD (Really Simple Discovery) link from WordPress header
 - **NEW FEATURE**: Added separate DNS Prefetch option alongside Preconnect for better resource hint control
   - DNS-prefetch performs lighter-weight DNS-only lookups for less critical domains

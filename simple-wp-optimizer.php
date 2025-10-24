@@ -3,7 +3,7 @@
  * Plugin Name: Simple WP Optimizer
  * Plugin URI: https://github.com/EngineScript/simple-wp-optimizer
  * Description: Optimizes WordPress by removing unnecessary features and scripts to improve performance
- * Version: 1.7.0
+ * Version: 1.8.0
  * Author: EngineScript
  * License: GPL-3.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define plugin version.
 if ( ! defined( 'ES_WP_OPTIMIZER_VERSION' ) ) {
-	define( 'ES_WP_OPTIMIZER_VERSION', '1.7.0' );
+	define( 'ES_WP_OPTIMIZER_VERSION', '1.8.0' );
 }
 
 /**
@@ -804,6 +804,7 @@ function es_optimizer_validate_single_domain( $domain ) {
 /**
  * Show admin notice for rejected domains
  *
+ * @since 1.4.0
  * @param array $rejected_domains Array of rejected domain strings.
  */
 function es_optimizer_show_domain_rejection_notice( $rejected_domains ) {
@@ -870,6 +871,7 @@ function disable_emojis() {
 /**
  * Add settings link to plugins page
  *
+ * @since 1.0.0
  * @param array $links Plugin action links.
  * @return array Modified plugin action links.
  */
@@ -885,6 +887,7 @@ function es_optimizer_add_settings_link( $links ) {
 /**
  * Filter function used to remove the tinymce emoji plugin.
  *
+ * @since 1.0.0
  * @param array $plugins Array of TinyMCE plugins.
  * @return array Difference betwen the two arrays.
  */
@@ -898,6 +901,7 @@ function disable_emojis_tinymce( $plugins ) {
 /**
  * Remove emoji CDN hostname from DNS prefetching hints.
  *
+ * @since 1.0.0
  * @param array  $urls URLs to print for resource hints.
  * @param string $relation_type The relation type the URLs are printed for.
  * @return array Difference betwen the two arrays.
@@ -985,6 +989,8 @@ function remove_header_items() {
 
 /**
  * Remove Recent Comments Widget CSS Styles.
+ *
+ * @since 1.0.0
  */
 function remove_recent_comments_style() {
 	$options = get_option( 'es_optimizer_options' );
@@ -1127,6 +1133,8 @@ function add_dns_prefetch() {
 
 /**
  * Disable Jetpack advertisements.
+ *
+ * @since 1.0.0
  */
 function disable_jetpack_ads() {
 	$options = get_option( 'es_optimizer_options' );
@@ -1141,6 +1149,8 @@ function disable_jetpack_ads() {
 
 /**
  * Disable WordPress post via email functionality.
+ *
+ * @since 1.0.0
  */
 function disable_post_via_email() {
 	$options = get_option( 'es_optimizer_options' );
