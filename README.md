@@ -6,6 +6,7 @@
 [![PHP Compatible](https://img.shields.io/badge/PHP-7.4%2B-purple.svg?logo=php)](https://www.php.net/)
 
 ## Current Version
+
 [![Version](https://img.shields.io/badge/Version-1.8.0-orange.svg?logo=github)](https://github.com/EngineScript/simple-wp-optimizer/releases/download/v1.8.0/simple-wp-optimizer-1.8.0.zip)
 
 ## Description
@@ -139,8 +140,6 @@ The plugin includes a comprehensive PHPUnit test suite that runs automatically o
 - Both single site and multisite installations
 
 This ensures code quality and compatibility across different PHP versions and WordPress configurations.
-
-
 
 ## Contributing
 
