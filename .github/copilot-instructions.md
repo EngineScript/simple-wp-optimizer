@@ -57,8 +57,7 @@ applyTo: '**'
 
 **Version Release Process (only when instructed):**
 - Follow semantic versioning (MAJOR.MINOR.PATCH)
-- Update version in: plugin header, README.md, readme.txt, CHANGELOG.md, GEMINI.md, and language files (.pot)
-- Update version in: constants section, .pot files, package.json, composer.json
+- Update version in: plugin header, README.md, readme.txt, CHANGELOG.md, GEMINI.md, and `.pot` language files, constants section, package.json, and composer.json
 - Move "Unreleased" changes to new version section in both changelogs
 - **Never auto-update versions** - wait for explicit instruction
 
@@ -66,6 +65,11 @@ applyTo: '**'
 - Use PHPDoc with `@param`, `@return`, `@since` tags
 - Write clear function/class descriptions
 - Document security considerations and hooks used
+
+**Internationalization (i18n):**
+- Update `.pot` language files when adding or modifying translatable strings
+- Always use the correct text domain when dealing with translation functions
+- Mark all user-facing strings with `__()`, `_e()`, `esc_html__()`, `esc_attr__()`, etc.
 
 ## ⚡ Performance & Quality
 
