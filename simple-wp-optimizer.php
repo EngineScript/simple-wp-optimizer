@@ -10,7 +10,7 @@
  * Text Domain: simple-wp-optimizer
  * Requires at least: 6.5
  * Requires PHP: 7.4
- * Tested up to: 6.8
+ * Tested up to: 6.9
  * Security: Follows OWASP security guidelines and WordPress best practices
  *
  * @package Simple_WP_Optimizer
