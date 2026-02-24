@@ -2,7 +2,7 @@
 Contributors: enginescript
 Tags: optimization, performance, cleanup
 Requires at least: 6.5
-Tested up to: 6.8
+Tested up to: 6.9
 Stable tag: 1.8.0
 Requires PHP: 7.4
 License: GPLv3 or later
@@ -42,6 +42,19 @@ No, the plugin has a simple interface where you can toggle features on and off.
 
 
 == Changelog ==
+
+= Unreleased =
+* **BUG FIX (Critical)**: Fixed whitespace inside form field `name` attributes that prevented all settings from being saved — browsers sent literal newlines/tabs as part of the field name so WordPress never received the data
+* **BUG FIX (Critical)**: Fixed inverted IP-validation logic that caused every preconnect/DNS-prefetch domain name to be incorrectly rejected when saving settings
+* **BUG FIX (Critical)**: Fixed `es_optimizer_clear_options_cache()` which was not actually clearing the static options cache
+* **BUG FIX**: Fixed textarea content containing leading whitespace between the HTML tag and the PHP value output
+* **SECURITY**: Added missing `esc_url()` and `esc_html__()` escaping to the Settings link in the Plugins list
+* **SECURITY**: Removed redundant custom nonce field and its bypassable verification; CSRF protection is handled by WordPress Settings API
+* **CODE QUALITY**: Fixed double-escaping — render callers now pass `__()` instead of `esc_html__()`, with escaping done at output in the render functions
+* **CODE QUALITY**: Renamed 11 globally-scoped functions to use the `es_optimizer_` prefix, preventing potential naming collisions with other plugins
+* **CODE QUALITY**: Unified all option retrieval calls to use the `es_optimizer_get_options()` caching wrapper
+* **CODE QUALITY**: Settings page heading, description, and submit button are now fully translatable
+* **CODE QUALITY**: Removed unreachable dead code in `es_optimizer_add_settings_page()`
 
 = 1.8.0 - 2025-10-23 =
 * **FEATURE**: Added new option to remove RSD (Really Simple Discovery) link from WordPress header

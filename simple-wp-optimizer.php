@@ -128,15 +128,15 @@ function es_optimizer_init_admin() {
  * @since 1.6.0
  */
 function es_optimizer_init_frontend_optimizations() {
-	add_action( 'init', 'disable_emojis' );
-	add_action( 'wp_default_scripts', 'remove_jquery_migrate' );
-	add_action( 'wp_enqueue_scripts', 'disable_classic_theme_styles', 100 );
-	add_action( 'init', 'remove_header_items' );
-	add_action( 'init', 'remove_recent_comments_style' );
-	add_action( 'wp_head', 'add_preconnect', 0 );
-	add_action( 'wp_head', 'add_dns_prefetch', 0 );
-	add_action( 'init', 'disable_jetpack_ads' );
-	add_action( 'init', 'disable_post_via_email' );
+	add_action( 'init', 'es_optimizer_disable_emojis' );
+	add_action( 'wp_default_scripts', 'es_optimizer_remove_jquery_migrate' );
+	add_action( 'wp_enqueue_scripts', 'es_optimizer_disable_classic_theme_styles', 100 );
+	add_action( 'init', 'es_optimizer_remove_header_items' );
+	add_action( 'init', 'es_optimizer_remove_recent_comments_style' );
+	add_action( 'wp_head', 'es_optimizer_add_preconnect', 0 );
+	add_action( 'wp_head', 'es_optimizer_add_dns_prefetch', 0 );
+	add_action( 'init', 'es_optimizer_disable_jetpack_ads' );
+	add_action( 'init', 'es_optimizer_disable_post_via_email' );
 }
 
 /**
@@ -210,12 +210,13 @@ function es_optimizer_get_default_options() {
  * Get cached plugin options to reduce database queries
  *
  * @since 1.5.13
+ * @param bool $force_refresh Whether to force a fresh database read.
  * @return array Plugin options.
  */
-function es_optimizer_get_options() {
+function es_optimizer_get_options( $force_refresh = false ) {
 	static $cached_options = null;
 
-	if ( null === $cached_options ) {
+	if ( null === $cached_options || $force_refresh ) {
 		$cached_options = get_option( 'es_optimizer_options', es_optimizer_get_default_options() );
 	}
 
@@ -228,12 +229,7 @@ function es_optimizer_get_options() {
  * @since 1.5.13
  */
 function es_optimizer_clear_options_cache() {
-	// Clear the static cache by accessing the static variable.
-	$clear_cache = function () {
-		static $cached_options = null;
-		$cached_options        = null;
-	};
-	$clear_cache();
+	es_optimizer_get_options( true );
 }
 
 /**
@@ -243,17 +239,12 @@ function es_optimizer_clear_options_cache() {
  */
 function es_optimizer_add_settings_page() {
 	add_options_page(
-		'WP Optimizer Settings',
-		'WP Optimizer',
+		__( 'WP Optimizer Settings', 'simple-wp-optimizer' ),
+		__( 'WP Optimizer', 'simple-wp-optimizer' ),
 		'manage_options',
 		'es-optimizer-settings',
 		'es_optimizer_settings_page'
 	);
-
-	// Only load admin scripts/styles on our settings page.
-	if ( ! is_admin() ) {
-		return;
-	}
 }
 
 /**
@@ -271,13 +262,12 @@ function es_optimizer_settings_page() {
 	$options = es_optimizer_get_options();
 	?>
 	<div class="wrap">
-		<h1>WP Optimizer Settings</h1>
-		<p>Select which optimizations you want to enable and customize the DNS prefetch domains.</p>
+		<h1><?php esc_html_e( 'WP Optimizer Settings', 'simple-wp-optimizer' ); ?></h1>
+		<p><?php esc_html_e( 'Select which optimizations you want to enable and customize the DNS prefetch domains.', 'simple-wp-optimizer' ); ?></p>
 
 		<form method="post" action="options.php">
 			<?php
 			settings_fields( 'es_optimizer_settings' );
-			wp_nonce_field( 'es_optimizer_settings_action', 'es_optimizer_settings_nonce' );
 			?>
 
 			<table class="form-table">
@@ -294,7 +284,7 @@ function es_optimizer_settings_page() {
 			</table>
 
 			<p class="submit">
-				<input type="submit" class="button-primary" value="Save Changes" />
+				<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'simple-wp-optimizer' ); ?>" />
 			</p>
 		</form>
 
@@ -320,24 +310,24 @@ function es_optimizer_render_performance_options( $options ) {
 	es_optimizer_render_checkbox_option(
 		$options,
 		'disable_emojis',
-		esc_html__( 'Disable WordPress Emojis', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove emoji scripts and styles to improve page load time', 'simple-wp-optimizer' )
+		__( 'Disable WordPress Emojis', 'simple-wp-optimizer' ),
+		__( 'Remove emoji scripts and styles to improve page load time', 'simple-wp-optimizer' )
 	);
 
 	// jQuery Migrate settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'remove_jquery_migrate',
-		esc_html__( 'Remove jQuery Migrate', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove jQuery Migrate script (may affect compatibility with very old plugins)', 'simple-wp-optimizer' )
+		__( 'Remove jQuery Migrate', 'simple-wp-optimizer' ),
+		__( 'Remove jQuery Migrate script (may affect compatibility with very old plugins)', 'simple-wp-optimizer' )
 	);
 
 	// Classic Theme Styles settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'disable_classic_theme_styles',
-		esc_html__( 'Disable Classic Theme Styles', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove classic theme styles added in WordPress 6.1+', 'simple-wp-optimizer' )
+		__( 'Disable Classic Theme Styles', 'simple-wp-optimizer' ),
+		__( 'Remove classic theme styles added in WordPress 6.1+', 'simple-wp-optimizer' )
 	);
 }
 
@@ -352,40 +342,40 @@ function es_optimizer_render_header_options( $options ) {
 	es_optimizer_render_checkbox_option(
 		$options,
 		'remove_wp_version',
-		esc_html__( 'Remove WordPress Version', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove WordPress version from header (security benefit)', 'simple-wp-optimizer' )
+		__( 'Remove WordPress Version', 'simple-wp-optimizer' ),
+		__( 'Remove WordPress version from header (security benefit)', 'simple-wp-optimizer' )
 	);
 
 	// RSD Link settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'remove_rsd_link',
-		esc_html__( 'Remove RSD Link', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove Really Simple Discovery (RSD) link from header', 'simple-wp-optimizer' )
+		__( 'Remove RSD Link', 'simple-wp-optimizer' ),
+		__( 'Remove Really Simple Discovery (RSD) link from header', 'simple-wp-optimizer' )
 	);
 
 	// WLW Manifest settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'remove_wlw_manifest',
-		esc_html__( 'Remove WLW Manifest', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove Windows Live Writer manifest link', 'simple-wp-optimizer' )
+		__( 'Remove WLW Manifest', 'simple-wp-optimizer' ),
+		__( 'Remove Windows Live Writer manifest link', 'simple-wp-optimizer' )
 	);
 
 	// Shortlink settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'remove_shortlink',
-		esc_html__( 'Remove Shortlink', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove WordPress shortlink URLs from header', 'simple-wp-optimizer' )
+		__( 'Remove Shortlink', 'simple-wp-optimizer' ),
+		__( 'Remove WordPress shortlink URLs from header', 'simple-wp-optimizer' )
 	);
 
 	// Recent Comments Style settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'remove_recent_comments_style',
-		esc_html__( 'Remove Recent Comments Style', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove recent comments widget inline CSS', 'simple-wp-optimizer' )
+		__( 'Remove Recent Comments Style', 'simple-wp-optimizer' ),
+		__( 'Remove recent comments widget inline CSS', 'simple-wp-optimizer' )
 	);
 }
 
@@ -400,48 +390,48 @@ function es_optimizer_render_additional_options( $options ) {
 	es_optimizer_render_checkbox_option(
 		$options,
 		'disable_jetpack_ads',
-		esc_html__( 'Disable Jetpack Ads', 'simple-wp-optimizer' ),
-		esc_html__( 'Remove Jetpack advertisements and promotions', 'simple-wp-optimizer' )
+		__( 'Disable Jetpack Ads', 'simple-wp-optimizer' ),
+		__( 'Remove Jetpack advertisements and promotions', 'simple-wp-optimizer' )
 	);
 
 	// Post via Email settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'disable_post_via_email',
-		esc_html__( 'Disable Post via Email', 'simple-wp-optimizer' ),
-		esc_html__( 'Disable WordPress post via email functionality for security and performance', 'simple-wp-optimizer' )
+		__( 'Disable Post via Email', 'simple-wp-optimizer' ),
+		__( 'Disable WordPress post via email functionality for security and performance', 'simple-wp-optimizer' )
 	);
 
 	// Preconnect settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'enable_preconnect',
-		esc_html__( 'Enable Preconnect', 'simple-wp-optimizer' ),
-		esc_html__( 'Preconnect to external domains for faster resource loading', 'simple-wp-optimizer' )
+		__( 'Enable Preconnect', 'simple-wp-optimizer' ),
+		__( 'Preconnect to external domains for faster resource loading', 'simple-wp-optimizer' )
 	);
 
 	// Preconnect Domains textarea.
 	es_optimizer_render_textarea_option(
 		$options,
 		'preconnect_domains',
-		esc_html__( 'Preconnect Domains', 'simple-wp-optimizer' ),
-		esc_html__( 'Use preconnect for domains that host critical, frequently used resources, like Google Fonts. This hint tells the browser to establish a connection (including DNS lookup, TCP handshake, and TLS negotiation) as soon as possible, which can save 100–500ms on the subsequent request. Enter one HTTPS domain per line (e.g., https://fonts.googleapis.com). Only clean domains are allowed - no file paths, query parameters, or fragments.', 'simple-wp-optimizer' )
+		__( 'Preconnect Domains', 'simple-wp-optimizer' ),
+		__( 'Use preconnect for domains that host critical, frequently used resources, like Google Fonts. This hint tells the browser to establish a connection (including DNS lookup, TCP handshake, and TLS negotiation) as soon as possible, which can save 100–500ms on the subsequent request. Enter one HTTPS domain per line (e.g., https://fonts.googleapis.com). Only clean domains are allowed - no file paths, query parameters, or fragments.', 'simple-wp-optimizer' )
 	);
 
 	// DNS Prefetch settings.
 	es_optimizer_render_checkbox_option(
 		$options,
 		'enable_dns_prefetch',
-		esc_html__( 'Enable DNS Prefetch', 'simple-wp-optimizer' ),
-		esc_html__( 'DNS prefetch for less critical external domains', 'simple-wp-optimizer' )
+		__( 'Enable DNS Prefetch', 'simple-wp-optimizer' ),
+		__( 'DNS prefetch for less critical external domains', 'simple-wp-optimizer' )
 	);
 
 	// DNS Prefetch Domains textarea.
 	es_optimizer_render_textarea_option(
 		$options,
 		'dns_prefetch_domains',
-		esc_html__( 'DNS Prefetch Domains', 'simple-wp-optimizer' ),
-		esc_html__( 'DNS-prefetch is a lighter-weight alternative to preconnect that performs only the DNS lookup. Use it for less critical domains or as a fallback for browsers that don\'t support preconnect. Enter one HTTPS domain per line (e.g., https://adservice.google.com). Only clean domains are allowed - no file paths, query parameters, or fragments.', 'simple-wp-optimizer' )
+		__( 'DNS Prefetch Domains', 'simple-wp-optimizer' ),
+		__( 'DNS-prefetch is a lighter-weight alternative to preconnect that performs only the DNS lookup. Use it for less critical domains or as a fallback for browsers that don\'t support preconnect. Enter one HTTPS domain per line (e.g., https://adservice.google.com). Only clean domains are allowed - no file paths, query parameters, or fragments.', 'simple-wp-optimizer' )
 	);
 }
 
@@ -470,23 +460,8 @@ function es_optimizer_render_checkbox_option( $options, $option_name, $title, $d
 		</th>
 		<td>
 			<label>
-				<input type="checkbox" name="
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-				/*
-				 * Using printf with esc_attr for attribute name which cannot be avoided.
-				 * The $option_name values are hardcoded strings from render functions, not user input.
-				 * This is a controlled environment where these values are defined within the plugin.
-				 */
-				printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-				?>
-				" value="1"
-					<?php checked( 1, isset( $options[ $option_name ] ) ? $options[ $option_name ] : 0 ); ?> />
-				<?php
-				// Using esc_html for secure output of descriptions.
-				echo esc_html( $description );
-				?>
+				<input type="checkbox" name="<?php printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) ); ?>" value="1" <?php checked( 1, isset( $options[ $option_name ] ) ? $options[ $option_name ] : 0 ); ?> />
+				<?php echo esc_html( $description ); ?>
 			</label>
 		</td>
 	</tr>
@@ -523,31 +498,11 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
 				echo esc_html( $description );
 				?>
 			</small></p>
-			<textarea name="
-			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			/*
-			 * Using printf with esc_attr for attribute name which cannot be avoided.
-			 * The $option_name values are hardcoded strings from render functions, not user input.
-			 * This is a controlled environment where these values are defined within the plugin.
-			 */
-			printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) );
-			?>
-			" rows="5" cols="50" class="large-text code">
-			<?php
+			<textarea name="<?php printf( 'es_optimizer_options[%s]', esc_attr( $option_name ) ); ?>" rows="5" cols="50" class="large-text code"><?php
 			if ( isset( $options[ $option_name ] ) ) {
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-				/*
-				 * Using printf with esc_textarea is the most appropriate approach.
-				 * esc_textarea already properly escapes content for use inside textarea elements.
-				 * This function is designed specifically for this purpose and ensures data is properly escaped.
-				 */
-				printf( '%s', esc_textarea( $options[ $option_name ] ) );
+				echo esc_textarea( $options[ $option_name ] );
 			}
-			?>
-			</textarea>
+			?></textarea>
 		</td>
 	</tr>
 	<?php
@@ -569,25 +524,7 @@ function es_optimizer_render_textarea_option( $options, $option_name, $title, $d
  * @return array Validated and sanitized options.
  */
 function es_optimizer_validate_options( $input ) {
-	// Security: Verify nonce for CSRF protection when using WordPress Settings API.
-	// The nonce is automatically handled by WordPress Settings API, but we add extra verification.
-	if ( isset( $_POST['es_optimizer_settings_nonce'] ) ) {
-		$nonce_value = sanitize_text_field( wp_unslash( $_POST['es_optimizer_settings_nonce'] ) );
-
-		if ( ! wp_verify_nonce( $nonce_value, 'es_optimizer_settings_action' ) ) {
-			// Add admin notice for failed nonce verification.
-			add_settings_error(
-				'es_optimizer_options',
-				'nonce_failed',
-				esc_html__( 'Security verification failed. Please try again.', 'simple-wp-optimizer' ),
-				'error'
-			);
-
-			// Return current options without changes.
-			return get_option( 'es_optimizer_options', es_optimizer_get_default_options() );
-		}
-	}
-
+	// CSRF protection is handled by WordPress Settings API via settings_fields() nonce.
 	$valid = array();
 
 	// Validate checkboxes (0 or 1).
@@ -775,15 +712,23 @@ function es_optimizer_validate_single_domain( $domain ) {
 
 	$host = $parsed_url['host'];
 
-	// Prevent localhost and private IP ranges for security.
-	$is_local      = in_array( $host, array( 'localhost', '127.0.0.1', '::1' ), true );
-	$is_private_ip = false !== filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
-
-	if ( $is_local || ! $is_private_ip ) {
+	// Security: Block localhost and known local addresses.
+	$is_local = in_array( $host, array( 'localhost', '127.0.0.1', '::1' ), true );
+	if ( $is_local ) {
 		return array(
 			'valid' => false,
 			'error' => $domain . ' (private/local address not allowed)',
 		);
+	}
+
+	// Security: If the host is an IP address, ensure it is not in a private or reserved range.
+	if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+		if ( ! filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			return array(
+				'valid' => false,
+				'error' => $domain . ' (private/local address not allowed)',
+			);
+		}
 	}
 
 	// Return clean domain URL with only scheme and host (no paths).
@@ -838,8 +783,8 @@ function es_optimizer_show_domain_rejection_notice( $rejected_domains ) {
  *
  * @since 1.0.0
  */
-function disable_emojis() {
-	$options = get_option( 'es_optimizer_options' );
+function es_optimizer_disable_emojis() {
+	$options = es_optimizer_get_options();
 
 	// Only proceed if the option is enabled.
 	if ( ! isset( $options['disable_emojis'] ) || ! $options['disable_emojis'] ) {
@@ -862,10 +807,10 @@ function disable_emojis() {
 	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 
 	// Disable emoji in TinyMCE editor.
-	add_filter( 'tiny_mce_plugins', 'disable_emojis_tinymce' );
+	add_filter( 'tiny_mce_plugins', 'es_optimizer_disable_emojis_tinymce' );
 
 	// Remove emoji DNS prefetch.
-	add_filter( 'wp_resource_hints', 'disable_emojis_remove_dns_prefetch', 10, 2 );
+	add_filter( 'wp_resource_hints', 'es_optimizer_disable_emojis_remove_dns_prefetch', 10, 2 );
 }
 
 /**
@@ -876,10 +821,7 @@ function disable_emojis() {
  * @return array Modified plugin action links.
  */
 function es_optimizer_add_settings_link( $links ) {
-	// The admin_url function is used to properly generate a URL within the WordPress admin area.
-	// Setting text is wrapped in translation function but doesn't need escaping here.
-	// WordPress core handles escaping when rendering plugin links.
-	$settings_link = '<a href="' . admin_url( 'options-general.php?page=es-optimizer-settings' ) . '">' . __( 'Settings', 'simple-wp-optimizer' ) . '</a>';
+	$settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=es-optimizer-settings' ) ) . '">' . esc_html__( 'Settings', 'simple-wp-optimizer' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
 }
@@ -891,7 +833,7 @@ function es_optimizer_add_settings_link( $links ) {
  * @param array $plugins Array of TinyMCE plugins.
  * @return array Difference betwen the two arrays.
  */
-function disable_emojis_tinymce( $plugins ) {
+function es_optimizer_disable_emojis_tinymce( $plugins ) {
 	if ( ! is_array( $plugins ) ) {
 		$plugins = array();
 	}
@@ -906,7 +848,7 @@ function disable_emojis_tinymce( $plugins ) {
  * @param string $relation_type The relation type the URLs are printed for.
  * @return array Difference betwen the two arrays.
  */
-function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
+function es_optimizer_disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
 	if ( 'dns-prefetch' === $relation_type ) {
 		$emoji_svg_url = apply_filters( 'emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/' );
 		$urls          = array_diff( $urls, array( $emoji_svg_url ) );
@@ -923,7 +865,7 @@ function disable_emojis_remove_dns_prefetch( $urls, $relation_type ) {
  * @since 1.0.0
  * @param WP_Scripts $scripts WP_Scripts object.
  */
-function remove_jquery_migrate( $scripts ) {
+function es_optimizer_remove_jquery_migrate( $scripts ) {
 	$options = es_optimizer_get_options();
 
 	// Only proceed if the option is enabled.
@@ -946,7 +888,7 @@ function remove_jquery_migrate( $scripts ) {
  *
  * @since 1.3.0
  */
-function disable_classic_theme_styles() {
+function es_optimizer_disable_classic_theme_styles() {
 	$options = es_optimizer_get_options();
 
 	// Only proceed if the option is enabled.
@@ -963,7 +905,7 @@ function disable_classic_theme_styles() {
  *
  * @since 1.0.0
  */
-function remove_header_items() {
+function es_optimizer_remove_header_items() {
 	$options = es_optimizer_get_options();
 
 	// Remove WordPress Version from Header.
@@ -992,8 +934,8 @@ function remove_header_items() {
  *
  * @since 1.0.0
  */
-function remove_recent_comments_style() {
-	$options = get_option( 'es_optimizer_options' );
+function es_optimizer_remove_recent_comments_style() {
+	$options = es_optimizer_get_options();
 
 	// Only proceed if the option is enabled.
 	if ( isset( $options['remove_recent_comments_style'] ) && $options['remove_recent_comments_style'] ) {
@@ -1012,7 +954,7 @@ function remove_recent_comments_style() {
  *
  * @since 1.4.1
  */
-function add_preconnect() {
+function es_optimizer_add_preconnect() {
 	// Only add if not admin and not doing AJAX.
 	if ( is_admin() || wp_doing_ajax() ) {
 		return;
@@ -1023,7 +965,7 @@ function add_preconnect() {
 	static $options_checked = false;
 
 	if ( ! $options_checked ) {
-		$options         = get_option( 'es_optimizer_options' );
+		$options         = es_optimizer_get_options();
 		$options_checked = true;
 
 		// Only proceed if the option is enabled.
@@ -1078,7 +1020,7 @@ function add_preconnect() {
  *
  * @since 1.8.0
  */
-function add_dns_prefetch() {
+function es_optimizer_add_dns_prefetch() {
 	// Only add if not admin and not doing AJAX.
 	if ( is_admin() || wp_doing_ajax() ) {
 		return;
@@ -1089,7 +1031,7 @@ function add_dns_prefetch() {
 	static $options_checked = false;
 
 	if ( ! $options_checked ) {
-		$options         = get_option( 'es_optimizer_options' );
+		$options         = es_optimizer_get_options();
 		$options_checked = true;
 
 		// Only proceed if the option is enabled.
@@ -1136,8 +1078,8 @@ function add_dns_prefetch() {
  *
  * @since 1.0.0
  */
-function disable_jetpack_ads() {
-	$options = get_option( 'es_optimizer_options' );
+function es_optimizer_disable_jetpack_ads() {
+	$options = es_optimizer_get_options();
 
 	// Only proceed if the option is enabled.
 	if ( isset( $options['disable_jetpack_ads'] ) && $options['disable_jetpack_ads'] ) {
@@ -1152,8 +1094,8 @@ function disable_jetpack_ads() {
  *
  * @since 1.0.0
  */
-function disable_post_via_email() {
-	$options = get_option( 'es_optimizer_options' );
+function es_optimizer_disable_post_via_email() {
+	$options = es_optimizer_get_options();
 
 	// Only proceed if the option is enabled.
 	if ( isset( $options['disable_post_via_email'] ) && $options['disable_post_via_email'] ) {

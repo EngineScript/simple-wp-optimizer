@@ -5,11 +5,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
 ### Changed
 
+- Renamed 11 globally-scoped functions to use the `es_optimizer_` prefix to prevent naming collisions with other plugins (`disable_emojis`, `remove_jquery_migrate`, `disable_classic_theme_styles`, `remove_header_items`, `remove_recent_comments_style`, `add_preconnect`, `add_dns_prefetch`, `disable_jetpack_ads`, `disable_post_via_email`, `disable_emojis_tinymce`, `disable_emojis_remove_dns_prefetch`)
+- `es_optimizer_get_options()` now accepts an optional `$force_refresh` parameter so the static cache can be properly invalidated
+- `es_optimizer_add_settings_page()` page title and menu title are now wrapped in `__()` for correct translation
+- Settings page heading, description, and submit button value are now translatable
+- All functions that previously called `get_option( 'es_optimizer_options' )` directly now use the `es_optimizer_get_options()` caching wrapper for consistency
+- Render function callers now pass `__()` instead of `esc_html__()` to avoid double-escaping; the render functions themselves handle escaping at output
+- Removed redundant custom `wp_nonce_field()` and its bypassable verification from the settings form; CSRF protection is already handled by WordPress Settings API via `settings_fields()`
+
 ### Fixed
+
+- **Critical**: Fixed whitespace embedded inside form field `name` attributes (checkbox and textarea) that prevented settings from ever being saved — `$_POST['es_optimizer_options']` was never set because browsers sent the literal newlines/tabs as part of the field name
+- **Critical**: Fixed inverted IP-validation logic in `es_optimizer_validate_single_domain()` that caused every domain name (e.g. `fonts.googleapis.com`) to be incorrectly rejected when saving preconnect/DNS-prefetch settings
+- **Critical**: Fixed `es_optimizer_clear_options_cache()` which created an independent closure-scoped static variable and therefore never cleared the cache inside `es_optimizer_get_options()`
+- Fixed textarea content containing leading whitespace (newlines/tabs between `<textarea>` tag and PHP output)
+- Fixed missing `esc_url()` and `esc_html__()` escaping on the Settings link rendered in the Plugins list
+- Removed unreachable dead code (`if ( ! is_admin() ) { return; }`) inside `es_optimizer_add_settings_page()`, which is only ever called from the `admin_menu` hook
+
+
 
 ## [1.8.0] - 2025-10-23
 
