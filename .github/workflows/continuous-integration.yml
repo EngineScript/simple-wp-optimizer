@@ -181,7 +181,7 @@ jobs:
           zip -r simple-wp-optimizer.zip simple-wp-optimizer
           
       - name: Upload build artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: simple-wp-optimizer
           path: build/simple-wp-optimizer.zip
